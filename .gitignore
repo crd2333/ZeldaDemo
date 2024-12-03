@@ -1,0 +1,7 @@
+lib/
+other/
+output/
+
+*.o
+*.d
+imgui.ini
