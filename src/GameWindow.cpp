@@ -16,7 +16,7 @@ float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 bool imguiFocus = false;
-float speedUp = 3.0f;
+float speedUp = 6.0f;
 
 // timing (per-frame time logic)
 float currentFrame;
@@ -54,20 +54,6 @@ GLFWwindow* Create_glfw_Window() {
     }
     glEnable(GL_DEPTH_TEST);  // configure global opengl state
     return window;
-}
-
-// 初始化 ImGui
-void InitImGui(GLFWwindow* window) {
-    // Setup Dear ImGui context
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // 允许键盘控制
-    // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-    // Setup Platform/Renderer backends 设置渲染器后端
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
-    ImGui_ImplOpenGL3_Init("#version 130");
 }
 
 // 渲染前处理
@@ -186,6 +172,24 @@ void ChangeFocus(GLFWwindow* window, bool flag) {
 }
 
 namespace ImGui { // add to ImGui namespace
+// 初始化 ImGui
+void InitImGui(GLFWwindow* window) {
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // 允许键盘控制
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    // Setup Platform/Renderer backends 设置渲染器后端
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 130");
+}
+void EndImGui() {
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+}
 void ImGuiSliderFloatWithDefault(const char* label, float* v, float v_min, float v_max, float v_default) {
     ImGui::SliderFloat(("##" + std::string(label)).c_str(), v, v_min, v_max); // 注意避免重名
     ImGui::SameLine(); // 在同一行显示

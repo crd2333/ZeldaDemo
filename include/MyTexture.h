@@ -4,20 +4,41 @@
 
 #pragma once
 
-#ifndef STB_IMAGE_IMPLEMENTATION
-    #define STB_IMAGE_IMPLEMENTATION
-#endif
 #include <stb/stb_image.h>
 #include <glad/glad.h>
 #include <iostream>
 #include <string>
 #include <vector>
+#include "Def.h"
+
+// util function, check the image format and components
+inline void CheckImageFormat(const std::string& path, GLuint& image_format, int components) {
+    std::string format_str = image_format == GL_RED ? "gray" : image_format == GL_RGB ? "RGB" : "RGBA";
+    if (components == 1) {
+        if (image_format != GL_RED) {
+            Warn("The image format for " + path + " is " + format_str + ", but is loaded as gray.");
+            image_format = GL_RED;
+        }
+    } else if (components == 3) {
+        if (image_format == GL_RGBA) {
+            Warn("The image format for " + path + " is " + format_str + ", but is loaded as RGB.");
+            image_format = GL_RGB;
+        }
+    } else if (components == 4) {
+        if (image_format == GL_RGB) {
+            Warn("The image format for " + path + " is " + format_str + ", but is loaded as RGBA.");
+            image_format = GL_RGBA;
+        }
+    } else {
+        Err("The image format for " + path + " is " + format_str + ", but the components is " + std::to_string(components) + " and cannot be loaded.");
+    }
+}
 
 class Texture2D {
 public:
     GLuint ID = 0; // 每个纹理的唯一标识
     // image infomation
-    GLint  width, height, nrChannels; // 图像的宽度、高度和通道数（由读取时 stb_image 返回）
+    GLint  width, height, components; // 图像的宽度、高度和通道数（由读取时 stb_image 返回）
     bool   flip_y;                    // 是否翻转图像的 y 轴
     GLuint image_format;              // 要读取的图像的格式
     // texture infomation
@@ -43,12 +64,13 @@ public:
 
         // read image data from file
         stbi_set_flip_vertically_on_load(flip_y);
-        unsigned char* data = stbi_load(path.c_str(), &width, &height, &nrChannels, 0);
+        unsigned char* data = stbi_load(path.c_str(), &width, &height, &components, 0);
         if (__builtin_expect(!!data, 1)) {
+            CheckImageFormat(path, image_format, components);
             glTexImage2D(GL_TEXTURE_2D, 0, internal_format, width, height, 0, image_format, data_type, data);
             if (mipmap) glGenerateMipmap(GL_TEXTURE_2D); // 生成 mipmap
         } else {
-            std::cout << "Failed to load texture for " << path << std::endl;
+            Err("Failed to load texture for " + path);
         }
         stbi_image_free(data);
 
@@ -73,7 +95,7 @@ class CUBE_MAP {
 public:
     GLuint ID;
     // image infomation
-    int    width, height, nrChannels;
+    int    width, height, components;
     bool   flip_y;
     GLuint image_format;
     // texture infomation
@@ -102,11 +124,13 @@ public:
         // order: +X(right), -X(left), +Y(top), -Y(bottom), +Z(front), -Z(back)
         stbi_set_flip_vertically_on_load(flip_y);
         for (unsigned int i = 0; i < paths.size(); i++) {
-            unsigned char* data = stbi_load(paths[i].c_str(), &width, &height, &nrChannels, 0);
-            if (__builtin_expect(!!data, 1))
+            unsigned char* data = stbi_load(paths[i].c_str(), &width, &height, &components, 0);
+            if (__builtin_expect(!!data, 1)) {
+                CheckImageFormat(paths[i], image_format, components);
                 glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internal_format, width, height, 0, image_format, data_type, data);
-            else
-                std::cout << "Failed to load cubemap texture for " << paths[i] << std::endl;
+            } else {
+                Err("Failed to load cubemap texture for " + paths[i]);
+            }
             stbi_image_free(data);
         }
 

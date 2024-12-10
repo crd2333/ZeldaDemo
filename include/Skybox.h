@@ -8,7 +8,7 @@
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
-#include "MyTexture.hpp"
+#include "MyTexture.h"
 #include "Shader.h"
 
 // TODO: 昼夜切换的天空盒（两个 cube_maps 之间随时间插值？）

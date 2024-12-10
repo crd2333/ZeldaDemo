@@ -8,7 +8,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <iostream>
-#include "MyTexture.hpp"
+#include "MyTexture.h"
 #include "Def.h"
 
 // 帧缓冲对象的抽象封装
