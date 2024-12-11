@@ -5,3 +5,4 @@ output/
 *.o
 *.d
 imgui.ini
+utils/heightmap_generator/mainfiled.zip

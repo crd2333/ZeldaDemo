@@ -10,13 +10,13 @@
 #include "GameWindow.h"
 #include "Def.h"
 
-// camera and mouse
-Camera camera(CAMERA_POS, CAMERA_UP, CAMERA_YAW, CAMERA_PITCH);
+Camera camera;
+
+// mouse
 float lastX = SCR_WIDTH / 2.0f;
 float lastY = SCR_HEIGHT / 2.0f;
 bool firstMouse = true;
 bool imguiFocus = false;
-float speedUp = 6.0f;
 
 // timing (per-frame time logic)
 float currentFrame;
@@ -27,8 +27,6 @@ float lastFrame = 0.0f;
 bool mainMenu = false;
 bool ESC_pressed = false;
 bool ALT_pressed = false;
-float clearColor[3] = {0.0f, 0.0f, 0.0f};
-
 
 GLFWwindow* Create_glfw_Window() {
     // glfw: initialize and configure
@@ -65,7 +63,7 @@ void RenderLoopPreProcess(GLFWwindow* window) {
 
     processInput(window);
 
-    glClearColor(clearColor[0], clearColor[1], clearColor[2], 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // Start the ImGui frame
@@ -92,18 +90,18 @@ void RenderLoopPostProcess(GLFWwindow* window) {
 void processInput(GLFWwindow* window) {
     // 移动：WASD + 上下
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime * speedUp);
+        camera.ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime * speedUp);
+        camera.ProcessKeyboard(BACKWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime * speedUp);
+        camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime * speedUp);
+        camera.ProcessKeyboard(RIGHT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS
         && glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)   // shift + space
-        camera.ProcessKeyboard(DOWN, deltaTime / 2 * speedUp);
+        camera.ProcessKeyboard(DOWN, deltaTime / 2);
     else if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) // only space
-        camera.ProcessKeyboard(UP, deltaTime / 2  * speedUp);
+        camera.ProcessKeyboard(UP, deltaTime / 2);
     // 检测 ESC 键的按下事件，用于打开/关闭主菜单
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS && !ESC_pressed) {
         mainMenu = !mainMenu;
@@ -190,13 +188,13 @@ void EndImGui() {
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
 }
-void ImGuiSliderFloatWithDefault(const char* label, float* v, float v_min, float v_max, float v_default) {
+void SliderFloatWithDefault(const char* label, float* v, float v_min, float v_max, float v_default) {
     ImGui::SliderFloat(("##" + std::string(label)).c_str(), v, v_min, v_max); // 注意避免重名
     ImGui::SameLine(); // 在同一行显示
     if (ImGui::Button(label)) // 将 label 作为按钮显示
         *v = v_default;
 }
-void ImGuiSliderFloat3WithDefault(const char* label, float* v, float v_min, float v_max, float v_default) {
+void SliderFloat3WithDefault(const char* label, float* v, float v_min, float v_max, float v_default) {
     ImGui::SliderFloat3(("##" + std::string(label)).c_str(), v, v_min, v_max);
     ImGui::SameLine();
     if (ImGui::Button(label)) {
@@ -205,7 +203,7 @@ void ImGuiSliderFloat3WithDefault(const char* label, float* v, float v_min, floa
         v[2] = v_default;
     }
 }
-void ImGuiColorEdit3WithDefault(const char* label, float* v, glm::vec3 v_default) {
+void ColorEdit3WithDefault(const char* label, float* v, glm::vec3 v_default) {
     ImGui::ColorEdit3(("##" + std::string(label)).c_str(), v);
     ImGui::SameLine();
     if (ImGui::Button(label)) {
