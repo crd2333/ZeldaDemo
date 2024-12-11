@@ -1,0 +1,2 @@
+- Credit to [BotWHeightMapConverter](https://github.com/AndrooU/BotWHeightMapConverter)
+- I just make a few changes to combine LODs of the region GreatPlateau into one heightmap (by creating them and manually using Photoshop)
