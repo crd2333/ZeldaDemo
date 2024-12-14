@@ -38,8 +38,8 @@ private:
     int map_rows, map_cols; // resolution of the height map
     int rows, cols;         // resolution of the terrain map
     float gridSizeX, gridSizeZ;         // size per grid
-    glm::vec2 mapScale; // size of the terrain (size of the whole map)
-    float heightScale;  // scale of the height
+    const glm::vec2 mapScale; // size of the terrain (size of the whole map)
+    const float heightScale;  // scale of the height
     float textureScale; // scale of the texture (TODO: more complex blending)
     std::vector<glm::vec3> vertices;  // rows * cols
     std::vector<glm::vec2> texCoords; // rows * cols

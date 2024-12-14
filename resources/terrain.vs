@@ -8,8 +8,11 @@ out vec3 normal;
 // out vec3 shadowFragPos;
 // out vec3 worldFragPos;
 
-uniform mat4 view;
-uniform mat4 projection;
+layout (std140) uniform Proj_View {
+    mat4 projection;
+    mat4 view;
+};
+// terrain 不使用 model 矩阵，因为生成顶点的时候就已经把它变换到 mapScale * [-0.5, 0.5]^2 的范围
 // uniform mat4 shadowMat; // todo
 
 void main() {

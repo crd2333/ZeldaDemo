@@ -52,6 +52,10 @@ void Camera::ProcessMouseMovement(float xoffset, float yoffset, GLboolean constr
     updateCameraVectors();
 }
 
+void Camera::ProcessMouseScroll(float yoffset) {
+    Zoom = CLAMP(Zoom - (float)yoffset, 1.0f, 45.0f);
+}
+
 // calculates the front vector from the Camera's (updated) Euler Angles
 void Camera::updateCameraVectors() {
     // calculate the new Front vector
@@ -63,4 +67,19 @@ void Camera::updateCameraVectors() {
     // also re-calculate the Right and Up vector
     Right = glm::normalize(glm::cross(Front, WorldUp));  // normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
     Up    = glm::normalize(glm::cross(Right, Front));
+}
+
+void Camera::BindUBO(const Shader& shader) const {
+    uboProjView->Bind(shader);
+}
+
+void Camera::SetUBO() const {
+    glm::mat4 projection = GetPerspectiveMatrix();
+    glm::mat4 view = GetViewMatrix();
+    SetUBO(&projection, &view);
+}
+
+void Camera::SetUBO(glm::mat4* projection, glm::mat4* view) const {
+    uboProjView->setData(0, sizeof(glm::mat4), projection);
+    uboProjView->setData(sizeof(glm::mat4), sizeof(glm::mat4), view);
 }

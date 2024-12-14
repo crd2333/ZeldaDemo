@@ -20,7 +20,7 @@ private:
 public:
     Skybox(std::string path);
     ~Skybox();
-    void draw(const glm::mat4 &view, const glm::mat4 &projection);
+    void draw(const glm::mat4 &projection, const glm::mat4 &view) const;
 
 private:
     // 天空盒就只是一个立方体，直接硬编码在 code 里

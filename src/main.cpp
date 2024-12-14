@@ -5,6 +5,7 @@
 #include "FrameBuffer.h"
 #include "Camera.h"
 #include "Terrain.h"
+#include "Water.h"
 #include "Skybox.h"
 #include "Def.h"
 
@@ -22,15 +23,27 @@ int main() {
     Terrain terrain(MAP_SZIE, HEIGHT_SCALE, RESOLUTION_RATIO, SAMPLE_NUM);
     camera.terrain = &terrain;
 
+    // water
+    Water water(MAP_SZIE, HEIGHT_SCALE, river_of_dead_height, river_of_dead, river_of_dead_num);
+
     // shaders
     Shader terrain_shader("resources/terrain.vs", "resources/terrain.fs");
     terrain_shader.use();
     terrain_shader.setInt("terrain_texture1", 0);
+    Shader water_shader("resources/water.vs", "resources/water.fs");
+    water_shader.use();
+    water_shader.setInt("dudvMap", 0);
+    water_shader.setInt("normalMap", 1);
+
+    // Uniform Buffer Objects
+    UBO* UBO_Proj_View = new UBO(2 * sizeof(glm::mat4), 0, "Proj_View");
+    camera.uboProjView = UBO_Proj_View;
+    camera.BindUBO(terrain_shader);
 
     while (!glfwWindowShouldClose(window)) {
         RenderLoopPreProcess(window);
 
-        float time = glfwGetTime();
+        // float time = glfwGetTime();
 
         GLenum terrain_mode;
         const char* terrain_modes[] = { "GL_LINE_STRIP", "GL_TRIANGLES" };
@@ -57,16 +70,15 @@ int main() {
         terrain_mode = (current_mode == 0) ? GL_LINE_STRIP : GL_TRIANGLES;
 
         // set the shared shader properties todo: move to UBO
-        glm::mat4 projection = camera.GetPerspectiveMatrix();
-        glm::mat4 view = camera.GetViewMatrix();
-        terrain_shader.use();
-        terrain_shader.setMat4("view", view);
-        terrain_shader.setMat4("projection", projection);
+        camera.SetUBO();
 
         // render the terrain
         terrain.draw(terrain_shader, terrain_mode);
 
-        skybox->draw(view, projection);
+        // render the water
+        water.draw(water_shader, GL_TRIANGLE_FAN);
+
+        skybox->draw(camera.GetPerspectiveMatrix(), camera.GetViewMatrix());
 
         RenderLoopPostProcess(window);
     }

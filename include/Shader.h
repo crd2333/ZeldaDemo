@@ -4,6 +4,7 @@
 #pragma once
 
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
 #include <string>
@@ -43,7 +44,7 @@ private:
 // note: the calculation pf size and offset is left to the user
 class UBO {
 private:
-    GLuint UBO_ID;
+    GLuint UBO_ID = 0;
     GLuint bindingPoint;
     std::string blockName;
 public:

@@ -34,7 +34,7 @@ Skybox::~Skybox() {
     delete shader;
 }
 
-void Skybox::draw(const glm::mat4 &view, const glm::mat4 &projection) {
+void Skybox::draw(const glm::mat4 &projection, const glm::mat4 &view) const {
     cube_map->Bind(0);
     shader->use();
     shader->setMat4("projection", projection);

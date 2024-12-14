@@ -8,9 +8,12 @@
 #include <GLFW/glfw3.h>
 
 #include "GameWindow.h"
+#include "Camera.h"
+#include "Light.h"
 #include "Def.h"
 
 Camera camera;
+Light sun;
 
 // mouse
 float lastX = SCR_WIDTH / 2.0f;
