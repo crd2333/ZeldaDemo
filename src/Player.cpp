@@ -152,7 +152,7 @@ void Player::ProcessMoveInput(int direction, bool shift, bool jump, Terrain* ter
     if (direction == -1 ) return;
     // todo 判断边界
     // todo 加入判断水的逻辑
-    
+
     glm::vec3 new_normal = terrain->getNormal(newPosition.x, newPosition.z);
     glm::vec3 terrainPosition(newPosition.x, terrain->getHeight(newPosition.x, newPosition.z), newPosition.z);
     newPosition = terrainPosition + new_normal * (self.length.y / 2.0f);
@@ -163,11 +163,17 @@ void Player::ProcessMoveInput(int direction, bool shift, bool jump, Terrain* ter
     } else {
         self.position = self.position + self.direction * self.speed * deltaTime;
         new_normal = terrain->getNormal(self.position.x, self.position.z);
+        self.upVector = new_normal;
         terrainPosition = glm::vec3(self.position.x, terrain->getHeight(self.position.x, self.position.z), self.position.z);
         self.position = terrainPosition + new_normal * (self.length.y / 2.0f);
         if (self.state == IDLE_LAND || self.state == WALKING_LAND || self.state == RUNNING_LAND) {
             if (glm::acos(new_normal.y) > glm::radians(45.0f)) {
                 self.state = LAND_TO_CLIMB;
+            }
+        }
+        else if (self.state == IDLE_CLIMB || self.state == CLIMBING) {
+            if (glm::acos(new_normal.y) < glm::radians(45.0f)) {
+                self.state = CLIMB_TO_LAND;
             }
         }
     }
@@ -196,5 +202,6 @@ void Player::DoJump() {
         }
     }
     self.position.y = self.currentJumpHeight;
+    self.upVector = terrain->getNormal(self.position.x, self.position.z);
     return;
 }
