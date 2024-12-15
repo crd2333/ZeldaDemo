@@ -25,6 +25,7 @@ int main() {
 
     // shaders
     Shader terrain_shader("resources/terrain.vs", "resources/terrain.fs");
+    Shader player_shader("resources/player.vs", "resources/player.fs");
     terrain_shader.use();
     terrain_shader.setInt("terrain_texture1", 0);
 
