@@ -8,6 +8,7 @@
 #include "Water.h"
 #include "Skybox.h"
 #include "Def.h"
+#include "Player.h"
 
 int main() {
     GLFWwindow* window = Create_glfw_Window();
@@ -26,15 +27,18 @@ int main() {
     // water
     Water water(MAP_SZIE, HEIGHT_SCALE, river_of_dead_height, river_of_dead, river_of_dead_num);
 
+    // player
+    Player player(glm::vec3(50.0f, 0.0f, 50.0f), glm::vec3(1.0f, 2.0f, 1.0f), &terrain);
+
     // shaders
     Shader terrain_shader("resources/terrain.vs", "resources/terrain.fs");
-    Shader player_shader("resources/player.vs", "resources/player.fs");
     terrain_shader.use();
     terrain_shader.setInt("terrain_texture1", 0);
     Shader water_shader("resources/water.vs", "resources/water.fs");
     water_shader.use();
     water_shader.setInt("dudvMap", 0);
     water_shader.setInt("normalMap", 1);
+    Shader player_shader("resources/player.vs", "resources/player.fs");
 
     // Uniform Buffer Objects
     UBO* UBO_Proj_View = new UBO(2 * sizeof(glm::mat4), 0, "Proj_View");
@@ -70,6 +74,9 @@ int main() {
         }
         terrain_mode = (current_mode == 0) ? GL_LINE_STRIP : GL_TRIANGLES;
 
+        // update the camera with third person view
+        camera.UpdateThirdPerson(player.getPosition(), player.getDirection(), &terrain, 10.0f, 5.0f);
+
         // set the shared shader properties todo: move to UBO
         camera.SetUBO();
 
@@ -80,6 +87,8 @@ int main() {
         water.draw(water_shader, GL_TRIANGLE_FAN);
 
         skybox->draw(camera.GetPerspectiveMatrix(), camera.GetViewMatrix());
+
+        player.Render(player_shader,camera.GetPerspectiveMatrix(), camera.GetViewMatrix());
 
         RenderLoopPostProcess(window);
     }

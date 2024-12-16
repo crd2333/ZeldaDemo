@@ -5,8 +5,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "Terrain.h"
-#include "BoxGeometry.h"
+#include "geometry/BoxGeometry.h"
 #include "GameWindow.h"
+#include "Shader.h"
 
 enum PlayerState {
     IDLE_LAND = 0,
@@ -24,10 +25,13 @@ enum PlayerState {
 
 class Player {
 public:
-    Player(glm::vec3 initialPosition, glm::vec3 fixedLength);
-    
-    void ProcessMoveInput(int direction, bool shift, bool jump, Terrain* terrain, Shader player_shader);
-    void Transfer();
+    Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrain);
+    ~Player();
+    void Render(Shader & player_shader, const glm::mat4 &projection, const glm::mat4 &view);
+    void ProcessMoveInput(int direction, bool shift, bool jump, Terrain* terrain, float deltaTime);
+    // void Transfer();
+    glm::vec3 getPosition() const { return position; }
+    glm::vec3 getDirection() const { return direction; }
 private:
     int state;
     glm::vec3 position;
@@ -49,6 +53,12 @@ private:
     glm::vec3 jumpDirection;
     float targetJumpHeight;
     bool jumpUp;
-    void Render(Shader player_shader);
-    void DoJump();
+    void DoJump(Terrain* terrain, float deltaTime);
+    void Update(Terrain* terrain);
+
+    unsigned int VAO, VBO, EBO;
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
+    BoxGeometry boxGeometry;
+    void InitializeBuffers();
 };

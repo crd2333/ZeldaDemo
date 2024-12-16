@@ -91,6 +91,7 @@ void RenderLoopPostProcess(GLFWwindow* window) {
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 void processInput(GLFWwindow* window) {
+    int moveDirection = -1; // 0 w 1 s 2 a 3 d -1 表示没有输入
     // 移动：WASD + 上下
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         camera.ProcessKeyboard(FORWARD, deltaTime);

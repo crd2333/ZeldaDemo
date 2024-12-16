@@ -1,5 +1,5 @@
 /// @ref gtx_euler_angles
-
+#define GLM_ENABLE_EXPERIMENTAL
 #include "compatibility.hpp" // glm::atan2
 
 namespace glm
