@@ -12,18 +12,23 @@
 #include <imgui/imgui_impl_opengl3.h>
 
 #include "Camera.h"
+#include "Player.h"
 
 // camera and mouse
 extern Camera camera;
 
 // window
 extern bool mainMenu;
+extern float deltaTime;
+
+class Player;
+class Terrain;
 
 GLFWwindow* Create_glfw_Window();
-void RenderLoopPreProcess(GLFWwindow* window);
+void RenderLoopPreProcess(GLFWwindow* window, Player* player, Terrain* terrain);
 void RenderLoopPostProcess(GLFWwindow* window);
 
-void processInput(GLFWwindow* window);
+void processInput(GLFWwindow* window, Player* player, Terrain* terrain);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);

@@ -11,6 +11,7 @@
 #include "Camera.h"
 #include "Light.h"
 #include "Def.h"
+#include "Player.h"
 
 Camera camera;
 Light sun;
@@ -58,13 +59,13 @@ GLFWwindow* Create_glfw_Window() {
 }
 
 // 渲染前处理
-void RenderLoopPreProcess(GLFWwindow* window) {
+void RenderLoopPreProcess(GLFWwindow* window, Player* player, Terrain* terrain) {
     // per-frame time logic
     currentFrame = static_cast<float>(glfwGetTime());
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
-    processInput(window);
+    processInput(window, player, terrain);
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -90,22 +91,29 @@ void RenderLoopPostProcess(GLFWwindow* window) {
 }
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-void processInput(GLFWwindow* window) {
+void processInput(GLFWwindow* window, Player* player, Terrain* terrain) {
     int moveDirection = -1; // 0 w 1 s 2 a 3 d -1 表示没有输入
+    bool shift = false;
+    bool jump = false;
     // 移动：WASD + 上下
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime);
+        moveDirection = 0;
+        // camera.ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
+        moveDirection = 1;
+        // camera.ProcessKeyboard(BACKWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime);
+        moveDirection = 2;
+        // camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime);
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS
-        && glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)   // shift + space
-        camera.ProcessKeyboard(DOWN, deltaTime / 2);
+        moveDirection = 3;
+        // camera.ProcessKeyboard(RIGHT, deltaTime);
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)   // shift
+        shift = true;
+        // camera.ProcessKeyboard(DOWN, deltaTime / 2);
     else if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) // only space
-        camera.ProcessKeyboard(UP, deltaTime / 2);
+        jump = true;
+        // camera.ProcessKeyboard(UP, deltaTime / 2);
     // 检测 ESC 键的按下事件，用于打开/关闭主菜单
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS && !ESC_pressed) {
         mainMenu = !mainMenu;
@@ -121,6 +129,7 @@ void processInput(GLFWwindow* window) {
         ALT_pressed = true;
     } else if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_RELEASE)
         ALT_pressed = false;
+    player->ProcessMoveInput(moveDirection, shift, jump, terrain, deltaTime);
 }
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 void framebuffer_size_callback([[maybe_unused]] GLFWwindow* window, int width, int height) {

@@ -9,15 +9,15 @@
 #include <glm/gtx/string_cast.hpp>
 
 Player::Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrain)
-    : state(IDLE_LAND), position(initialPosition), direction(0.0f, 0.0f, 1.0f), 
+    : state(IDLE_LAND), position(initialPosition), direction(1.0f, 0.0f, 1.0f), 
     upVector(0.0f, 1.0f, 0.0f), length(fixedLength), color(0.55f, 0.27f, 0.07f), 
     speed(0.0f), walkSpeed(2.0f), runSpeed(4.0f), swimSpeed(1.5f), fastSwimSpeed(3.0f), 
-    climbSpeed(1.0f), jumpHorizenSpeed(3.5f), jumpUpSpeed(1.5f), jumpHeight(8.0f), 
+    climbSpeed(1.0f), jumpHorizenSpeed(3.5f), jumpUpSpeed(2.5f), jumpHeight(5.0f), 
     jumpDirection(0.0f, 0.0f, 1.0f), targetJumpHeight(0.0f), jumpUp(true),
     boxGeometry(fixedLength.x, fixedLength.y, fixedLength.z)
 {
     Update(terrain);
-
+    std::cout << "Player created at " << glm::to_string(position) << std::endl;
     vertices = boxGeometry.vertices;
     indices = boxGeometry.indices;
     InitializeBuffers();
@@ -197,6 +197,7 @@ void Player::ProcessMoveInput(int moveDirection, bool shift, bool jump, Terrain*
     // moveDirection 0 w 1 s 2 a 3 d -1 表示没有输入 暂时先考虑平面的移动
     // shift 为 true 时表示按下了 shift 键，即跑步
     // jump 为 true 时表示按下了空格键，即跳跃
+
     glm::vec3 newPosition = position;
     if (moveDirection != -1) {
         switch (state) {
@@ -296,9 +297,10 @@ void Player::ProcessMoveInput(int moveDirection, bool shift, bool jump, Terrain*
         jumpUp = true;
         targetJumpHeight = position.y + jumpHeight;
     }
-    if (moveDirection == -1 ) return;
+    if (moveDirection == -1 && state != JUMPING) return;
     // todo 判断边界
     // todo 加入判断水的逻辑
+    // todo climb的逻辑
 
     glm::vec3 new_normal = terrain->getNormal(newPosition.x, newPosition.z);
     glm::vec3 terrainPosition(newPosition.x, terrain->getHeight(newPosition.x, newPosition.z), newPosition.z);

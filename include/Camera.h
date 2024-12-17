@@ -6,6 +6,10 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <iostream>
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/compatibility.hpp>
+#include <glm/gtx/string_cast.hpp>
 #include "Terrain.h"
 #include "Shader.h"
 #include "Def.h"
@@ -28,7 +32,7 @@ enum Camera_Movement {
 #define ZOOM 45.0f
 #define NEAR 0.1f
 #define FAR 400.0f
-#define CAMERA_POS glm::vec3(-25.0f, 150.0f, -5.0f)
+#define CAMERA_POS glm::vec3(35.0f, 120.0f, 35.0f)
 #define CAMERA_UP glm::vec3(0.0f, 1.0f, 0.0f)
 
 // An abstract camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
@@ -76,6 +80,8 @@ public:
 
     void UpdateThirdPerson(const glm::vec3& playerPos, const glm::vec3& playerFront, Terrain* terrain, float distance = 10.0f, float heightOffset = 5.0f);
 private:
+    glm::vec3 targetPosition;
+    float smoothSpeed = 1.0f; 
     // calculates the front vector from the Camera's (updated) Euler Angles
     void updateCameraVectors();
 };

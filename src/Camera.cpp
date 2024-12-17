@@ -1,5 +1,7 @@
 #include "Camera.h"
 
+extern float deltaTime;
+
 Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch, float near, float far) :
   MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM),
   Position(position), WorldUp(up), Near(near), Far(far), Yaw(yaw), Pitch(pitch) {
@@ -84,11 +86,12 @@ void Camera::SetUBO(glm::mat4* projection, glm::mat4* view) const {
     uboProjView->setData(sizeof(glm::mat4), sizeof(glm::mat4), view);
 }
 
-void Camera::UpdateThirdPerson(const glm::vec3& playerPos, const glm::vec3& playerFront, Terrain* terrain, float distance, float heightOffset) {
+void Camera::UpdateThirdPerson(const glm::vec3& playerPos, const glm::vec3& playerFront, Terrain* terrain, 
+    float distance, float heightOffset) {
     // 长方体后方一定距离，并有一定的高度偏移
     glm::vec3 playerForward = glm::normalize(glm::vec3(playerFront.x, 0.0f, playerFront.z)); 
     glm::vec3 desiredPos = playerPos - playerForward * distance + glm::vec3(0.0f, heightOffset, 0.0f);
-
+    // std::cout << "desiredPos: " << desiredPos.x << " " << desiredPos.y << " " << desiredPos.z << std::endl;
     // 使用简单的射线投射来检测阻挡
     const int maxSteps = 100;
     float step = 1.0f / maxSteps;
@@ -108,7 +111,10 @@ void Camera::UpdateThirdPerson(const glm::vec3& playerPos, const glm::vec3& play
     }
 
     // 设置相机的位置
-    Position = finalPos;
+    targetPosition = finalPos;
+    // std::cout << "targetPosition: " << targetPosition.x << " " << targetPosition.y << " " << targetPosition.z << std::endl;
+    // std::cout << "Position: " << Position.x << " " << Position.y << " " << Position.z << std::endl;
+    Position = glm::mix(Position, targetPosition, smoothSpeed * deltaTime);
 
     // 设置相机的 Front 向量为指向长方体的位置
     Front = glm::normalize(playerPos - Position);
