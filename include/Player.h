@@ -31,7 +31,7 @@ public:
     void ProcessMoveInput(int direction, bool shift, bool jump, Terrain* terrain, float deltaTime);
     // void Transfer();
     glm::vec3 getPosition() const { return position; }
-    glm::vec3 getDirection() const { return direction; }
+    void setDirection(glm::vec3 newDirection) { direction = newDirection; return;}
 private:
     int state;
     glm::vec3 position;

@@ -86,40 +86,72 @@ void Camera::SetUBO(glm::mat4* projection, glm::mat4* view) const {
     uboProjView->setData(sizeof(glm::mat4), sizeof(glm::mat4), view);
 }
 
-void Camera::UpdateThirdPerson(const glm::vec3& playerPos, const glm::vec3& playerFront, Terrain* terrain, 
+void Camera::UpdateThirdPerson(Terrain* terrain, Player *player,
     float distance, float heightOffset) {
-    // 长方体后方一定距离，并有一定的高度偏移
-    glm::vec3 playerForward = glm::normalize(glm::vec3(playerFront.x, 0.0f, playerFront.z)); 
-    glm::vec3 desiredPos = playerPos - playerForward * distance + glm::vec3(0.0f, heightOffset, 0.0f);
-    // std::cout << "desiredPos: " << desiredPos.x << " " << desiredPos.y << " " << desiredPos.z << std::endl;
-    // 使用简单的射线投射来检测阻挡
-    const int maxSteps = 100;
-    float step = 1.0f / maxSteps;
+    glm::vec3 playerPos = player->getPosition();
+    // Calculate desired camera position based on spherical coordinates
+    float x = distance * sin(sphericalPhi) * cos(sphericalTheta);
+    float y = distance * cos(sphericalPhi) - heightOffset;
+    float z = distance * sin(sphericalPhi) * sin(sphericalTheta);
+    glm::vec3 desiredPos = playerPos + glm::vec3(x, y, z);
+
+    // Ray casting to prevent terrain obstruction
+    const int maxSteps = 50;
+    float step = distance / maxSteps; 
     glm::vec3 direction = glm::normalize(desiredPos - playerPos);
-    float totalDistance = glm::length(desiredPos - playerPos);
+    player->setDirection(-direction);
     float currentDistance = 0.0f;
     glm::vec3 finalPos = desiredPos;
 
     for(int i = 0; i < maxSteps; ++i) {
-        currentDistance += step * totalDistance;
+        currentDistance += step;
         glm::vec3 samplePos = playerPos + direction * currentDistance;
         float terrainHeight = terrain->getHeight(samplePos.x, samplePos.z);
-        if(samplePos.y < terrainHeight + 1.0f) { // 防止相机与地形重叠
-            finalPos = playerPos + direction * (currentDistance - step * totalDistance);
+        if(samplePos.y < terrainHeight + 1.0f) { // Prevent camera from intersecting terrain
+            finalPos = playerPos + direction * (currentDistance - step);
             break;
         }
     }
 
-    // 设置相机的位置
-    targetPosition = finalPos;
-    // std::cout << "targetPosition: " << targetPosition.x << " " << targetPosition.y << " " << targetPosition.z << std::endl;
-    // std::cout << "Position: " << Position.x << " " << Position.y << " " << Position.z << std::endl;
-    Position = glm::mix(Position, targetPosition, smoothSpeed * deltaTime);
+    // targetPosition = finalPos;
 
-    // 设置相机的 Front 向量为指向长方体的位置
+    // // Smoothly interpolate to target position
+    // float distanceToTarget = glm::length(targetPosition - Position);
+    // if (distanceToTarget > minDistance) {
+    //     Position = glm::mix(Position, targetPosition, smoothSpeed * deltaTime);
+    // }
+
+    Position = finalPos;
+
+    // Update Front vector to look at the player
     Front = glm::normalize(playerPos - Position);
 
-    // 重新计算 Right 和 Up 向量
+    // Recalculate Right and Up vectors
     Right = glm::normalize(glm::cross(Front, WorldUp));
     Up    = glm::normalize(glm::cross(Right, Front));
+}
+
+void Camera::ProcessMouseOrbit(float deltaX, float deltaY) {
+    float angleX = deltaX * MouseSensitivity;
+    float angleY = deltaY * MouseSensitivity;
+
+    sphericalTheta += angleX;
+    sphericalPhi += angleY; 
+
+    constrainAngles();
+}
+
+void Camera::constrainAngles() {
+    float phiMin = glm::radians(5.0f);
+    float phiMax = glm::radians(60.0f);
+
+    if (sphericalPhi < phiMin)
+        sphericalPhi = phiMin;
+    if (sphericalPhi > phiMax)
+        sphericalPhi = phiMax;
+
+    if (sphericalTheta < 0.0f)
+        sphericalTheta += 2.0f * glm::pi<float>();
+    if (sphericalTheta > 2.0f * glm::pi<float>())
+        sphericalTheta -= 2.0f * glm::pi<float>();
 }

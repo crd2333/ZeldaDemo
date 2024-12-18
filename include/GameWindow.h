@@ -14,6 +14,11 @@
 #include "Camera.h"
 #include "Player.h"
 
+class Camera;
+class Player;
+class Terrain;
+
+
 // camera and mouse
 extern Camera camera;
 

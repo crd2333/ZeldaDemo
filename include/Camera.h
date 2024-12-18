@@ -13,6 +13,11 @@
 #include "Terrain.h"
 #include "Shader.h"
 #include "Def.h"
+#include "Player.h"
+
+class Camera;
+class Player;
+class Terrain;
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement {
@@ -26,9 +31,9 @@ enum Camera_Movement {
 
 // Default camera values
 #define YAW 45.0f
-#define PITCH 0.0f
+#define PITCH 30.0f
 #define SPEED 20.0f
-#define SENSITIVITY 0.1f
+#define SENSITIVITY 0.002f
 #define ZOOM 45.0f
 #define NEAR 0.1f
 #define FAR 400.0f
@@ -78,10 +83,21 @@ public:
     glm::mat4 GetOrthoMatrix(float left, float right, float bottom, float top) const { return glm::ortho(left, right, bottom, top, Near, Far); }
     glm::mat4 GetViewMatrix() const { return glm::lookAt(Position, Position + Front, Up); }
 
-    void UpdateThirdPerson(const glm::vec3& playerPos, const glm::vec3& playerFront, Terrain* terrain, float distance = 10.0f, float heightOffset = 5.0f);
+    void UpdateThirdPerson(Terrain* terrain, Player *player,
+        float distance = 10.0f, float heightOffset=2.0f);
+    void ProcessMouseOrbit(float deltaX, float deltaY);
 private:
-    glm::vec3 targetPosition;
-    float smoothSpeed = 1.0f; 
     // calculates the front vector from the Camera's (updated) Euler Angles
     void updateCameraVectors();
+    // 球面坐标参数
+    float sphericalTheta; // 水平角度
+    float sphericalPhi;   // 垂直角度
+
+    // 新增成员变量
+    glm::vec3 targetPosition; // 目标相机位置
+    float smoothSpeed = 5.0f; // 平滑因子
+    float minDistance = 0.1f; // 最小距离阈值
+
+    // 约束 phi 以限制相机在半球体内
+    void constrainAngles();
 };

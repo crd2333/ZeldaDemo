@@ -11,8 +11,8 @@
 Player::Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrain)
     : state(IDLE_LAND), position(initialPosition), direction(1.0f, 0.0f, 1.0f), 
     upVector(0.0f, 1.0f, 0.0f), length(fixedLength), color(0.55f, 0.27f, 0.07f), 
-    speed(0.0f), walkSpeed(2.0f), runSpeed(4.0f), swimSpeed(1.5f), fastSwimSpeed(3.0f), 
-    climbSpeed(1.0f), jumpHorizenSpeed(3.5f), jumpUpSpeed(2.5f), jumpHeight(5.0f), 
+    speed(0.0f), walkSpeed(4.0f), runSpeed(8.0f), swimSpeed(3.0f), fastSwimSpeed(6.0f), 
+    climbSpeed(2.0f), jumpHorizenSpeed(7.0f), jumpUpSpeed(5.0f), jumpHeight(5.0f), 
     jumpDirection(0.0f, 0.0f, 1.0f), targetJumpHeight(0.0f), jumpUp(true),
     boxGeometry(fixedLength.x, fixedLength.y, fixedLength.z)
 {
@@ -266,29 +266,35 @@ void Player::ProcessMoveInput(int moveDirection, bool shift, bool jump, Terrain*
                 break;
         }
     }
-    switch (moveDirection) {
-        case 0:
-            newPosition += glm::vec3(0.0f, 0.0f, -speed * deltaTime);
-            break;
-        case 1:
-            newPosition += glm::vec3(0.0f, 0.0f, speed * deltaTime);
-            break;
-        case 2:
-            newPosition += glm::vec3(-speed * deltaTime, 0.0f, 0.0f);
-            break;
-        case 3:
-            newPosition += glm::vec3(speed * deltaTime, 0.0f, 0.0f);
-            break;
-        case -1: // 切换为静止
-            if (state == JUMPING) break;
-            if (state == IDLE_LAND || state == WALKING_LAND || state == RUNNING_LAND) 
-                state = IDLE_LAND;
-            else if (state == IDLE_WATER || state == SWIMMING_WATER || state == FAST_SWIMMING_WATER) 
-                state = IDLE_WATER;
-            else if (state == IDLE_CLIMB || state == CLIMBING) 
-                state = IDLE_CLIMB;
-        default:
-            break;
+    if (state != JUMPING) {
+        glm::vec3 forward = glm::normalize(direction);
+        glm::vec3 right = glm::normalize(glm::cross(forward, upVector));
+        glm::vec3 left = -right;
+        glm::vec3 backward = -forward;
+        switch (moveDirection) {
+            case 0:
+                newPosition += forward * speed * deltaTime;
+                break;
+            case 1:
+                newPosition += backward * speed * deltaTime;
+                break;
+            case 2:
+                newPosition += left * speed * deltaTime;
+                break;
+            case 3:
+                newPosition += right * speed * deltaTime;
+                break;
+            case -1: // 切换为静止
+                if (state == JUMPING) break;
+                if (state == IDLE_LAND || state == WALKING_LAND || state == RUNNING_LAND) 
+                    state = IDLE_LAND;
+                else if (state == IDLE_WATER || state == SWIMMING_WATER || state == FAST_SWIMMING_WATER) 
+                    state = IDLE_WATER;
+                else if (state == IDLE_CLIMB || state == CLIMBING) 
+                    state = IDLE_CLIMB;
+            default:
+                break;
+        }
     }
     if (state != JUMPING && jump && (state != IDLE_CLIMB && state != CLIMBING && 
         state != LAND_TO_CLIMB && state != CLIMB_TO_LAND)) {
@@ -305,7 +311,7 @@ void Player::ProcessMoveInput(int moveDirection, bool shift, bool jump, Terrain*
     glm::vec3 new_normal = terrain->getNormal(newPosition.x, newPosition.z);
     glm::vec3 terrainPosition(newPosition.x, terrain->getHeight(newPosition.x, newPosition.z), newPosition.z);
     newPosition = terrainPosition + new_normal * (length.y / 2.0f);
-    direction = glm::normalize(newPosition - position);
+    glm::vec3 old_position = position;
     // 处理跳跃的逻辑
     if(state == JUMPING) {
         DoJump(terrain, deltaTime);

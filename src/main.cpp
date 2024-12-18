@@ -75,7 +75,7 @@ int main() {
         terrain_mode = (current_mode == 0) ? GL_LINE_STRIP : GL_TRIANGLES;
 
         // update the camera with third person view
-        camera.UpdateThirdPerson(player.getPosition(), player.getDirection(), &terrain, 10.0f, 7.5f);
+        camera.UpdateThirdPerson(&terrain, &player, 10.0f, 1.0f);
 
         // set the shared shader properties todo: move to UBO
         camera.SetUBO();
