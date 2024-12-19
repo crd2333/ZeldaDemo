@@ -13,21 +13,18 @@
 
 #include "Camera.h"
 #include "Player.h"
-
-class Camera;
-class Player;
-class Terrain;
-
+#include "Def.h"
+#include "Light.h"
 
 // camera and mouse
 extern Camera camera;
 
 // window
 extern bool mainMenu;
-extern float deltaTime;
+extern const unsigned int SHADOW_WIDTH, SHADOW_HEIGHT;
 
-class Player;
-class Terrain;
+// timing (per-frame time logic)
+extern float deltaTime;
 
 GLFWwindow* Create_glfw_Window();
 void RenderLoopPreProcess(GLFWwindow* window, Player* player, Terrain* terrain);

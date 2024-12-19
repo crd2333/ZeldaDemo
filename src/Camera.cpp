@@ -1,6 +1,5 @@
 #include "Camera.h"
-
-extern float deltaTime;
+#include "GameWindow.h"
 
 Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch, float near, float far) :
   MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM),
@@ -71,21 +70,6 @@ void Camera::updateCameraVectors() {
     Up    = glm::normalize(glm::cross(Right, Front));
 }
 
-void Camera::BindUBO(const Shader& shader) const {
-    uboProjView->Bind(shader);
-}
-
-void Camera::SetUBO() const {
-    glm::mat4 projection = GetPerspectiveMatrix();
-    glm::mat4 view = GetViewMatrix();
-    SetUBO(&projection, &view);
-}
-
-void Camera::SetUBO(glm::mat4* projection, glm::mat4* view) const {
-    uboProjView->setData(0, sizeof(glm::mat4), projection);
-    uboProjView->setData(sizeof(glm::mat4), sizeof(glm::mat4), view);
-}
-
 void Camera::UpdateThirdPerson(Terrain* terrain, Player *player,
     float distance, float heightOffset) {
     glm::vec3 playerPos = player->getPosition();
@@ -97,7 +81,7 @@ void Camera::UpdateThirdPerson(Terrain* terrain, Player *player,
 
     // Ray casting to prevent terrain obstruction
     const int maxSteps = 50;
-    float step = distance / maxSteps; 
+    float step = distance / maxSteps;
     glm::vec3 direction = glm::normalize(desiredPos - playerPos);
     player->setDirection(-direction);
     float currentDistance = 0.0f;
@@ -136,7 +120,7 @@ void Camera::ProcessMouseOrbit(float deltaX, float deltaY) {
     float angleY = deltaY * MouseSensitivity;
 
     sphericalTheta += angleX;
-    sphericalPhi += angleY; 
+    sphericalPhi += angleY;
 
     constrainAngles();
 }

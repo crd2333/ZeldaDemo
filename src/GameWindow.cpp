@@ -31,6 +31,7 @@ float lastFrame = 0.0f;
 bool mainMenu = false;
 bool ESC_pressed = false;
 bool ALT_pressed = false;
+const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
 
 GLFWwindow* Create_glfw_Window() {
     // glfw: initialize and configure
@@ -55,6 +56,7 @@ GLFWwindow* Create_glfw_Window() {
         return NULL;
     }
     glEnable(GL_DEPTH_TEST);  // configure global opengl state
+    glEnable(GL_CULL_FACE);
     return window;
 }
 
@@ -114,6 +116,7 @@ void processInput(GLFWwindow* window, Player* player, Terrain* terrain) {
     else if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) // only space
         jump = true;
         // camera.ProcessKeyboard(UP, deltaTime / 2);
+
     // 检测 ESC 键的按下事件，用于打开/关闭主菜单
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS && !ESC_pressed) {
         mainMenu = !mainMenu;
@@ -129,6 +132,7 @@ void processInput(GLFWwindow* window, Player* player, Terrain* terrain) {
         ALT_pressed = true;
     } else if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_RELEASE)
         ALT_pressed = false;
+
     player->ProcessMoveInput(moveDirection, shift, jump, terrain, deltaTime);
 }
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes

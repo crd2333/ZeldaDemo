@@ -15,8 +15,6 @@
 #include "Def.h"
 #include "Player.h"
 
-
-
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement {
     FORWARD,
@@ -57,7 +55,6 @@ public:
     float Pitch;
     // and other attributes
     Terrain* terrain = nullptr; // pointer to terrain, remember to set it before using!
-    UBO* uboProjView = nullptr; // UBO for camera, remember to set it before using!
 
     // constructor with vectors and scalar values
     Camera(glm::vec3 position=CAMERA_POS, glm::vec3 up=CAMERA_UP, float yaw=YAW, float pitch=PITCH, float near=NEAR, float far=FAR);
@@ -71,13 +68,9 @@ public:
     // processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
     void ProcessMouseScroll(float yoffset);
 
-    // UBO for camera (projection and view matrix shared by binded shaders)
-    void BindUBO(const Shader& shader) const;
-    void SetUBO() const;
-    void SetUBO(glm::mat4* projection, glm::mat4* view) const; // if manually set projection and view matrix (like use ortho matrix)
-
     // returns the projection and view matrix calculated using Zoom value, Euler Angles and the LookAt Matrix
     glm::mat4 GetPerspectiveMatrix() const { return glm::perspective(glm::radians(Zoom), SCR_SCALE, Near, Far); }
+    glm::mat4 GetPerspectiveMatrix(const float deg, const float aspect) const { return glm::perspective(glm::radians(deg), aspect, Near, Far); }
     glm::mat4 GetOrthoMatrix(float left, float right, float bottom, float top) const { return glm::ortho(left, right, bottom, top, Near, Far); }
     glm::mat4 GetViewMatrix() const { return glm::lookAt(Position, Position + Front, Up); }
 

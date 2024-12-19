@@ -6,6 +6,7 @@
 
 #include <vector>
 #include <iostream>
+#include <iomanip>
 #include <array>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -32,6 +33,8 @@
  *  v  x(rows)
  */
 
+// TODO: 把地形切块，只渲染视锥内的部分，降低开销（尤其是水的反射和折射部分，因为我们的水不包含整个地图）
+
 class Terrain {
 private:
     GLuint VAO, VBO, EBO;
@@ -57,6 +60,8 @@ public:
     glm::vec3 getNormal(const float& worldX, const float& worldZ) const;
 
     void draw(Shader& shader, GLenum mode=GL_TRIANGLES) const;
+
+    void debugHeight(const float resoluiton=5.0f) const;
 
 private:
     glm::vec3 barycentricCoord(const glm::vec2 p1, const glm::vec2 p2, const glm::vec2 p3, const glm::vec2 pos) const; // 给定三角形的三个顶点和一个点，计算该点的重心坐标 alpha, beta, gamma

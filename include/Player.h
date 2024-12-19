@@ -8,6 +8,7 @@
 #include "geometry/BoxGeometry.h"
 #include "GameWindow.h"
 #include "Shader.h"
+#include "Camera.h"
 
 enum PlayerState {
     IDLE_LAND = 0,
@@ -24,14 +25,6 @@ enum PlayerState {
 };
 
 class Player {
-public:
-    Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrain);
-    ~Player();
-    void Render(Shader & player_shader, const glm::mat4 &projection, const glm::mat4 &view);
-    void ProcessMoveInput(int direction, bool shift, bool jump, Terrain* terrain, float deltaTime);
-    // void Transfer();
-    glm::vec3 getPosition() const { return position; }
-    void setDirection(glm::vec3 newDirection) { direction = newDirection; return;}
 private:
     int state;
     glm::vec3 position;
@@ -48,11 +41,22 @@ private:
     float fastSwimSpeed;
     float climbSpeed;
     float jumpHorizenSpeed;
-    float jumpUpSpeed;  
+    float jumpUpSpeed;
     float jumpHeight;
     glm::vec3 jumpDirection;
     float targetJumpHeight;
     bool jumpUp;
+
+public:
+    Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrain);
+    ~Player();
+    void draw(Shader& player_shader);
+    void ProcessMoveInput(int direction, bool shift, bool jump, Terrain* terrain, float deltaTime);
+    // void Transfer();
+    glm::vec3 getPosition() const { return position; }
+    void setDirection(glm::vec3 newDirection) { direction = newDirection; return;}
+
+private:
     void DoJump(Terrain* terrain, float deltaTime);
     void Update(Terrain* terrain);
 

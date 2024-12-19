@@ -9,10 +9,10 @@
 #include <glm/gtx/string_cast.hpp>
 
 Player::Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrain)
-    : state(IDLE_LAND), position(initialPosition), direction(1.0f, 0.0f, 1.0f), 
-    upVector(0.0f, 1.0f, 0.0f), length(fixedLength), color(0.55f, 0.27f, 0.07f), 
-    speed(0.0f), walkSpeed(4.0f), runSpeed(8.0f), swimSpeed(3.0f), fastSwimSpeed(6.0f), 
-    climbSpeed(2.0f), jumpHorizenSpeed(7.0f), jumpUpSpeed(5.0f), jumpHeight(5.0f), 
+    : state(IDLE_LAND), position(initialPosition), direction(1.0f, 0.0f, 1.0f),
+    upVector(0.0f, 1.0f, 0.0f), length(fixedLength), color(0.55f, 0.27f, 0.07f),
+    speed(0.0f), walkSpeed(4.0f), runSpeed(8.0f), swimSpeed(3.0f), fastSwimSpeed(6.0f),
+    climbSpeed(2.0f), jumpHorizenSpeed(7.0f), jumpUpSpeed(5.0f), jumpHeight(5.0f),
     jumpDirection(0.0f, 0.0f, 1.0f), targetJumpHeight(0.0f), jumpUp(true),
     boxGeometry(fixedLength.x, fixedLength.y, fixedLength.z)
 {
@@ -34,7 +34,7 @@ Player::~Player() {
 
 void Player::InitializeBuffers() {
     glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO); 
+    glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
 
     glBindVertexArray(VAO);
@@ -49,7 +49,7 @@ void Player::InitializeBuffers() {
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
     glEnableVertexAttribArray(2);
-    glBindVertexArray(0); 
+    glBindVertexArray(0);
 }
 
 
@@ -156,7 +156,7 @@ void Player::Update(Terrain* terrain) {
 }
 
 
-void Player::Render(Shader & player_shader, const glm::mat4 &projection, const glm::mat4 &view) {
+void Player::draw(Shader& shader) {
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, position);
     glm::vec3 defaultUp(0.0f, 1.0f, 0.0f);
@@ -180,19 +180,18 @@ void Player::Render(Shader & player_shader, const glm::mat4 &projection, const g
         model = glm::rotate(model, angle, rotationAxis);
     }
 
-    player_shader.use();
-    player_shader.setMat4("model", model);
-    player_shader.setMat4("projection", projection);
-    player_shader.setMat4("view", view); 
-    player_shader.setVec3("objectColor", color);
+    shader.use();
+    shader.setMat4("model", model);
+    shader.setMat4("normalMat", glm::transpose(glm::inverse(model))); // 在外部计算好 normal matrix（避免 GPU 频繁求逆）
+    shader.setVec3("objectColor", color);
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0); 
+    glBindVertexArray(0);
 }
 
 
-void Player::ProcessMoveInput(int moveDirection, bool shift, bool jump, Terrain* terrain, 
+void Player::ProcessMoveInput(int moveDirection, bool shift, bool jump, Terrain* terrain,
                              float deltaTime) {
     // moveDirection 0 w 1 s 2 a 3 d -1 表示没有输入 暂时先考虑平面的移动
     // shift 为 true 时表示按下了 shift 键，即跑步
@@ -216,7 +215,7 @@ void Player::ProcessMoveInput(int moveDirection, bool shift, bool jump, Terrain*
                     state = RUNNING_LAND;
                     speed = runSpeed;
                 }
-                else 
+                else
                     speed = walkSpeed;
                 break;
             case RUNNING_LAND:
@@ -224,7 +223,7 @@ void Player::ProcessMoveInput(int moveDirection, bool shift, bool jump, Terrain*
                     state = WALKING_LAND;
                     speed = walkSpeed;
                 }
-                else 
+                else
                     speed = runSpeed;
                 break;
             case IDLE_WATER:
@@ -242,7 +241,7 @@ void Player::ProcessMoveInput(int moveDirection, bool shift, bool jump, Terrain*
                     state = FAST_SWIMMING_WATER;
                     speed = fastSwimSpeed;
                 }
-                else 
+                else
                     speed = swimSpeed;
                 break;
             case FAST_SWIMMING_WATER:
@@ -250,7 +249,7 @@ void Player::ProcessMoveInput(int moveDirection, bool shift, bool jump, Terrain*
                     state = SWIMMING_WATER;
                     speed = swimSpeed;
                 }
-                else 
+                else
                     speed = fastSwimSpeed;
                 break;
             case IDLE_CLIMB:
@@ -284,24 +283,24 @@ void Player::ProcessMoveInput(int moveDirection, bool shift, bool jump, Terrain*
                 break;
             case -1: // 切换为静止
                 if (state == JUMPING) break;
-                if (state == IDLE_LAND || state == WALKING_LAND || state == RUNNING_LAND) 
+                if (state == IDLE_LAND || state == WALKING_LAND || state == RUNNING_LAND)
                     state = IDLE_LAND;
-                else if (state == IDLE_WATER || state == SWIMMING_WATER || state == FAST_SWIMMING_WATER) 
+                else if (state == IDLE_WATER || state == SWIMMING_WATER || state == FAST_SWIMMING_WATER)
                     state = IDLE_WATER;
-                else if (state == IDLE_CLIMB || state == CLIMBING) 
+                else if (state == IDLE_CLIMB || state == CLIMBING)
                     state = IDLE_CLIMB;
             default:
                 break;
         }
     }
-    if (state != JUMPING && jump && (state != IDLE_CLIMB && state != CLIMBING && 
+    if (state != JUMPING && jump && (state != IDLE_CLIMB && state != CLIMBING &&
         state != LAND_TO_CLIMB && state != CLIMB_TO_LAND)) {
         state = JUMPING;
         jumpDirection = direction;
         jumpUp = true;
         targetJumpHeight = position.y + jumpHeight;
     }
-    if (moveDirection == -1 && (state != JUMPING || state != LAND_TO_CLIMB || state != CLIMB_TO_LAND)) return;
+    if (moveDirection == -1 && state != JUMPING && state != LAND_TO_CLIMB && state != CLIMB_TO_LAND) return;
     // todo 判断边界
     // todo 加入判断水的逻辑
     // todo climb的逻辑

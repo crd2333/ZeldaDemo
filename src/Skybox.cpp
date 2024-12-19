@@ -12,12 +12,12 @@ Skybox::Skybox(std::string path) {
     // initialize cube map
     if (path.back() != '/') path += '/';
     std::vector<std::string> faces = {
-        path + "right.png",
-        path + "left.png",
-        path + "top.png",
-        path + "bottom.png",
-        path + "front.png",
-        path + "back.png",
+        path + "right.jpg",
+        path + "left.jpg",
+        path + "top.jpg",
+        path + "bottom.jpg",
+        path + "front.jpg",
+        path + "back.jpg",
     };
     cube_map = new CubeMap();
     cube_map->Generate(faces);
@@ -37,8 +37,7 @@ Skybox::~Skybox() {
 void Skybox::draw(const glm::mat4 &projection, const glm::mat4 &view) const {
     cube_map->Bind(0);
     shader->use();
-    shader->setMat4("projection", projection);
-    shader->setMat4("view", glm::mat4(glm::mat3(view))); // remove translation from the view matrix
+    shader->setMat4("proj_view", projection * glm::mat4(glm::mat3(view))); // remove translation from the view matrix
     glDepthFunc(GL_LEQUAL); // 深度缓冲将会填上 1.0 值，第一次绘制完后之后将再也不会通过，因此要改为小于或等于
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
