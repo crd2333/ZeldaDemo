@@ -269,17 +269,15 @@ void Player::ProcessMoveInput(int moveDirection, bool shift, bool jump, Terrain*
     if (state != JUMPING) {
         glm::vec3 forward = glm::normalize(direction);
         glm::vec3 right = glm::normalize(glm::cross(forward, upVector));
-        glm::vec3 left = -right;
-        glm::vec3 backward = -forward;
         switch (moveDirection) {
             case 0:
                 newPosition += forward * speed * deltaTime;
                 break;
             case 1:
-                newPosition += backward * speed * deltaTime;
+                newPosition -= forward * speed * deltaTime;
                 break;
             case 2:
-                newPosition += left * speed * deltaTime;
+                newPosition -= right * speed * deltaTime;
                 break;
             case 3:
                 newPosition += right * speed * deltaTime;
@@ -303,25 +301,23 @@ void Player::ProcessMoveInput(int moveDirection, bool shift, bool jump, Terrain*
         jumpUp = true;
         targetJumpHeight = position.y + jumpHeight;
     }
-    if (moveDirection == -1 && state != JUMPING) return;
+    if (moveDirection == -1 && (state != JUMPING || state != LAND_TO_CLIMB || state != CLIMB_TO_LAND)) return;
     // todo 判断边界
     // todo 加入判断水的逻辑
     // todo climb的逻辑
 
-    glm::vec3 new_normal = terrain->getNormal(newPosition.x, newPosition.z);
-    glm::vec3 terrainPosition(newPosition.x, terrain->getHeight(newPosition.x, newPosition.z), newPosition.z);
-    newPosition = terrainPosition + new_normal * (length.y / 2.0f);
-    glm::vec3 old_position = position;
     // 处理跳跃的逻辑
     if(state == JUMPING) {
         DoJump(terrain, deltaTime);
     } else {
-        position = position + direction * speed * deltaTime;
+        position = newPosition;
         Update(terrain);
+        glm::vec3 new_normal = terrain->getNormal(position.x, position.z);
         if (state == IDLE_LAND || state == WALKING_LAND || state == RUNNING_LAND) {
             if (glm::acos(new_normal.y) > glm::radians(45.0f)) {
                 state = LAND_TO_CLIMB;
             }
+            // std::cout << state << std::endl;
         }
         else if (state == IDLE_CLIMB || state == CLIMBING) {
             if (glm::acos(new_normal.y) < glm::radians(45.0f)) {
