@@ -35,3 +35,7 @@
 } while (0)
 
 #define CLAMP(val, min, max) ((val) < (min) ? (min) : ((val) > (max) ? (max) : (val)))
+
+class Camera;
+class Player;
+class Terrain;

@@ -21,7 +21,7 @@ int main() {
     Skybox* skybox = new Skybox("resources/textures/skybox");
 
     // terrain
-    Terrain terrain(MAP_SZIE, HEIGHT_SCALE, 3, 4);
+    Terrain terrain(MAP_SZIE, HEIGHT_SCALE, 2, 7);
     camera.terrain = &terrain;
 
     // water
