@@ -93,6 +93,8 @@ int main() {
             ImGui::SliderFloatWithDefault("Perspective Near", &camera.Near, 0.01f, 1.0f, 0.1f);
             ImGui::SliderFloatWithDefault("Perspective Far", &camera.Far, 100.0f, 1000.0f, 400.0f);
             ImGui::Combo("Terrain Mode", &current_mode, terrain_modes, IM_ARRAYSIZE(terrain_modes));
+            ImGui::Text("Water Height: %.1f", checkHeight(player.getPosition().x, player.getPosition().z));
+            ImGui::Text("Player height: %.1f", player.getPosition().y);
             // ImGui::Checkbox("Sub Menu", &SubMenu);
             ImGui::End();
         }

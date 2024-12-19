@@ -51,7 +51,21 @@ void Water::draw(Shader& shader, GLenum mode) const {
 }
 
 bool Water::checkInside(const float x, const float z) const {
-
+    bool inside = false;
+    for (int i = 0, j = pointNum - 1; i < pointNum; j = i++) {
+        float xi = points[i * 4];
+        float zi = points[i * 4 + 1];
+        float xj = points[j * 4];
+        float zj = points[j * 4 + 1];
+        // 采用射线法遍历所有的边，如果
+        //   1. z 值落在 i, j 的 z 坐标之间（那么就可能有交点）
+        //   2. 向 x 正方向发射一条射线，如果交点的 x 坐标大于 x，那么就说明有交点
+        //   此时，记一次交点个数
+        // 最终如果交点个数是奇数，说明在内部
+        if (((zi > z) != (zj > z)) && (x < (xj - xi) * (z - zi) / (zj - zi) + xi))
+            inside = !inside;
+    }
+    return inside;
 }
 
 void RefractionPreProcess() {
@@ -71,8 +85,13 @@ void ReflectionPostProcess() {
 }
 
 // 遍历 waters，查看是否 (x,z) 落在水的区域内，如果是则返回水的高度，否则返回 -1
-float checkHeight(const float x, const float z) {
-
+float checkHeight(const float worldX, const float worldZ) {
+    float x = worldX / MAP_SZIE.x, z = worldZ / MAP_SZIE.y;
+    for (auto water : waters) {
+        if (water->checkInside(x, z)) // 假定一个点只会在一个水面上（water 不会重叠）
+            return water->getHeight();
+    }
+    return -1.0f;
 }
 
 std::vector<Water*> waters; // 存储所有的水面
@@ -81,6 +100,7 @@ const int river_of_dead_num = 14;  // this is casually chosen
 const float river_of_dead_height = 0.449f;
 // const float river_of_dead_height = 0.6f;
 const float river_of_dead[] = {
+    // positions           // texCoords
     -0.267641f, 0.210123f, 0.522718f, 1.000000f,
     -0.196208f, 0.282426f, 0.661263f, 1.000000f,
     -0.080880f, 0.320105f, 0.843150f, 1.000000f,

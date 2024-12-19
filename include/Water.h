@@ -32,7 +32,7 @@ public:
 
     void draw(Shader& shader, GLenum mode=GL_TRIANGLE_FAN) const;
 
-    float getHeight() const { return height; }
+    float getHeight() const { return height * heightScale; }
     bool checkInside(const float x, const float z) const;
     void RefractionPreProcess();
     void RefractionPostProcess();
@@ -41,7 +41,7 @@ public:
 };
 
 // 遍历 waters，查看是否 (x,z) 落在水的区域内，如果是则返回水的高度，否则返回 -1
-float checkHeight(const float x, const float z);
+float checkHeight(const float worldX, const float worldZ);
 
 extern std::vector<Water*> waters; // 存储所有的水面
 
