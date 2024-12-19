@@ -96,6 +96,61 @@ int main() {
             ImGui::Text("Water Height: %.1f", checkHeight(player.getPosition().x, player.getPosition().z));
             ImGui::Text("Player height: %.1f", player.getPosition().y);
             // ImGui::Checkbox("Sub Menu", &SubMenu);
+            ImGui::Separator();
+            ImGui::Text("Player");
+            glm::vec3 direction = player.getDirection(); 
+            if (ImGui::InputFloat3("Direction", glm::value_ptr(direction))) {
+                player.setDirection(direction);
+            }
+            glm::vec3 upVector = player.getUpVector(); 
+            if (ImGui::InputFloat3("Up Vector", glm::value_ptr(upVector))) {
+                player.setUpVector(upVector);
+            }
+            glm::vec3 length = player.getLength(); 
+            if (ImGui::InputFloat3("Length", glm::value_ptr(length))) {
+                player.setLength(length);
+            }
+            glm::vec3 color = player.getColor(); 
+            float colorArray[3] = { color.r, color.g, color.b };
+            if (ImGui::ColorEdit3("Color", colorArray)) {
+                player.setColor(glm::vec3(colorArray[0], colorArray[1], colorArray[2]));
+            }
+            float speed = player.getSpeed(); 
+            if (ImGui::SliderFloat("Speed", &speed, 0.0f, 100.0f)) {
+                player.setSpeed(speed);
+            }
+            float walkSpeed = player.getWalkSpeed(); 
+            if (ImGui::SliderFloat("Walk Speed", &walkSpeed, 0.0f, 50.0f)) {
+                player.setWalkSpeed(walkSpeed);
+            }
+            float runSpeed = player.getRunSpeed(); 
+            if (ImGui::SliderFloat("Run Speed", &runSpeed, 0.0f, 100.0f)) {
+                player.setRunSpeed(runSpeed);
+            }
+            float swimSpeed = player.getSwimSpeed(); 
+            if (ImGui::SliderFloat("Swim Speed", &swimSpeed, 0.0f, 30.0f)) {
+                player.setSwimSpeed(swimSpeed);
+            }
+            float fastSwimSpeed = player.getFastSwimSpeed(); 
+            if (ImGui::SliderFloat("Fast Swim Speed", &fastSwimSpeed, 0.0f, 60.0f)) {
+                player.setFastSwimSpeed(fastSwimSpeed);
+            }
+            float climbSpeed = player.getClimbSpeed(); 
+            if (ImGui::SliderFloat("Climb Speed", &climbSpeed, 0.0f, 20.0f)) {
+                player.setClimbSpeed(climbSpeed);
+            }
+            float jumpHorizenSpeed = player.getJumpHorizenSpeed(); 
+            if (ImGui::SliderFloat("Jump Horizontal Speed", &jumpHorizenSpeed, 0.0f, 50.0f)) {
+                player.setJumpHorizenSpeed(jumpHorizenSpeed);
+            }
+            float jumpUpSpeed = player.getJumpUpSpeed(); 
+            if (ImGui::SliderFloat("Jump Up Speed", &jumpUpSpeed, 0.0f, 50.0f)) {
+                player.setJumpUpSpeed(jumpUpSpeed);
+            }
+            float jumpHeight = player.getJumpHeight(); 
+            if (ImGui::SliderFloat("Jump Height", &jumpHeight, 0.0f, 100.0f)) {
+                player.setJumpHeight(jumpHeight);
+            }
             ImGui::End();
         }
         terrain_mode = (current_mode == 0) ? GL_LINE_STRIP : GL_TRIANGLES;

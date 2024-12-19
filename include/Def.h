@@ -36,6 +36,8 @@
 
 #define CLAMP(val, min, max) ((val) < (min) ? (min) : ((val) > (max) ? (max) : (val)))
 
+#define Threshold 0.001f
+
 class Camera;
 class Player;
 class Terrain;

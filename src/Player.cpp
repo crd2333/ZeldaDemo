@@ -65,6 +65,10 @@ void Player::Update(Terrain* terrain) {
         glm::vec3(-w, -h, d)
     };
 
+    // 储存旧的位置，上向量
+    glm::vec3 oldPosition = position;
+    glm::vec3 oldUpVector = upVector;
+
     // 计算旋转矩阵，使得本地 Y 轴对齐到 upVector
     glm::vec3 defaultUp(0.0f, 1.0f, 0.0f);
     glm::vec3 up = glm::normalize(upVector);
@@ -152,6 +156,12 @@ void Player::Update(Terrain* terrain) {
 
     // 更新 y，使得长方体底部不低于最高的地形高度
     position.y = finalTerrainHeight + (length.y / 2.0f) * upVector.y;
+
+    // 判断新旧位置是否过于接近，过接近则不更新
+    if(glm::distance(position, oldPosition) < Threshold){
+        position = oldPosition;
+        upVector = oldUpVector;
+    }
 
 }
 

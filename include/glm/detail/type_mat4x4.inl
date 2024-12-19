@@ -639,7 +639,7 @@ namespace glm
 		typename mat<4, 4, T, Q>::col_type const SrcB2 = m2[2];
 		typename mat<4, 4, T, Q>::col_type const SrcB3 = m2[3];
 
-		mat<4, 4, T, Q> Result;
+		mat<4, 4, T, Q> Result{};
 		Result[0] = SrcA0 * SrcB0[0] + SrcA1 * SrcB0[1] + SrcA2 * SrcB0[2] + SrcA3 * SrcB0[3];
 		Result[1] = SrcA0 * SrcB1[0] + SrcA1 * SrcB1[1] + SrcA2 * SrcB1[2] + SrcA3 * SrcB1[3];
 		Result[2] = SrcA0 * SrcB2[0] + SrcA1 * SrcB2[1] + SrcA2 * SrcB2[2] + SrcA3 * SrcB2[3];
