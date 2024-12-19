@@ -60,8 +60,8 @@ Terrain::~Terrain() {
 // 给定世界坐标 x, z，返回该点的高度
 float Terrain::getHeight(const float& worldX, const float& worldZ) const {
     // 世界坐标到网格坐标
-    float terrainX = worldX + 0.5 * mapScale.x; // terrain x: [-mapScale.x / 2, mapScale.x / 2] -> [0, mapScale.x]
-    float terrainZ = worldZ + 0.5 * mapScale.y;
+    float terrainX = CLAMP(worldX, -0.5 * mapScale.x, 0.5 * mapScale.x) + 0.5 * mapScale.x; // terrain x: [-mapScale.x / 2, mapScale.x / 2] -> [0, mapScale.x]
+    float terrainZ = CLAMP(worldZ, -0.5 * mapScale.y, 0.5 * mapScale.y) + 0.5 * mapScale.y;
     int gridX = terrainX / gridSizeX;       // grid x: [0, mapScale.x] -> [0, cols - 1]
     int gridZ = terrainZ / gridSizeZ;
     // 世界坐标到网格内偏移量
@@ -97,10 +97,21 @@ float Terrain::getHeight(const float& worldX, const float& worldZ) const {
     return glm::dot(barycentric, valueToInterpolate);
 }
 
+void Terrain::debugHeight(const float resolution) const {
+    std::cout << "debug terrain height: " << std::endl;
+    std::cout << std::fixed << std::setprecision(2);
+    for (float x = -MAP_SZIE.x / 2; x < MAP_SZIE.x / 2; x += resolution) {
+        for (float z = -MAP_SZIE.y / 2; z < MAP_SZIE.y / 2; z += resolution) {
+            std::cout << getHeight(x, z) << " ";
+        }
+        std::cout << std::endl;
+    }
+}
+
 // 给定世界坐标 x, z，返回该点的法向量
 glm::vec3 Terrain::getNormal(const float& worldX, const float& worldZ) const {
-    float terrainX = worldX + 0.5 * mapScale.x;
-    float terrainZ = worldZ + 0.5 * mapScale.y;
+    float terrainX = CLAMP(worldX, -0.5 * mapScale.x, 0.5 * mapScale.x) + 0.5 * mapScale.x;
+    float terrainZ = CLAMP(worldZ, -0.5 * mapScale.y, 0.5 * mapScale.y) + 0.5 * mapScale.y;
     int gridX = terrainX / gridSizeX;
     int gridZ = terrainZ / gridSizeZ;
     float coordX = fmod(terrainX, gridSizeX) / gridSizeX;
@@ -137,8 +148,6 @@ glm::vec3 Terrain::getNormal(const float& worldX, const float& worldZ) const {
 }
 
 void Terrain::draw(Shader& shader, GLenum mode) const {
-    // grass_texture->Bind(0);
-    grass_texture->UnBind();
     shader.use();
     glBindVertexArray(VAO);
     glDrawElements(mode, indices.size() * 6, GL_UNSIGNED_INT, 0);

@@ -12,12 +12,14 @@
 #include <imgui/imgui_impl_opengl3.h>
 
 #include "Camera.h"
+#include "Light.h"
 
 // camera and mouse
 extern Camera camera;
 
 // window
 extern bool mainMenu;
+extern const unsigned int SHADOW_WIDTH, SHADOW_HEIGHT;
 
 GLFWwindow* Create_glfw_Window();
 void RenderLoopPreProcess(GLFWwindow* window);

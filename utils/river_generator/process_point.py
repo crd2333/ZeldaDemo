@@ -62,21 +62,10 @@ for point in points:
 print("};")
 print("int num_points = ", len(points))
 
-
-# 可能是图片裁剪的偏移（跟 heightMap 没裁到同一个块，最后结果有一定偏差，手调吧）
-import msvcrt
-
-def get_key():
-    return msvcrt.getch()
-
 # 可能是图片裁剪的偏移（跟 heightMap 没裁到同一个块，最后结果有一定偏差，手调吧）
 while True:
-    try:
-        x_offset = float(input("请输入 x_offset: "))
-        z_offset = float(input("请输入 z_offset: "))
-    except ValueError:
-        print("请输入有效的数字")
-        continue
+    x_offset = float(input("请输入 x_offset: "))
+    z_offset = float(input("请输入 z_offset: "))
 
     print("float points[] = {")
     for point in points:
@@ -84,7 +73,4 @@ while True:
     print("};")
     print("int num_points = ", len(points))
 
-    print("按下 'esc' 键退出，或按任意键继续...")
-    key = get_key()
-    if key == b'\x1b':  # ESC 键的 ASCII 码是 27 (十六进制为 0x1b)
-        break
+    input("ctrl-c 退出，或按任意键继续...")

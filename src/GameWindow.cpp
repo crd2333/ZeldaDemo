@@ -30,6 +30,7 @@ float lastFrame = 0.0f;
 bool mainMenu = false;
 bool ESC_pressed = false;
 bool ALT_pressed = false;
+const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
 
 GLFWwindow* Create_glfw_Window() {
     // glfw: initialize and configure
@@ -54,6 +55,7 @@ GLFWwindow* Create_glfw_Window() {
         return NULL;
     }
     glEnable(GL_DEPTH_TEST);  // configure global opengl state
+    glEnable(GL_CULL_FACE);
     return window;
 }
 

@@ -76,6 +76,7 @@ void FrameBuffer::Bind() const {
 }
 void FrameBuffer::UnBind() const {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 }
 
 void FrameBuffer::Clear(glm::vec4 clearColor, GLbitfield mask) const {

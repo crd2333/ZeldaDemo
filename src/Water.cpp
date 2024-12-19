@@ -21,6 +21,8 @@ Water::Water(const glm::vec2 mapScale, const float heightScale, const float heig
 
     glBindBuffer(GL_ARRAY_BUFFER, 0); // unbind
     glBindVertexArray(0);
+
+    waters.push_back(this); // add to the list
 }
 
 Water::~Water() {
@@ -28,11 +30,16 @@ Water::~Water() {
     if (normalMap) delete normalMap;
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
+
+    for (auto it = waters.begin(); it != waters.end(); it++) { // remove from the list
+        if (*it == this) {
+            waters.erase(it);
+            break;
+        }
+    }
 }
 
 void Water::draw(Shader& shader, GLenum mode) const {
-    dudvMap->Bind(0);
-    normalMap->Bind(1);
     shader.use();
     shader.setVec2("mapScale", mapScale);
     shader.setFloat("height", height * heightScale);
@@ -41,6 +48,10 @@ void Water::draw(Shader& shader, GLenum mode) const {
     glBindVertexArray(VAO);
     glDrawArrays(mode, 0, pointNum);
     glBindVertexArray(0);
+}
+
+bool Water::checkInside(const float x, const float z) const {
+
 }
 
 void RefractionPreProcess() {
@@ -59,29 +70,29 @@ void ReflectionPostProcess() {
 
 }
 
+// 遍历 waters，查看是否 (x,z) 落在水的区域内，如果是则返回水的高度，否则返回 -1
+float checkHeight(const float x, const float z) {
 
-const int river_of_dead_num = 21;  // this is casually chosen
-const float river_of_dead_height = 0.445f;
+}
+
+std::vector<Water*> waters; // 存储所有的水面
+
+const int river_of_dead_num = 14;  // this is casually chosen
+const float river_of_dead_height = 0.449f;
+// const float river_of_dead_height = 0.6f;
 const float river_of_dead[] = {
-    -0.461886f, -0.097880f, 0.000000f, 0.162841f,
-    -0.448966f, -0.149182f, 0.027833f, 0.000000f,
-    -0.334954f, -0.141582f, 0.302114f, 0.000000f,
-    -0.238605f, -0.119731f, 0.555724f, 0.000000f,
-    -0.208094f, -0.062729f, 0.714749f, 0.000000f,
-    -0.206489f, -0.006678f, 0.929277f, 0.000000f,
-    -0.135030f, 0.032273f, 1.000000f, 0.414931f,
-    -0.069994f, 0.059824f, 1.000000f, 0.517698f,
-    -0.034667f, 0.111126f, 1.000000f, 0.629815f,
-    -0.032258f, 0.190928f, 1.000000f, 0.805283f,
-    -0.048316f, 0.241280f, 1.000000f, 0.948814f,
-    -0.078024f, 0.250780f, 0.955075f, 1.000000f,
-    -0.114957f, 0.252680f, 0.858178f, 1.000000f,
-    -0.198460f, 0.211829f, 0.687247f, 1.000000f,
-    -0.251451f, 0.167177f, 0.528171f, 1.000000f,
-    -0.328530f, 0.122526f, 0.000000f, 0.990774f,
-    -0.351012f, 0.057924f, 0.000000f, 0.525501f,
-    -0.355829f, -0.004778f, 0.000000f, 0.204191f,
-    -0.370282f, -0.042779f, 0.000000f, 0.073190f,
-    -0.469039f, -0.077930f, 0.000000f, 0.189569f,
-    -0.462689f, -0.097880f, 0.000000f, 0.164046f,
+    -0.267641f, 0.210123f, 0.522718f, 1.000000f,
+    -0.196208f, 0.282426f, 0.661263f, 1.000000f,
+    -0.080880f, 0.320105f, 0.843150f, 1.000000f,
+    -0.030963f, 0.272242f, 1.000000f, 0.981994f,
+    -0.017192f, 0.224380f, 1.000000f, 0.863666f,
+    -0.029241f, 0.116434f, 1.000000f, 0.662314f,
+    -0.084323f, 0.053296f, 1.000000f, 0.543970f,
+    -0.177273f, -0.006323f, 1.000000f, 0.269460f,
+    -0.217724f, -0.062214f, 0.788183f, 0.000000f,
+    -0.297764f, -0.126270f, 0.432402f, 0.000000f,
+    -0.404485f, -0.155284f, 0.165863f, 0.000000f,
+    -0.459566f, -0.135117f, 0.000000f, 0.031073f,
+    -0.455263f, -0.023098f, 0.000000f, 0.331472f,
+    -0.341657f, 0.145866f, 0.198011f, 1.000000f,
 };
