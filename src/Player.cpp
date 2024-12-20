@@ -206,7 +206,6 @@ void Player::ProcessMoveInput(int moveDirection, bool shift, bool jump, Terrain*
     // moveDirection 0 w 1 s 2 a 3 d -1 表示没有输入 暂时先考虑平面的移动
     // shift 为 true 时表示按下了 shift 键，即跑步
     // jump 为 true 时表示按下了空格键，即跳跃
-
     glm::vec3 newPosition = position;
     if (moveDirection != -1) {
         switch (state) {
