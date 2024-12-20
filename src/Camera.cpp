@@ -127,8 +127,7 @@ void Camera::ProcessMouseOrbit(float deltaX, float deltaY) {
 
 void Camera::constrainAngles() {
     float phiMin = glm::radians(10.0f);
-    float phiMax = glm::radians(90.0f);
-
+    float phiMax = glm::radians(85.0f);
     if (sphericalPhi < phiMin)
         sphericalPhi = phiMin;
     if (sphericalPhi > phiMax)

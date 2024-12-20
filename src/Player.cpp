@@ -9,13 +9,15 @@
 #include <glm/gtx/string_cast.hpp>
 
 Player::Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrain)
-    : state(IDLE_LAND), position(initialPosition), direction(1.0f, 0.0f, 1.0f),
-    upVector(0.0f, 1.0f, 0.0f), length(fixedLength), color(0.55f, 0.27f, 0.07f),
-    speed(0.0f), walkSpeed(4.0f), runSpeed(8.0f), swimSpeed(3.0f), fastSwimSpeed(6.0f),
-    climbSpeed(2.0f), jumpHorizenSpeed(7.0f), jumpUpSpeed(5.0f), jumpHeight(5.0f),
-    jumpDirection(0.0f, 0.0f, 1.0f), targetJumpHeight(0.0f), jumpUp(true),
+    : state(IDLE_LAND), position(initialPosition), direction(1.0f, 0.0f, 0.0f), upVector(0.0f, 1.0f, 0.0f), 
+    length(fixedLength), landColor(0.55f, 0.27f, 0.07f), swimColor(1.0f, 0.7f, 0.4f),
+    speed(0.0f), walkSpeed(8.0f), runSpeed(16.0f), swimSpeed(6.0f), fastSwimSpeed(12.0f),
+    climbSpeed(4.0f), jumpHorizenSpeed(14.0f), jumpUpSpeed(10.0f), jumpHeight(10.0f),
+    jumpDirection(0.0f, 0.0f, 1.0f), targetJumpHeight(0.0f), jumpUp(true), swimFlag(false),
     boxGeometry(fixedLength.x, fixedLength.y, fixedLength.z)
 {
+    color = landColor;
+    swimLength = glm::vec3(fixedLength.x, fixedLength.z, fixedLength.y);
     Update(terrain);
     std::cout << "Player created at " << glm::to_string(position) << std::endl;
     vertices = boxGeometry.vertices;
@@ -25,7 +27,6 @@ Player::Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrai
 
 
 Player::~Player() {
-    // 删除 OpenGL 缓冲区
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);
@@ -203,7 +204,7 @@ void Player::draw(Shader& shader) {
 
 void Player::ProcessMoveInput(int moveDirection, bool shift, bool jump, Terrain* terrain,
                              float deltaTime) {
-    // moveDirection 0 w 1 s 2 a 3 d -1 表示没有输入 暂时先考虑平面的移动
+    // moveDirection 0 w 1 s 2 a 3 d -1 表示没有输入 
     // shift 为 true 时表示按下了 shift 键，即跑步
     // jump 为 true 时表示按下了空格键，即跳跃
     glm::vec3 newPosition = position;
@@ -275,7 +276,7 @@ void Player::ProcessMoveInput(int moveDirection, bool shift, bool jump, Terrain*
         }
     }
     if (state != JUMPING) {
-        glm::vec3 forward = glm::normalize(direction);
+        glm::vec3 forward = direction;
         glm::vec3 right = glm::normalize(glm::cross(forward, upVector));
         switch (moveDirection) {
             case 0:
@@ -291,7 +292,6 @@ void Player::ProcessMoveInput(int moveDirection, bool shift, bool jump, Terrain*
                 newPosition += right * speed * deltaTime;
                 break;
             case -1: // 切换为静止
-                if (state == JUMPING) break;
                 if (state == IDLE_LAND || state == WALKING_LAND || state == RUNNING_LAND)
                     state = IDLE_LAND;
                 else if (state == IDLE_WATER || state == SWIMMING_WATER || state == FAST_SWIMMING_WATER)
@@ -301,6 +301,8 @@ void Player::ProcessMoveInput(int moveDirection, bool shift, bool jump, Terrain*
             default:
                 break;
         }
+        newPosition.y = terrain->getHeight(newPosition.x, newPosition.z) + length.y / 2.0f;
+        newPosition = position + glm::normalize(newPosition - position) * speed * deltaTime;
     }
     if (state != JUMPING && jump && (state != IDLE_CLIMB && state != CLIMBING &&
         state != LAND_TO_CLIMB && state != CLIMB_TO_LAND)) {
@@ -310,14 +312,50 @@ void Player::ProcessMoveInput(int moveDirection, bool shift, bool jump, Terrain*
         targetJumpHeight = position.y + jumpHeight;
     }
     if (moveDirection == -1 && state != JUMPING && state != LAND_TO_CLIMB && state != CLIMB_TO_LAND) return;
-    // todo 判断边界
-    // todo 加入判断水的逻辑
+    
+    // 判断水的逻辑
+    float waterHeight = checkHeight(newPosition.x, newPosition.z);
+    if (abs(waterHeight + 0.1f) < 0.001f && waterHeight > newPosition.y - 0.5f) {
+        if (state == IDLE_LAND) state = IDLE_WATER;
+        else if (state == WALKING_LAND) state = SWIMMING_WATER;
+        else if (state == RUNNING_LAND) state = FAST_SWIMMING_WATER;
+        if (state == IDLE_WATER || state == SWIMMING_WATER || state == FAST_SWIMMING_WATER) {
+            newPosition.y = waterHeight;
+            position = newPosition;
+            upVector = glm::vec3(0.0f, 1.0f, 0.0f);
+        }
+        if (!swimFlag) {
+            swimFlag = true; //初次入水
+            std::cout << "First time in water" << std::endl;
+            boxGeometry = BoxGeometry(swimLength.x, swimLength.y, swimLength.z);
+            vertices = boxGeometry.vertices;
+            indices = boxGeometry.indices;
+            Rebind();
+            color = swimColor;
+            return;
+        }
+    }
+    else {
+        if (state == IDLE_WATER) state = IDLE_LAND;
+        else if (state == SWIMMING_WATER) state = IDLE_LAND;
+        else if (state == FAST_SWIMMING_WATER) state = IDLE_LAND;
+        if (swimFlag) {
+            swimFlag = false; //初次出水
+            std::cout << "First time out of water" << std::endl;
+            boxGeometry = BoxGeometry(length.x, length.y, length.z);
+            vertices = boxGeometry.vertices;
+            indices = boxGeometry.indices;
+            Rebind();
+            color = landColor;
+            return;
+        }
+    }
     // todo climb的逻辑
 
     // 处理跳跃的逻辑
     if(state == JUMPING) {
         DoJump(terrain, deltaTime);
-    } else {
+    } else if (!swimFlag){
         position = newPosition;
         Update(terrain);
         glm::vec3 new_normal = terrain->getNormal(position.x, position.z);
@@ -333,6 +371,12 @@ void Player::ProcessMoveInput(int moveDirection, bool shift, bool jump, Terrain*
             }
         }
     }
+    // 判断边界
+    glm::vec3 length = getLength();
+    if (position.x > MAP_SZIE.x / 2.0f - length.x / 2.0f) position.x = MAP_SZIE.x / 2.0f - length.x / 2.0f;
+    else if (position.x < - MAP_SZIE.x / 2.0f + length.x / 2.0f) position.x = - MAP_SZIE.x / 2.0f + length.x / 2.0f;
+    if (position.z > MAP_SZIE.y / 2.0f - length.z / 2.0f) position.z = MAP_SZIE.y / 2.0f - length.z / 2.0f;
+    else if (position.z < - MAP_SZIE.y / 2.0f + length.z / 2.0f) position.z = - MAP_SZIE.y / 2.0f + length.z / 2.0f;
     return;
 }
 
@@ -359,4 +403,19 @@ void Player::DoJump(Terrain* terrain, float deltaTime) {
     position.y = currentJumpHeight;
     upVector = terrain->getNormal(position.x, position.z);
     return;
+}
+
+void Player::Rebind() {
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
+    glEnableVertexAttribArray(2);
+    glBindVertexArray(0);
 }
