@@ -47,6 +47,7 @@ private:
     glm::vec3 color;
     glm::vec3 landColor;
     glm::vec3 swimColor;
+    glm::vec3 flyColor;
     float speed;
 
     // 速度
@@ -68,7 +69,6 @@ private:
     glm::vec3 climbcolor;
     float climbtheta;
     float climbtheta_delta;
-    glm::vec3 climbUpvector;
     glm::vec3 climbRotateAxis;
     int climbCount = 0;
     float climbCount_sum = 0;
@@ -78,7 +78,7 @@ public:
     Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrain);
     ~Player();
     void draw(Shader& player_shader);
-    void ProcessMoveInput(moveDirection move_Direction, bool shift, bool jump, Terrain* terrain, float deltaTime);
+    void ProcessMoveInput(moveDirection move_Direction, bool shift, bool jump, bool fly,Terrain* terrain, float deltaTime);
     // void Transfer();
     glm::vec3 getPosition() const { return position; }
     glm::vec3 getDirection() const { return direction; }
@@ -109,7 +109,7 @@ public:
     void setJumpHeight(float newJumpHeight) { jumpHeight = newJumpHeight; }
 
 private:
-    void DoJump(Terrain* terrain, float deltaTime);
+    void DoJump(Terrain* terrain, float deltaTime, bool fly = false);
     void Update(Terrain* terrain);
     void Rebind();
     unsigned int VAO, VBO, EBO;

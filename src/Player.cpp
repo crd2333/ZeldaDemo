@@ -14,8 +14,8 @@ Player::Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrai
     speed(0.0f), walkSpeed(8.0f), runSpeed(16.0f), swimSpeed(6.0f), fastSwimSpeed(12.0f),
     climbSpeed(20.0f), jumpHorizenSpeed(14.0f), jumpUpSpeed(10.0f), jumpHeight(5.0f),
     jumpDirection(0.0f, 0.0f, 1.0f), targetJumpHeight(0.0f), jumpUp(true), swimFlag(false),
-    climbtheta(-20.0f), climbUpvector(0.0f, 1.0f, 0.0f), climbRotateAxis(0.0f, 0.0f, 1.0f),
-    climbcolor(1.0f,0.0f,0.0f),
+    climbtheta(-20.0f), climbRotateAxis(0.0f, 0.0f, 1.0f),climbcolor(1.0f,0.0f,0.0f),
+    flyColor(0.05f,0.45f,0.25f),
     boxGeometry(fixedLength.x, fixedLength.y, fixedLength.z)
 {
     color = landColor;
@@ -239,7 +239,7 @@ void Player::draw(Shader& shader) {
 }
 
 
-void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jump, Terrain* terrain,
+void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jump, bool fly,Terrain* terrain,
                              float deltaTime) {
     // shift 为 true 时表示按下了 shift 键，即跑步
     // jump 为 true 时表示按下了空格键，即跳跃
@@ -416,22 +416,19 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
         }
     }
     // 处理攀爬的逻辑
-    // printf("state: %d\n",state);
     if (state == CLIMBING && climbCount % 1 == 0) {
-        // printf("climbCount: %d\n", climbCount);
         climbtheta_delta = climbtheta_delta >= climbtheta ? climbtheta : climbtheta_delta + 2;
         if(climbtheta_delta >= climbtheta){
             color = climbcolor;
         }
         climbCount ++;
-        // printf("climbcount: %d\n",climbCount);
     }else{
         color = landColor;
     }
 
     // 处理跳跃的逻辑
     if(state == JUMPING) {
-        DoJump(terrain, deltaTime);
+        DoJump(terrain, deltaTime,fly);
     } else if (!swimFlag ) {
         position = newPosition;
         Update(terrain);
@@ -447,17 +444,19 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
 }
 
 
-void Player::DoJump(Terrain* terrain, float deltaTime) {
+void Player::DoJump(Terrain* terrain, float deltaTime,bool fly) {
     float currentJumpHeight = position.y;
     position += jumpDirection * jumpHorizenSpeed * deltaTime;
+    float speedInair = fly? jumpUpSpeed * 0.1 : jumpUpSpeed;
+    color = fly? flyColor : landColor;
     if (jumpUp) {
-        currentJumpHeight += jumpUpSpeed * deltaTime;
-        if (currentJumpHeight >= targetJumpHeight) {
+        currentJumpHeight += speedInair * deltaTime;
+        if (currentJumpHeight >= targetJumpHeight || fly) {
             jumpUp = false;
-            currentJumpHeight = targetJumpHeight;
+            currentJumpHeight = fly? currentJumpHeight : targetJumpHeight;
         }
     } else {
-        currentJumpHeight -= jumpUpSpeed * deltaTime;
+        currentJumpHeight -= speedInair * deltaTime;
         glm::vec3 new_normal = terrain->getNormal(position.x, position.z);
         glm::vec3 terrainPosition(position.x, terrain->getHeight(position.x, position.z), position.z);
         glm::vec3 ground_position = terrainPosition + new_normal * (length.y / 2.0f);
