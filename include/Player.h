@@ -10,6 +10,7 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Def.h"
+#include "Water.h"
 
 enum PlayerState {
     IDLE_LAND = 0,
@@ -22,7 +23,9 @@ enum PlayerState {
     CLIMBING,
     JUMPING,
     LAND_TO_CLIMB,
-    CLIMB_TO_LAND
+    CLIMB_TO_LAND,
+    CLIMB_TO_WATER,
+    WATER_TO_CLIMB
 };
 
 enum moveDirection {
@@ -40,7 +43,10 @@ private:
     glm::vec3 direction;
     glm::vec3 upVector;
     glm::vec3 length;
+    glm::vec3 swimLength;
     glm::vec3 color;
+    glm::vec3 landColor;
+    glm::vec3 swimColor;
     float speed;
 
     // 速度
@@ -56,6 +62,7 @@ private:
     glm::vec3 jumpDirection;
     float targetJumpHeight;
     bool jumpUp;
+    bool swimFlag; // 初次进水由0变1，初次出水由1变0
 
 public:
     Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrain);
@@ -94,7 +101,7 @@ public:
 private:
     void DoJump(Terrain* terrain, float deltaTime);
     void Update(Terrain* terrain);
-
+    void Rebind();
     unsigned int VAO, VBO, EBO;
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
