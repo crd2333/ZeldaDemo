@@ -17,7 +17,7 @@ Player::Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrai
     boxGeometry(fixedLength.x, fixedLength.y, fixedLength.z)
 {
     color = landColor;
-    swimLength = glm::vec3(fixedLength.x, fixedLength.z, fixedLength.y);
+    swimLength = glm::vec3(fixedLength.y, fixedLength.x, fixedLength.z);
     Update(terrain);
     std::cout << "Player created at " << glm::to_string(position) << std::endl;
     vertices = boxGeometry.vertices;
@@ -171,6 +171,8 @@ void Player::draw(Shader& shader) {
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::translate(model, position);
     glm::vec3 defaultUp(0.0f, 1.0f, 0.0f);
+    glm::vec3 defaultFront(1.0f, 0.0f, 0.0f);
+    glm::vec3 front(direction.x,0.0f,direction.z);
     glm::vec3 up = glm::normalize(upVector);
 
     float dot = glm::dot(defaultUp, up);
@@ -185,11 +187,23 @@ void Player::draw(Shader& shader) {
         model = glm::rotate(model, glm::pi<float>(), rotationAxis);
     } else {
         // 计算旋转轴和角度
-        glm::vec3 rotationAxis = glm::cross(defaultUp, up);
-        rotationAxis = glm::normalize(rotationAxis);
+        glm::vec3 rotationAxis =  glm::normalize(glm::cross(defaultUp, up));
         float angle = glm::acos(dot);
         model = glm::rotate(model, angle, rotationAxis);
     }
+
+    dot = glm::dot(defaultFront, front);
+    if (dot > 0.9999f) {
+        // 向量几乎相同，不需要旋转
+    } else if (dot < -0.9999f) {
+        model = glm::rotate(model, glm::pi<float>(), glm::vec3(0.0f, 1.0f, 0.0f));
+    } else {
+        // 计算旋转轴和角度
+        glm::vec3 rotationAxis =  glm::normalize(glm::cross(defaultFront, front));
+        float angle = glm::acos(dot);
+        model = glm::rotate(model, angle, rotationAxis);
+    }
+    
 
     shader.use();
     shader.setMat4("model", model);
@@ -307,6 +321,7 @@ void Player::ProcessMoveInput(int moveDirection, bool shift, bool jump, Terrain*
     if (state != JUMPING && jump && (state != IDLE_CLIMB && state != CLIMBING &&
         state != LAND_TO_CLIMB && state != CLIMB_TO_LAND)) {
         state = JUMPING;
+        upVector = glm::vec3(0.0f, 1.0f, 0.0f);
         jumpDirection = direction;
         jumpUp = true;
         targetJumpHeight = position.y + jumpHeight;
@@ -315,7 +330,7 @@ void Player::ProcessMoveInput(int moveDirection, bool shift, bool jump, Terrain*
     
     // 判断水的逻辑
     float waterHeight = checkHeight(newPosition.x, newPosition.z);
-    if (abs(waterHeight + 0.1f) < 0.001f && waterHeight > newPosition.y - 0.5f) {
+    if (abs(waterHeight + 0.1f) > 0.001f && waterHeight > newPosition.y - 0.5f) {
         if (state == IDLE_LAND) state = IDLE_WATER;
         else if (state == WALKING_LAND) state = SWIMMING_WATER;
         else if (state == RUNNING_LAND) state = FAST_SWIMMING_WATER;
@@ -401,7 +416,6 @@ void Player::DoJump(Terrain* terrain, float deltaTime) {
         }
     }
     position.y = currentJumpHeight;
-    upVector = terrain->getNormal(position.x, position.z);
     return;
 }
 
