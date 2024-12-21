@@ -12,8 +12,10 @@ Player::Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrai
     : state(IDLE_LAND), position(initialPosition), direction(1.0f, 0.0f, 0.0f), upVector(0.0f, 1.0f, 0.0f), 
     length(fixedLength), landColor(0.55f, 0.27f, 0.07f), swimColor(1.0f, 0.7f, 0.4f),
     speed(0.0f), walkSpeed(8.0f), runSpeed(16.0f), swimSpeed(6.0f), fastSwimSpeed(12.0f),
-    climbSpeed(4.0f), jumpHorizenSpeed(14.0f), jumpUpSpeed(10.0f), jumpHeight(10.0f),
+    climbSpeed(20.0f), jumpHorizenSpeed(14.0f), jumpUpSpeed(10.0f), jumpHeight(5.0f),
     jumpDirection(0.0f, 0.0f, 1.0f), targetJumpHeight(0.0f), jumpUp(true), swimFlag(false),
+    climbtheta(-20.0f), climbUpvector(0.0f, 1.0f, 0.0f), climbRotateAxis(0.0f, 0.0f, 1.0f),
+    climbcolor(1.0f,0.0f,0.0f),
     boxGeometry(fixedLength.x, fixedLength.y, fixedLength.z)
 {
     color = landColor;
@@ -118,7 +120,24 @@ void Player::Update(Terrain* terrain) {
     }
     averageNormal /= sampledNormals.size();
     averageNormal = glm::normalize(averageNormal);
-    upVector = averageNormal;
+    if(glm::dot(averageNormal, defaultUp) < 0.8f && state != CLIMBING){
+        state = CLIMBING;
+        climbtheta = abs( glm::acos(glm::dot(averageNormal, upVector))/ PI * 180.0f);
+        climbtheta = max(5.0f, climbtheta);
+        upVector = defaultUp;
+        climbRotateAxis = - glm::normalize(glm::cross(averageNormal, upVector));
+    }
+    if(glm::dot(averageNormal, defaultUp) > 0.8f){
+        if(state == CLIMBING || state == LAND_TO_CLIMB || state == CLIMB_TO_LAND){
+            state = IDLE_LAND;
+        }
+        climbtheta_delta = 0.0f;
+        climbtheta = 0.0f;
+    }
+    if(state != IDLE_CLIMB && state != CLIMBING && state != LAND_TO_CLIMB 
+        && state != CLIMB_TO_LAND && state != JUMPING){
+        upVector = averageNormal;
+    }
 
     // 计算新的旋转矩阵，使得新的 upVector 对齐
     dot = glm::dot(defaultUp, upVector);
@@ -201,9 +220,13 @@ void Player::draw(Shader& shader) {
         // 计算旋转轴和角度
         glm::vec3 rotationAxis =  glm::normalize(glm::cross(defaultFront, front));
         float angle = glm::acos(dot);
-        model = glm::rotate(model, angle, rotationAxis);
+        model = state == CLIMBING ? model:glm::rotate(model, angle, rotationAxis);
     }
-    
+
+    //攀爬时的旋转
+    if(state == CLIMBING){
+        model = glm::rotate(model, -glm::radians(climbtheta_delta), climbRotateAxis);
+    }
 
     shader.use();
     shader.setMat4("model", model);
@@ -218,9 +241,16 @@ void Player::draw(Shader& shader) {
 
 void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jump, Terrain* terrain,
                              float deltaTime) {
-    // moveDirection 0 w 1 s 2 a 3 d -1 表示没有输入 
     // shift 为 true 时表示按下了 shift 键，即跑步
     // jump 为 true 时表示按下了空格键，即跳跃
+    if(climbCount_sum < 0){
+        climbCount_sum = 0;
+    }
+    climbCount_sum += deltaTime;
+    if(climbCount_sum > 1){
+        climbCount_sum = 0;
+        climbCount ++;
+    }
     glm::vec3 newPosition = position;
     if (move_Direction != moveDirection::MOVE_STATIC) {
         switch (state) {
@@ -278,6 +308,7 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
                 break;
             case IDLE_CLIMB:
                 state = CLIMBING;
+                speed = climbSpeed;
             case CLIMBING:
                 speed = climbSpeed;
                 break;
@@ -306,13 +337,12 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
             case moveDirection::MOVE_RIGHT:
                 newPosition += right * speed * deltaTime;
                 break;
-            case -1: // 切换为静止
+            case moveDirection::MOVE_STATIC: // 切换为静止
                 if (state == IDLE_LAND || state == WALKING_LAND || state == RUNNING_LAND)
                     state = IDLE_LAND;
                 else if (state == IDLE_WATER || state == SWIMMING_WATER || state == FAST_SWIMMING_WATER)
                     state = IDLE_WATER;
-                else if (state == IDLE_CLIMB || state == CLIMBING)
-                    state = IDLE_CLIMB;
+                break;  
             default:
                 break;
         }
@@ -320,8 +350,8 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
         newPosition = position + glm::normalize(newPosition - position) * speed * deltaTime;
     }
 
-    if (state != JUMPING && jump && (state != IDLE_CLIMB && state != CLIMBING &&
-        state != LAND_TO_CLIMB && state != CLIMB_TO_LAND)) {
+    // 处理跳跃时的状态+参数设置
+    if (state != JUMPING && jump) {
         state = JUMPING;
         upVector = glm::vec3(0.0f, 1.0f, 0.0f);
         jumpDirection = direction;
@@ -345,11 +375,10 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
         jumpUp = true;
         targetJumpHeight = position.y + jumpHeight;
     }
-    if (move_Direction == moveDirection::MOVE_STATIC && state != JUMPING && state != LAND_TO_CLIMB && state != CLIMB_TO_LAND) return;
     
     // 判断水的逻辑
     float waterHeight = checkHeight(newPosition.x, newPosition.z);
-    if (abs(waterHeight + 0.1f) > 0.001f && waterHeight > newPosition.y - 0.5f) {
+    if (waterHeight != -1.0f && (waterHeight + 0.1f) > 0.001f && waterHeight > newPosition.y - 0.5f) {
         if (state == IDLE_LAND) state = IDLE_WATER;
         else if (state == WALKING_LAND) state = SWIMMING_WATER;
         else if (state == RUNNING_LAND) state = FAST_SWIMMING_WATER;
@@ -361,7 +390,9 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
         if (!swimFlag) {
             swimFlag = true; //初次入水
             std::cout << "First time in water" << std::endl;
-            boxGeometry = BoxGeometry(swimLength.x, swimLength.y, swimLength.z);
+            boxGeometry.setWidth(swimLength.x);
+            boxGeometry.setHeight(swimLength.y);
+            boxGeometry.setDepth(swimLength.z);
             vertices = boxGeometry.vertices;
             indices = boxGeometry.indices;
             Rebind();
@@ -384,27 +415,28 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
             return;
         }
     }
-    // todo climb的逻辑
+    // 处理攀爬的逻辑
+    // printf("state: %d\n",state);
+    if (state == CLIMBING && climbCount % 1 == 0) {
+        // printf("climbCount: %d\n", climbCount);
+        climbtheta_delta = climbtheta_delta >= climbtheta ? climbtheta : climbtheta_delta + 2;
+        if(climbtheta_delta >= climbtheta){
+            color = climbcolor;
+        }
+        climbCount ++;
+        // printf("climbcount: %d\n",climbCount);
+    }else{
+        color = landColor;
+    }
 
     // 处理跳跃的逻辑
     if(state == JUMPING) {
         DoJump(terrain, deltaTime);
-    } else if (!swimFlag){
+    } else if (!swimFlag ) {
         position = newPosition;
         Update(terrain);
-        glm::vec3 new_normal = terrain->getNormal(position.x, position.z);
-        if (state == IDLE_LAND || state == WALKING_LAND || state == RUNNING_LAND) {
-            if (glm::acos(new_normal.y) > glm::radians(45.0f)) {
-                state = LAND_TO_CLIMB;
-            }
-            // std::cout << state << std::endl;
-        }
-        else if (state == IDLE_CLIMB || state == CLIMBING) {
-            if (glm::acos(new_normal.y) < glm::radians(45.0f)) {
-                state = CLIMB_TO_LAND;
-            }
-        }
     }
+    
     // 判断边界
     glm::vec3 length = getLength();
     if (position.x > MAP_SZIE.x / 2.0f - length.x / 2.0f) position.x = MAP_SZIE.x / 2.0f - length.x / 2.0f;

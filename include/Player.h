@@ -62,7 +62,17 @@ private:
     glm::vec3 jumpDirection;
     float targetJumpHeight;
     bool jumpUp;
+    // 游泳相关参数
     bool swimFlag; // 初次进水由0变1，初次出水由1变0
+    // 攀爬相关参数
+    glm::vec3 climbcolor;
+    float climbtheta;
+    float climbtheta_delta;
+    glm::vec3 climbUpvector;
+    glm::vec3 climbRotateAxis;
+    int climbCount = 0;
+    float climbCount_sum = 0;
+
 
 public:
     Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrain);
