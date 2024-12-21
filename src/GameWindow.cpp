@@ -94,21 +94,21 @@ void RenderLoopPostProcess(GLFWwindow* window) {
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 void processInput(GLFWwindow* window, Player* player, Terrain* terrain) {
-    int moveDirection = -1; // 0 w 1 s 2 a 3 d -1 表示没有输入
+    moveDirection move_Direction = moveDirection::MOVE_STATIC; 
     bool shift = false;
     bool jump = false;
     // 移动：WASD + 上下
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        moveDirection = 0;
+        move_Direction = moveDirection::MOVE_FORWARD;
         // camera.ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        moveDirection = 1;
+        move_Direction = moveDirection::MOVE_BACKWARD;
         // camera.ProcessKeyboard(BACKWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        moveDirection = 2;
+        move_Direction = moveDirection::MOVE_LEFT;
         // camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        moveDirection = 3;
+        move_Direction = moveDirection::MOVE_RIGHT;
         // camera.ProcessKeyboard(RIGHT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)   // shift
         shift = true;
@@ -133,7 +133,7 @@ void processInput(GLFWwindow* window, Player* player, Terrain* terrain) {
     } else if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_RELEASE)
         ALT_pressed = false;
 
-    player->ProcessMoveInput(moveDirection, shift, jump, terrain, deltaTime);
+    player->ProcessMoveInput(move_Direction, shift, jump, terrain, deltaTime);
 }
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 void framebuffer_size_callback([[maybe_unused]] GLFWwindow* window, int width, int height) {

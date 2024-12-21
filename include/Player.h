@@ -25,6 +25,14 @@ enum PlayerState {
     CLIMB_TO_LAND
 };
 
+enum moveDirection {
+    MOVE_FORWARD = 0,
+    MOVE_BACKWARD = 1,
+    MOVE_LEFT = 2,
+    MOVE_RIGHT = 3,
+    MOVE_STATIC = -1
+};
+
 class Player {
 private:
     int state;
@@ -43,6 +51,7 @@ private:
     float climbSpeed;
     float jumpHorizenSpeed;
     float jumpUpSpeed;
+    // 跳跃相关参数
     float jumpHeight;
     glm::vec3 jumpDirection;
     float targetJumpHeight;
@@ -52,7 +61,7 @@ public:
     Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrain);
     ~Player();
     void draw(Shader& player_shader);
-    void ProcessMoveInput(int direction, bool shift, bool jump, Terrain* terrain, float deltaTime);
+    void ProcessMoveInput(moveDirection move_Direction, bool shift, bool jump, Terrain* terrain, float deltaTime);
     // void Transfer();
     glm::vec3 getPosition() const { return position; }
     glm::vec3 getDirection() const { return direction; }

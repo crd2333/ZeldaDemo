@@ -1,6 +1,7 @@
 lib/
 other/
 output/
+.vscode/
 
 *.o
 *.d

@@ -201,14 +201,14 @@ void Player::draw(Shader& shader) {
 }
 
 
-void Player::ProcessMoveInput(int moveDirection, bool shift, bool jump, Terrain* terrain,
+void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jump, Terrain* terrain,
                              float deltaTime) {
     // moveDirection 0 w 1 s 2 a 3 d -1 表示没有输入 暂时先考虑平面的移动
     // shift 为 true 时表示按下了 shift 键，即跑步
     // jump 为 true 时表示按下了空格键，即跳跃
 
     glm::vec3 newPosition = position;
-    if (moveDirection != -1) {
+    if (move_Direction != moveDirection::MOVE_STATIC) {
         switch (state) {
             case IDLE_LAND:
                 if (shift) {
@@ -275,20 +275,21 @@ void Player::ProcessMoveInput(int moveDirection, bool shift, bool jump, Terrain*
                 break;
         }
     }
+    // 处理未跳跃时的位移变化
     if (state != JUMPING) {
         glm::vec3 forward = glm::normalize(direction);
         glm::vec3 right = glm::normalize(glm::cross(forward, upVector));
-        switch (moveDirection) {
-            case 0:
+        switch (move_Direction) {
+            case moveDirection::MOVE_FORWARD:
                 newPosition += forward * speed * deltaTime;
                 break;
-            case 1:
+            case moveDirection::MOVE_BACKWARD:
                 newPosition -= forward * speed * deltaTime;
                 break;
-            case 2:
+            case moveDirection::MOVE_LEFT:
                 newPosition -= right * speed * deltaTime;
                 break;
-            case 3:
+            case moveDirection::MOVE_RIGHT:
                 newPosition += right * speed * deltaTime;
                 break;
             case -1: // 切换为静止
@@ -303,14 +304,32 @@ void Player::ProcessMoveInput(int moveDirection, bool shift, bool jump, Terrain*
                 break;
         }
     }
+
     if (state != JUMPING && jump && (state != IDLE_CLIMB && state != CLIMBING &&
         state != LAND_TO_CLIMB && state != CLIMB_TO_LAND)) {
         state = JUMPING;
         jumpDirection = direction;
+        switch (move_Direction)
+        {
+        case moveDirection::MOVE_FORWARD:
+            jumpDirection = glm::normalize(jumpDirection);
+            break;
+        case moveDirection::MOVE_BACKWARD:
+            jumpDirection = -glm::normalize(jumpDirection);
+            break;
+        case moveDirection::MOVE_LEFT:
+            jumpDirection = -glm::normalize(glm::cross(jumpDirection, upVector));
+            break;
+        case moveDirection::MOVE_RIGHT:
+            jumpDirection = glm::normalize(glm::cross(jumpDirection, upVector));
+            break;
+        default:
+            break;
+        }
         jumpUp = true;
         targetJumpHeight = position.y + jumpHeight;
     }
-    if (moveDirection == -1 && state != JUMPING && state != LAND_TO_CLIMB && state != CLIMB_TO_LAND) return;
+    if (move_Direction == moveDirection::MOVE_STATIC && state != JUMPING && state != LAND_TO_CLIMB && state != CLIMB_TO_LAND) return;
     // todo 判断边界
     // todo 加入判断水的逻辑
     // todo climb的逻辑
@@ -340,7 +359,7 @@ void Player::ProcessMoveInput(int moveDirection, bool shift, bool jump, Terrain*
 
 void Player::DoJump(Terrain* terrain, float deltaTime) {
     float currentJumpHeight = position.y;
-    position += direction * jumpHorizenSpeed * deltaTime;
+    position += jumpDirection * jumpHorizenSpeed * deltaTime;
     if (jumpUp) {
         currentJumpHeight += jumpUpSpeed * deltaTime;
         if (currentJumpHeight >= targetJumpHeight) {
