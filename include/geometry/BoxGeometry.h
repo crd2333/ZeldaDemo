@@ -9,6 +9,7 @@ class BoxGeometry : public BufferGeometry {
 public:
     float width;
     float height;
+    float depth;
     float widthSegments;
     float heightSegments;
     float depthSegments;
@@ -20,6 +21,7 @@ public:
 
         this->width = width;
         this->height = height;
+        this->depth = depth;
         this->widthSegments = widthSegments;
         this->heightSegments = heightSegments;
         this->depthSegments = depthSegments;
@@ -41,6 +43,39 @@ public:
         this->buildPlane(0, 1, 2, -1, -1, width, height, -depth, widthSegments, heightSegments, 5); // nz
 
         this->setupBuffers();
+    }
+    void setWidth(float width) {
+        this->width = width;
+        this->buildPlane(2, 1, 0, -1, -1, depth, height, width, depthSegments, heightSegments, 0); // px
+        this->buildPlane(2, 1, 0, 1, -1, depth, height, -width, depthSegments, heightSegments, 1); // nx
+
+        this->buildPlane(0, 2, 1, 1, 1, width, depth, height, widthSegments, depthSegments, 2);   // py
+        this->buildPlane(0, 2, 1, 1, -1, width, depth, -height, widthSegments, depthSegments, 3); // ny
+
+        this->buildPlane(0, 1, 2, 1, -1, width, height, depth, widthSegments, heightSegments, 4);   // pz
+        this->buildPlane(0, 1, 2, -1, -1, width, height, -depth, widthSegments, heightSegments, 5); // nz
+    }
+    void setHeight(float height) {
+        this->height = height;
+        this->buildPlane(2, 1, 0, -1, -1, depth, height, width, depthSegments, heightSegments, 0); // px
+        this->buildPlane(2, 1, 0, 1, -1, depth, height, -width, depthSegments, heightSegments, 1); // nx
+
+        this->buildPlane(0, 2, 1, 1, 1, width, depth, height, widthSegments, depthSegments, 2);   // py
+        this->buildPlane(0, 2, 1, 1, -1, width, depth, -height, widthSegments, depthSegments, 3); // ny
+
+        this->buildPlane(0, 1, 2, 1, -1, width, height, depth, widthSegments, heightSegments, 4);   // pz
+        this->buildPlane(0, 1, 2, -1, -1, width, height, -depth, widthSegments, heightSegments, 5); // nz
+    }
+    void setDepth(float depth) {
+        this->depth = depth;
+        this->buildPlane(2, 1, 0, -1, -1, depth, height, width, depthSegments, heightSegments, 0); // px
+        this->buildPlane(2, 1, 0, 1, -1, depth, height, -width, depthSegments, heightSegments, 1); // nx
+
+        this->buildPlane(0, 2, 1, 1, 1, width, depth, height, widthSegments, depthSegments, 2);   // py
+        this->buildPlane(0, 2, 1, 1, -1, width, depth, -height, widthSegments, depthSegments, 3); // ny
+
+        this->buildPlane(0, 1, 2, 1, -1, width, height, depth, widthSegments, heightSegments, 4);   // pz
+        this->buildPlane(0, 1, 2, -1, -1, width, height, -depth, widthSegments, heightSegments, 5); // nz
     }
 
 private:

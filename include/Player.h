@@ -10,6 +10,7 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "Def.h"
+#include "Water.h"
 
 enum PlayerState {
     IDLE_LAND = 0,
@@ -22,7 +23,17 @@ enum PlayerState {
     CLIMBING,
     JUMPING,
     LAND_TO_CLIMB,
-    CLIMB_TO_LAND
+    CLIMB_TO_LAND,
+    CLIMB_TO_WATER,
+    WATER_TO_CLIMB
+};
+
+enum moveDirection {
+    MOVE_FORWARD = 0,
+    MOVE_BACKWARD = 1,
+    MOVE_LEFT = 2,
+    MOVE_RIGHT = 3,
+    MOVE_STATIC = -1
 };
 
 class Player {
@@ -32,7 +43,10 @@ private:
     glm::vec3 direction;
     glm::vec3 upVector;
     glm::vec3 length;
+    glm::vec3 swimLength;
     glm::vec3 color;
+    glm::vec3 landColor;
+    glm::vec3 swimColor;
     float speed;
 
     // 速度
@@ -43,16 +57,28 @@ private:
     float climbSpeed;
     float jumpHorizenSpeed;
     float jumpUpSpeed;
+    // 跳跃相关参数
     float jumpHeight;
     glm::vec3 jumpDirection;
     float targetJumpHeight;
     bool jumpUp;
+    // 游泳相关参数
+    bool swimFlag; // 初次进水由0变1，初次出水由1变0
+    // 攀爬相关参数
+    glm::vec3 climbcolor;
+    float climbtheta;
+    float climbtheta_delta;
+    glm::vec3 climbUpvector;
+    glm::vec3 climbRotateAxis;
+    int climbCount = 0;
+    float climbCount_sum = 0;
+
 
 public:
     Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrain);
     ~Player();
     void draw(Shader& player_shader);
-    void ProcessMoveInput(int direction, bool shift, bool jump, Terrain* terrain, float deltaTime);
+    void ProcessMoveInput(moveDirection move_Direction, bool shift, bool jump, Terrain* terrain, float deltaTime);
     // void Transfer();
     glm::vec3 getPosition() const { return position; }
     glm::vec3 getDirection() const { return direction; }
@@ -85,7 +111,7 @@ public:
 private:
     void DoJump(Terrain* terrain, float deltaTime);
     void Update(Terrain* terrain);
-
+    void Rebind();
     unsigned int VAO, VBO, EBO;
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;

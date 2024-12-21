@@ -1,7 +1,7 @@
 #version 330 core
 
 in vec3 worldFragPos;
-in vec3 Normal;
+in vec3 normal;
 in vec2 texCoords;
 in vec4 shadowFragPos;
 
@@ -47,26 +47,25 @@ float calcShadow(vec4 FragPos, vec3 normal, vec3 sunDir) {
 void main() {
     vec3 color = objectColor;
     // vec3 objectColor = texture(diffuseTexture, texCoords).rgb;
-    // float ambientStrength = 0.5;
-    // vec3 ambient = ambientStrength * lightColor;
+    float ambientStrength = 0.1;
+    vec3 ambient = ambientStrength * lightColor;
 
-    // vec3 norm = normalize(Normal);
-    // vec3 lightDir = normalize(lightPos - FragPos);
-    // float diff = max(dot(norm, lightDir), 0.0);
-    // vec3 diffuse = diff * lightColor;
-
-    // float specularStrength = 0.5;
-    // vec3 viewDir = normalize(viewPos - FragPos);
-    // vec3 reflectDir = reflect(-lightDir, norm);
-    // float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
-    // vec3 specular = specularStrength * spec * lightColor;
-
-    // vec3 result = (ambient + diffuse + specular) * objectColor;
-
+    vec3 norm = normalize(normal);
     vec3 lightDir = normalize(lightPos - worldFragPos);
-    float shadow = calcShadow(shadowFragPos, Normal, lightDir);
+    float diff = max(dot(norm, lightDir), 0.0);
+    vec3 diffuse = diff * lightColor;
 
-    color = color * (1 - shadow);
+    float specularStrength = 0.5;
+    vec3 viewDir = normalize(viewPos - worldFragPos);
+    vec3 reflectDir = reflect(-lightDir, norm);
+    float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
+    vec3 specular = specularStrength * spec * lightColor;
 
-    FragColor = vec4(color, 1.0);
+    vec3 result = (ambient + diffuse + specular) * objectColor;
+
+    float shadow = calcShadow(shadowFragPos, normal, lightDir);
+
+    result = result * (1 - shadow);
+
+    FragColor = vec4(result, 1.0);
 }
