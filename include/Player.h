@@ -65,13 +65,15 @@ private:
     bool jumpUp;
     // 游泳相关参数
     bool swimFlag; // 初次进水由0变1，初次出水由1变0
+    float swimtheta_delta;
     // 攀爬相关参数
     glm::vec3 climbcolor;
     float climbtheta;
     float climbtheta_delta;
     glm::vec3 climbRotateAxis;
-    int climbCount = 0;
-    float climbCount_sum = 0;
+    // 动画计数器1s1拍
+    int actionCount = 0;
+    float actionCount_unused = 0;
 
 
 public:

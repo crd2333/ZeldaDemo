@@ -12,6 +12,7 @@ Player::Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrai
     : state(IDLE_LAND), position(initialPosition), direction(1.0f, 0.0f, 0.0f), upVector(0.0f, 1.0f, 0.0f), 
     length(fixedLength), landColor(0.55f, 0.27f, 0.07f), swimColor(1.0f, 0.7f, 0.4f),
     speed(0.0f), walkSpeed(8.0f), runSpeed(16.0f), swimSpeed(6.0f), fastSwimSpeed(12.0f),
+    swimtheta_delta(0.0f),
     climbSpeed(20.0f), jumpHorizenSpeed(14.0f), jumpUpSpeed(10.0f), jumpHeight(5.0f),
     jumpDirection(0.0f, 0.0f, 1.0f), targetJumpHeight(0.0f), jumpUp(true), swimFlag(false),
     climbtheta(-20.0f), climbRotateAxis(0.0f, 0.0f, 1.0f),climbcolor(1.0f,0.0f,0.0f),
@@ -227,6 +228,10 @@ void Player::draw(Shader& shader) {
     if(state == CLIMBING){
         model = glm::rotate(model, -glm::radians(climbtheta_delta), climbRotateAxis);
     }
+    //游泳时的旋转
+    if(swimFlag){
+        model = glm::rotate(model, glm::radians(swimtheta_delta), glm::vec3(0.0f, 0.0f, -1.0f));
+    }
 
     shader.use();
     shader.setMat4("model", model);
@@ -243,13 +248,10 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
                              float deltaTime) {
     // shift 为 true 时表示按下了 shift 键，即跑步
     // jump 为 true 时表示按下了空格键，即跳跃
-    if(climbCount_sum < 0){
-        climbCount_sum = 0;
-    }
-    climbCount_sum += deltaTime;
-    if(climbCount_sum > 1){
-        climbCount_sum = 0;
-        climbCount ++;
+    actionCount_unused += deltaTime;
+    if(actionCount_unused > 1){
+        actionCount_unused = 0;
+        actionCount ++;
     }
     glm::vec3 newPosition = position;
     if (move_Direction != moveDirection::MOVE_STATIC) {
@@ -378,7 +380,7 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
     
     // 判断水的逻辑
     float waterHeight = checkHeight(newPosition.x, newPosition.z);
-    if (waterHeight != -1.0f && (waterHeight + 0.1f) > 0.001f && waterHeight > newPosition.y - 0.5f) {
+    if ( (waterHeight + 1.0f) > 0.001f && waterHeight > newPosition.y - 0.5f) {
         if (state == IDLE_LAND) state = IDLE_WATER;
         else if (state == WALKING_LAND) state = SWIMMING_WATER;
         else if (state == RUNNING_LAND) state = FAST_SWIMMING_WATER;
@@ -387,16 +389,14 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
             position = newPosition;
             upVector = glm::vec3(0.0f, 1.0f, 0.0f);
         }
+        if(actionCount % 1 == 0 && swimtheta_delta <= 90.0f){
+            swimtheta_delta = swimtheta_delta >= 90.0f ? 90.0f : swimtheta_delta + 2;
+            actionCount ++;
+        }
+        color = swimColor;
         if (!swimFlag) {
             swimFlag = true; //初次入水
             std::cout << "First time in water" << std::endl;
-            boxGeometry.setWidth(swimLength.x);
-            boxGeometry.setHeight(swimLength.y);
-            boxGeometry.setDepth(swimLength.z);
-            vertices = boxGeometry.vertices;
-            indices = boxGeometry.indices;
-            Rebind();
-            color = swimColor;
             return;
         }
     }
@@ -406,23 +406,20 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
         else if (state == FAST_SWIMMING_WATER) state = IDLE_LAND;
         if (swimFlag) {
             swimFlag = false; //初次出水
+            swimtheta_delta = 0.0f;
             std::cout << "First time out of water" << std::endl;
-            boxGeometry = BoxGeometry(length.x, length.y, length.z);
-            vertices = boxGeometry.vertices;
-            indices = boxGeometry.indices;
-            Rebind();
             color = landColor;
             return;
         }
     }
     // 处理攀爬的逻辑
-    if (state == CLIMBING && climbCount % 1 == 0) {
+    if (state == CLIMBING && actionCount % 1 == 0) {
         climbtheta_delta = climbtheta_delta >= climbtheta ? climbtheta : climbtheta_delta + 2;
         if(climbtheta_delta >= climbtheta){
             color = climbcolor;
         }
-        climbCount ++;
-    }else{
+        actionCount ++;
+    }else if(state == IDLE_LAND || state == WALKING_LAND || state == RUNNING_LAND){
         color = landColor;
     }
 
