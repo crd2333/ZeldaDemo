@@ -11,7 +11,7 @@
 Player::Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrain)
     : state(IDLE_LAND), position(initialPosition), direction(1.0f, 0.0f, 1.0f),
     upVector(0.0f, 1.0f, 0.0f), length(fixedLength), color(0.55f, 0.27f, 0.07f),
-    speed(0.0f), walkSpeed(4.0f), runSpeed(8.0f), swimSpeed(3.0f), fastSwimSpeed(6.0f),
+    speed(0.0f), walkSpeed(4.0f), runSpeed(16.0f), swimSpeed(3.0f), fastSwimSpeed(6.0f),
     climbSpeed(2.0f), jumpHorizenSpeed(7.0f), jumpUpSpeed(5.0f), jumpHeight(5.0f),
     jumpDirection(0.0f, 0.0f, 1.0f), targetJumpHeight(0.0f), jumpUp(true),
     boxGeometry(fixedLength.x, fixedLength.y, fixedLength.z)

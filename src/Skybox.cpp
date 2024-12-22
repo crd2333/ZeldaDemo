@@ -35,12 +35,14 @@ Skybox::~Skybox() {
 }
 
 void Skybox::draw(const glm::mat4 &projection, const glm::mat4 &view) const {
+    glDisable(GL_CULL_FACE); // disable culling for skybox
+    glDepthFunc(GL_LEQUAL); // 深度缓冲将会填上 1.0 值，第一次绘制完后之后将再也不会通过，因此要改为小于或等于
     cube_map->Bind(0);
     shader->use();
     shader->setMat4("proj_view", projection * glm::mat4(glm::mat3(view))); // remove translation from the view matrix
-    glDepthFunc(GL_LEQUAL); // 深度缓冲将会填上 1.0 值，第一次绘制完后之后将再也不会通过，因此要改为小于或等于
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 36);
     glBindVertexArray(0);
     glDepthFunc(GL_LESS);   // set back to default
+    glEnable(GL_CULL_FACE);
 }

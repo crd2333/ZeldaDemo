@@ -71,8 +71,10 @@ public:
     // returns the projection and view matrix calculated using Zoom value, Euler Angles and the LookAt Matrix
     glm::mat4 GetPerspectiveMatrix() const { return glm::perspective(glm::radians(Zoom), SCR_SCALE, Near, Far); }
     glm::mat4 GetPerspectiveMatrix(const float deg, const float aspect) const { return glm::perspective(glm::radians(deg), aspect, Near, Far); }
+    glm::mat4 GetPerspectiveMatrix(const float deg, const float aspect, const float near, const float far) const { return glm::perspective(glm::radians(deg), aspect, near, far); }
     glm::mat4 GetOrthoMatrix(float left, float right, float bottom, float top) const { return glm::ortho(left, right, bottom, top, Near, Far); }
     glm::mat4 GetViewMatrix() const { return glm::lookAt(Position, Position + Front, Up); }
+    glm::mat4 GetSymmetricViewMatrix_y(float height) const; // 与 xz 平面对称点的视图矩阵
 
     void UpdateThirdPerson(Terrain* terrain, Player *player,
         float distance = 10.0f, float heightOffset=2.0f);

@@ -11,9 +11,12 @@
 #define SCR_WIDTH 1500
 #define SCR_HEIGHT 1000
 #define SCR_SCALE ((float)SCR_WIDTH / (float)SCR_HEIGHT)
+#define SHADOW_WIDTH 4096
+#define SHADOW_HEIGHT 4096
+#define SHADOW_SCALE ((float)SHADOW_WIDTH / (float)SHADOW_HEIGHT)
 
 // terrain config
-#define MAP_SZIE glm::vec2(250.0f)
+#define MAP_SZIE glm::vec2(400.0f)
 #define HEIGHT_SCALE 300.0f
 #define RESOLUTION_RATIO 2
 #define SAMPLE_NUM 3

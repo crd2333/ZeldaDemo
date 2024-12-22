@@ -13,7 +13,7 @@
 // default light values
 #define LIGHT_COLOR glm::vec3(1.0f)
 // #define LIGHT_DIRECTION glm::vec3(0.43f, 0.76f, -0.33f)
-#define LIGHT_POS glm::vec3(0.0f, 350.0f, 300.0f)
+#define LIGHT_POS glm::vec3(0.0f, 300.0f, 400.0f)
 #define LIGHT_AMBIENT 0.2f
 #define LIGHT_DIFFUSE 1.0f
 #define LIGHT_SPECULAR 1.0f

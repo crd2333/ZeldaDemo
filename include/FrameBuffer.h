@@ -33,7 +33,7 @@ enum FBO_TYPE {
 class FrameBuffer {
 public:
     FrameBuffer(GLuint width, GLuint height, FBO_TYPE type);
-    ~FrameBuffer();
+    virtual ~FrameBuffer();
 
     void Bind() const;
     void UnBind() const;
@@ -51,7 +51,8 @@ public:
     void BindTextureBuffer(GLint unit = 0) const;
     void UnBindTextureBuffer() const;
 
-private:
+// private:
+public:
     GLuint FBO; // 帧缓冲对象
     GLuint Width, Height; // 帧缓冲的宽高
     GLuint RBO; // 渲染缓冲对象

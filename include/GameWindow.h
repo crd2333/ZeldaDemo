@@ -21,7 +21,6 @@ extern Camera camera;
 
 // window
 extern bool mainMenu;
-extern const unsigned int SHADOW_WIDTH, SHADOW_HEIGHT;
 
 // timing (per-frame time logic)
 extern float deltaTime;
