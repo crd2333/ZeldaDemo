@@ -99,6 +99,7 @@ void processInput(GLFWwindow* window, Player* player, Terrain* terrain) {
     moveDirection move_Direction = moveDirection::MOVE_STATIC; 
     bool shift = false;
     bool jump = false;
+    bool fly = false;
     // 移动：WASD + 上下
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         move_Direction = moveDirection::MOVE_FORWARD;
@@ -118,6 +119,8 @@ void processInput(GLFWwindow* window, Player* player, Terrain* terrain) {
     else if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) // only space
         jump = true;
         // camera.ProcessKeyboard(UP, deltaTime / 2);
+    else if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) // fly
+        fly = true;
 
     // 检测 ESC 键的按下事件，用于打开/关闭主菜单
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS && !ESC_pressed) {
@@ -135,7 +138,7 @@ void processInput(GLFWwindow* window, Player* player, Terrain* terrain) {
     } else if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_RELEASE)
         ALT_pressed = false;
 
-    player->ProcessMoveInput(move_Direction, shift, jump, terrain, deltaTime);
+    player->ProcessMoveInput(move_Direction, shift, jump, fly, terrain, deltaTime);
 }
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 void framebuffer_size_callback([[maybe_unused]] GLFWwindow* window, int width, int height) {
