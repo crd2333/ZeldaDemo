@@ -4,12 +4,8 @@
 
 #pragma once
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <iostream>
-#include "MyTexture.h"
 #include "Def.h"
+#include "MyTexture.h"
 
 // 帧缓冲对象的抽象封装
 // 一个帧缓冲对象包含三个子部分：color buffer、depth buffer 和 stencil buffer

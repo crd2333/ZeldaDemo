@@ -1,14 +1,10 @@
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <iostream>
-#include <iomanip>
+#include "Def.h"
 #include "GameWindow.h"
 #include "FrameBuffer.h"
 #include "Camera.h"
 #include "Terrain.h"
 #include "Water.h"
 #include "Skybox.h"
-#include "Def.h"
 #include "Player.h"
 
 int main() {

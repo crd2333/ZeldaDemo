@@ -3,16 +3,9 @@
 
 #pragma once
 
-#include <glad/glad.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <iostream>
-#define GLM_ENABLE_EXPERIMENTAL
-#include <glm/gtx/compatibility.hpp>
-#include <glm/gtx/string_cast.hpp>
+#include "Def.h"
 #include "Terrain.h"
 #include "Shader.h"
-#include "Def.h"
 #include "Player.h"
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods

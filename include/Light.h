@@ -4,8 +4,6 @@
 
 #pragma once
 
-#include <glad/glad.h>
-#include <glm/glm.hpp>
 #include "Def.h"
 #include "Shader.h"
 #include "GameWindow.h"
