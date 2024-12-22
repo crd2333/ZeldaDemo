@@ -232,6 +232,7 @@ void Player::draw(Shader& shader) {
     shader.setMat4("model", model);
     shader.setMat4("normalMat", glm::transpose(glm::inverse(model))); // 在外部计算好 normal matrix（避免 GPU 频繁求逆）
     shader.setVec3("objectColor", color);
+    shader.setFloat("alpha", alpha);
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
@@ -425,7 +426,7 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
         }
         climbCount ++;
         // printf("climbcount: %d\n",climbCount);
-    }else{
+    }else if (state == IDLE_LAND || state == WALKING_LAND || state == RUNNING_LAND){
         color = landColor;
     }
 

@@ -1,5 +1,6 @@
 #include "Camera.h"
 #include "GameWindow.h"
+#include <iostream>
 
 Camera::Camera(glm::vec3 position, glm::vec3 up, float yaw, float pitch, float near, float far) :
   MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM),
@@ -86,8 +87,8 @@ void Camera::UpdateThirdPerson(Terrain* terrain, Player *player,
     player->setDirection(-direction);
     float currentDistance = 0.0f;
     glm::vec3 finalPos = desiredPos;
-
-    for(int i = 0; i < maxSteps; ++i) {
+    int i;
+    for(i = 0; i < maxSteps; ++i) {
         currentDistance += step;
         glm::vec3 samplePos = playerPos + direction * currentDistance;
         float terrainHeight = terrain->getHeight(samplePos.x, samplePos.z);
@@ -96,7 +97,10 @@ void Camera::UpdateThirdPerson(Terrain* terrain, Player *player,
             break;
         }
     }
-
+    if (i < maxSteps / 5 ) 
+        player->setAlpha(0.1f);
+    else 
+        player->setAlpha(1.0f);
     // targetPosition = finalPos;
 
     // // Smoothly interpolate to target position
@@ -127,7 +131,7 @@ void Camera::ProcessMouseOrbit(float deltaX, float deltaY) {
 
 void Camera::constrainAngles() {
     float phiMin = glm::radians(20.0f);
-    float phiMax = glm::radians(80.0f);
+    float phiMax = glm::radians(100.0f);
     if (sphericalPhi < phiMin)
         sphericalPhi = phiMin;
     if (sphericalPhi > phiMax)

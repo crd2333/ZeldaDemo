@@ -8,6 +8,7 @@ in vec4 shadowFragPos;
 out vec4 FragColor;
 
 uniform vec3 objectColor;
+uniform float alpha;
 
 layout (std140) uniform View {
     vec3 viewPos;
@@ -47,7 +48,7 @@ float calcShadow(vec4 FragPos, vec3 normal, vec3 sunDir) {
 void main() {
     vec3 color = objectColor;
     // vec3 objectColor = texture(diffuseTexture, texCoords).rgb;
-    float ambientStrength = 0.1;
+    float ambientStrength = 0.5;
     vec3 ambient = ambientStrength * lightColor;
 
     vec3 norm = normalize(normal);
@@ -67,5 +68,5 @@ void main() {
 
     result = result * (1 - shadow);
 
-    FragColor = vec4(result, 1.0);
+    FragColor = vec4(result, alpha);
 }

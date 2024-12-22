@@ -47,6 +47,7 @@ private:
     glm::vec3 color;
     glm::vec3 landColor;
     glm::vec3 swimColor;
+    float alpha=1.0f;
     float speed;
 
     // 速度
@@ -107,6 +108,7 @@ public:
     void setJumpUpSpeed(float newJumpUpSpeed) { jumpUpSpeed = newJumpUpSpeed; }
     float getJumpHeight() const { return jumpHeight; }
     void setJumpHeight(float newJumpHeight) { jumpHeight = newJumpHeight; }
+    void setAlpha(float newAlpha) { alpha = newAlpha; }
 
 private:
     void DoJump(Terrain* terrain, float deltaTime);
