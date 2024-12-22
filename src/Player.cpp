@@ -13,7 +13,7 @@ Player::Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrai
     length(fixedLength), landColor(0.55f, 0.27f, 0.07f), swimColor(1.0f, 0.7f, 0.4f),
     speed(0.0f), walkSpeed(8.0f), runSpeed(16.0f), swimSpeed(6.0f), fastSwimSpeed(12.0f),
     swimtheta_delta(0.0f),
-    climbSpeed(20.0f), jumpHorizenSpeed(14.0f), jumpUpSpeed(10.0f), jumpHeight(5.0f),
+    climbSpeed(20.0f), jumpHorizenSpeed(14.0f), jumpUpSpeed(15.0f), jumpHeight(5.0f),
     jumpDirection(0.0f, 0.0f, 1.0f), targetJumpHeight(0.0f), jumpUp(true), swimFlag(false),
     climbtheta(-20.0f), climbRotateAxis(0.0f, 0.0f, 1.0f),climbcolor(1.0f,0.0f,0.0f),
     flyColor(0.05f,0.45f,0.25f),
@@ -237,6 +237,7 @@ void Player::draw(Shader& shader) {
     shader.setMat4("model", model);
     shader.setMat4("normalMat", glm::transpose(glm::inverse(model))); // 在外部计算好 normal matrix（避免 GPU 频繁求逆）
     shader.setVec3("objectColor", color);
+    shader.setFloat("alpha", alpha);
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);

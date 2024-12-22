@@ -75,7 +75,7 @@ public:
     glm::mat4 GetViewMatrix() const { return glm::lookAt(Position, Position + Front, Up); }
 
     void UpdateThirdPerson(Terrain* terrain, Player *player,
-        float distance = 10.0f, float heightOffset=2.0f);
+        float distance = 10.0f, float heightOffset=1.0f);
     void ProcessMouseOrbit(float deltaX, float deltaY);
 private:
     // calculates the front vector from the Camera's (updated) Euler Angles

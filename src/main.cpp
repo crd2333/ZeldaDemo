@@ -206,13 +206,17 @@ int main() {
         water.normalMap->Bind(2);
         water.draw(water_shader, GL_TRIANGLE_FAN);
 
+        skybox->draw(camera.GetPerspectiveMatrix(), camera.GetViewMatrix());
+
         // render the player
         depthMapFBO.BindTextureBuffer(0);
+        glDepthMask(GL_FALSE);
         player.draw(player_shader);
+        glDepthMask(GL_TRUE);
 
         // sun.draw(); // 这个太阳太难看了，用天空盒的太阳吧（（
 
-        skybox->draw(camera.GetPerspectiveMatrix(), camera.GetViewMatrix());
+        
         // ---------- normal pass ----------
 
 
