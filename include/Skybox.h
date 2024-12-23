@@ -4,10 +4,7 @@
 
 #pragma once
 
-#include <glad/glad.h>
-#include <glm/glm.hpp>
-#include <string>
-#include <vector>
+#include "Def.h"
 #include "MyTexture.h"
 #include "Shader.h"
 

@@ -142,3 +142,11 @@ void Camera::constrainAngles() {
     if (sphericalTheta > 2.0f * glm::pi<float>())
         sphericalTheta -= 2.0f * glm::pi<float>();
 }
+
+glm::mat4 Camera::GetSymmetricViewMatrix_y(float height) const {
+    glm::vec3 symPos = glm::vec3(Position.x, 2.f * height - Position.y, Position.z);
+    glm::vec3 symFront = glm::vec3(Front.x, -Front.y, Front.z);
+    glm::vec3 symUp = glm::vec3(Up.x, -Up.y, Up.z);
+    // return glm::scale(glm::mat4(), glm::vec3(-1.0f, 1.0f, 1.0f)) * glm::lookAt(symPos, symPos + symFront, symUp);
+    return glm::lookAt(symPos, symPos + symFront, symUp);
+}
