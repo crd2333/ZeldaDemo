@@ -11,6 +11,7 @@
 #include "Camera.h"
 #include "Def.h"
 #include "Water.h"
+#include "Bomb.h"
 
 enum PlayerState {
     IDLE_LAND = 0,
@@ -66,20 +67,25 @@ private:
     bool jumpUp;
     // 游泳相关参数
     bool swimFlag; // 初次进水由0变1，初次出水由1变0
+    float swimtheta_delta;
     // 攀爬相关参数
     glm::vec3 climbcolor;
     float climbtheta;
     float climbtheta_delta;
     glm::vec3 climbRotateAxis;
-    int climbCount = 0;
-    float climbCount_sum = 0;
+    // 动画计数器1s1拍
+    int actionCount = 0;
+    float actionCount_unused = 0;
+    // 丢炸弹相关参数
+    bool bombFlag = false;
+    int bombCount = 0;
 
 
 public:
     Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrain);
     ~Player();
-    void draw(Shader& player_shader);
-    void ProcessMoveInput(moveDirection move_Direction, bool shift, bool jump, bool fly,Terrain* terrain, float deltaTime);
+    void draw(Shader& shader);
+    void ProcessMoveInput(moveDirection move_Direction, bool shift, bool jump, bool fly, bool bomb, bool reset, Terrain* terrain, float deltaTime);
     // void Transfer();
     glm::vec3 getPosition() const { return position; }
     glm::vec3 getDirection() const { return direction; }
@@ -115,8 +121,10 @@ private:
     void Update(Terrain* terrain);
     void Rebind();
     unsigned int VAO, VBO, EBO;
+    unsigned int lineVAO, lineVBO, lineEBO;
     std::vector<Vertex> vertices;
     std::vector<unsigned int> indices;
     BoxGeometry boxGeometry;
     void InitializeBuffers();
+    void DrawLine(Shader& line_shader);
 };

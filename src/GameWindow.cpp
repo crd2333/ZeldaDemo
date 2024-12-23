@@ -70,6 +70,15 @@ void RenderLoopPreProcess(GLFWwindow* window, Player* player, Terrain* terrain) 
     lastFrame = currentFrame;
 
     processInput(window, player, terrain);
+    for (auto bomb = bombs.begin(); bomb != bombs.end(); ) {
+        bomb->update(terrain, deltaTime);
+        if (bomb->isExploded()) {
+            bomb = bombs.erase(bomb);
+            explosions.push_back(ExplosionEffect(bomb->getPosition()));
+        } else {
+            bomb++;
+        }
+    }
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -100,6 +109,8 @@ void processInput(GLFWwindow* window, Player* player, Terrain* terrain) {
     bool shift = false;
     bool jump = false;
     bool fly = false;
+    bool bomb = false;
+    bool reset = false;
     // 移动：WASD + 上下
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         move_Direction = moveDirection::MOVE_FORWARD;
@@ -116,11 +127,15 @@ void processInput(GLFWwindow* window, Player* player, Terrain* terrain) {
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)   // shift
         shift = true;
         // camera.ProcessKeyboard(DOWN, deltaTime / 2);
-    else if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) // only space
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) // only space
         jump = true;
         // camera.ProcessKeyboard(UP, deltaTime / 2);
-    else if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) // fly
+    if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) // fly
         fly = true;
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) // throw bom
+        bomb = true;
+    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) // throw bom
+        reset = true;
 
     // 检测 ESC 键的按下事件，用于打开/关闭主菜单
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS && !ESC_pressed) {
@@ -138,7 +153,7 @@ void processInput(GLFWwindow* window, Player* player, Terrain* terrain) {
     } else if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_RELEASE)
         ALT_pressed = false;
 
-    player->ProcessMoveInput(move_Direction, shift, jump, fly, terrain, deltaTime);
+    player->ProcessMoveInput(move_Direction, shift, jump, fly, bomb, reset, terrain, deltaTime);
 }
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 void framebuffer_size_callback([[maybe_unused]] GLFWwindow* window, int width, int height) {

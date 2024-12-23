@@ -10,6 +10,8 @@
 #include "Skybox.h"
 #include "Def.h"
 #include "Player.h"
+#include "Bomb.h"
+#include "ExplosionEffect.h"
 
 int main() {
     GLFWwindow* window = Create_glfw_Window();
@@ -49,22 +51,30 @@ int main() {
     player_shader.use();
     player_shader.setInt("shadowMap", 0);
     Shader shadow_shader("resources/shadow_depth.vs", "resources/shadow_depth.fs");
+    Shader line_shader("resources/line.vs", "resources/line.fs");
+    Shader explosion_shader("resources/explosion.vs", "resources/explosion.fs");
 
     // Uniform Buffer Objects
     UBO* UBO_Matrices = new UBO(2 * sizeof(glm::mat4), 0, "Matrices"); // proj_view, shadowMat
     UBO_Matrices->Bind(terrain_shader);
     UBO_Matrices->Bind(water_shader);
     UBO_Matrices->Bind(player_shader);
+    UBO_Matrices->Bind(line_shader);
+    UBO_Matrices->Bind(explosion_shader);
     // UBO_Matrices->Bind(*sun.sun_shader); // 不画太阳了
     UBO* UBO_Light = new UBO(5 * sizeof(glm::vec4), 1, "Light"); // lightColor, lightPos, lightAmbient, lightDiffuse, lightSpecular
     sun.uboLight = UBO_Light; // attach to the sun，之后直接 setUBO() 代替外面的复杂操作
     UBO_Light->Bind(terrain_shader);
     UBO_Light->Bind(water_shader);
     UBO_Light->Bind(player_shader);
+    UBO_Light->Bind(line_shader);
+    UBO_Light->Bind(explosion_shader);
     UBO* UBO_viewPos = new UBO(sizeof(glm::vec4), 2, "View"); // viewPos
     UBO_viewPos->Bind(terrain_shader);
     UBO_viewPos->Bind(water_shader);
     UBO_viewPos->Bind(player_shader);
+    UBO_viewPos->Bind(line_shader);
+    UBO_viewPos->Bind(explosion_shader);
 
     // frame buffer
     FrameBuffer depthMapFBO(SHADOW_WIDTH, SHADOW_HEIGHT, FBO_DEPTH_TEXT_ONLY);
@@ -179,6 +189,13 @@ int main() {
         // render the player
         player.draw(shadow_shader);
 
+        for (auto &bomb : bombs) {
+            bomb.draw(shadow_shader);
+        }
+        // for (auto &explosion : explosions) {
+        //     explosion.draw(shadow_shader);
+        // }
+
         depthMapFBO.UnBind();
         // ---------- shadow pass ----------
 
@@ -205,6 +222,13 @@ int main() {
         water.dudvMap->Bind(1);
         water.normalMap->Bind(2);
         water.draw(water_shader, GL_TRIANGLE_FAN);
+
+        for (auto &bomb : bombs) {
+            bomb.draw(player_shader);
+        }
+        // for (auto &explosion : explosions) {
+        //     explosion.draw(explosion_shader);
+        // }
 
         skybox->draw(camera.GetPerspectiveMatrix(), camera.GetViewMatrix());
 
