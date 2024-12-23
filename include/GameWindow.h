@@ -3,17 +3,10 @@
 //
 
 #pragma once
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
 
-#include <imgui/imgui.h>
-#include <imgui/imgui_impl_glfw.h>
-#include <imgui/imgui_impl_opengl3.h>
-
+#include "Def.h"
 #include "Camera.h"
 #include "Player.h"
-#include "Def.h"
 #include "Light.h"
 
 // camera and mouse
@@ -21,7 +14,6 @@ extern Camera camera;
 
 // window
 extern bool mainMenu;
-extern const unsigned int SHADOW_WIDTH, SHADOW_HEIGHT;
 
 // timing (per-frame time logic)
 extern float deltaTime;

@@ -4,13 +4,7 @@
 
 #pragma once
 
-#include <stb/stb_image.h>
-#include <glad/glad.h>
-#include <iostream>
-#include <string>
-#include <vector>
 #include "Def.h"
-
 
 class Texture2D {
 public:

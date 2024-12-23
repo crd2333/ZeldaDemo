@@ -1,5 +1,29 @@
 #include "Water.h"
 
+WaterFrameBuffer::WaterFrameBuffer(GLuint width, GLuint height) : FrameBuffer(width, height, FBO_CO_TEXT_DEPSTEN_RBO) {
+    // 生成第两个纹理附件，用于反射（FrameBuffer 里面的那个用于折射）
+    Texture2DBuffer2 = new Texture2D_attach();
+    Texture2DBuffer2->Generate(width, height);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, Texture2DBuffer2->ID, 0);
+}
+
+WaterFrameBuffer::~WaterFrameBuffer() {
+    if (Texture2DBuffer2) delete Texture2DBuffer2;
+}
+
+void WaterFrameBuffer::BindTextureBuffer2(GLint unit) const {
+    if (!Texture2DBuffer2)
+        Err("No corresponding texture buffer in this framebuffer!");
+    Texture2DBuffer2->Bind(unit);
+}
+
+void WaterFrameBuffer::UnBindTextureBuffer2() const {
+    if (!Texture2DBuffer2)
+        Err("No corresponding texture buffer in this framebuffer!");
+    Texture2DBuffer2->UnBind();
+}
+
+
 Water::Water(const glm::vec2 mapScale, const float heightScale, const float height, const float* points, const int pointNum) : mapScale(mapScale), heightScale(heightScale), height(height), points(points), pointNum(pointNum) {
     // textures
     dudvMap = new Texture2D();
@@ -68,20 +92,32 @@ bool Water::checkInside(const float x, const float z) const {
     return inside;
 }
 
-void RefractionPreProcess() {
-
+void Water::RefractionPreProcess() {
+    glEnable(GL_CLIP_DISTANCE0); // 开启裁剪平面
+    waterFBO->Bind();
+    waterFBO->Clear(glm::vec4(0.18f, 0.2f, 0.18f, 1.0f), GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, waterFBO->Texture2DBuffer->ID, 0);
 }
 
-void RefractionPostProcess() {
-
+void Water::RefractionPostProcess() {
+    glDisable(GL_CLIP_DISTANCE0);
+    waterFBO->UnBind();
 }
 
-void ReflectionPreProcess() {
-
+void Water::ReflectionPreProcess() {
+    // glFrontFace(GL_CW);// in reflection pass, camera is mirrored, faces are mirrored too
+    glDisable(GL_CULL_FACE); // 不知道为什么会有例外，干脆直接禁用算了
+    glEnable(GL_CLIP_DISTANCE0);
+    waterFBO->Bind();
+    waterFBO->Clear(glm::vec4(0.18f, 0.2f, 0.18f, 1.0f), GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, waterFBO->Texture2DBuffer2->ID, 0);
 }
 
-void ReflectionPostProcess() {
-
+void Water::ReflectionPostProcess() {
+    // glFrontFace(GL_CCW);// in reflection pass, camera is mirrored, faces are mirrored too
+    glEnable(GL_CULL_FACE);
+    glDisable(GL_CLIP_DISTANCE0);
+    waterFBO->UnBind();
 }
 
 // 遍历 waters，查看是否 (x,z) 落在水的区域内，如果是则返回水的高度，否则返回 -1
@@ -101,18 +137,18 @@ const float river_of_dead_height = 0.449f;
 // const float river_of_dead_height = 0.6f;
 const float river_of_dead[] = {
     // positions           // texCoords
-    -0.267641f, 0.210123f, 0.522718f, 1.000000f,
-    -0.196208f, 0.282426f, 0.661263f, 1.000000f,
-    -0.080880f, 0.320105f, 0.843150f, 1.000000f,
-    -0.030963f, 0.272242f, 1.000000f, 0.981994f,
-    -0.017192f, 0.224380f, 1.000000f, 0.863666f,
-    -0.029241f, 0.116434f, 1.000000f, 0.662314f,
+    -0.257641f, 0.160123f, 0.522718f, 1.000000f,
+    -0.196208f, 0.212426f, 0.661263f, 1.000000f,
+    -0.130880f, 0.240105f, 0.843150f, 1.000000f,
+    -0.090963f, 0.222242f, 1.000000f, 0.981994f,
+    -0.067192f, 0.160380f, 1.000000f, 0.863666f,
+    -0.049241f, 0.116434f, 1.000000f, 0.662314f,
     -0.084323f, 0.053296f, 1.000000f, 0.543970f,
     -0.177273f, -0.006323f, 1.000000f, 0.269460f,
     -0.217724f, -0.062214f, 0.788183f, 0.000000f,
     -0.297764f, -0.126270f, 0.432402f, 0.000000f,
     -0.404485f, -0.155284f, 0.165863f, 0.000000f,
     -0.459566f, -0.135117f, 0.000000f, 0.031073f,
-    -0.455263f, -0.023098f, 0.000000f, 0.331472f,
-    -0.341657f, 0.145866f, 0.198011f, 1.000000f,
+    -0.455263f, -0.010098f, 0.000000f, 0.331472f,
+    -0.341657f, 0.065866f, 0.198011f, 1.000000f,
 };

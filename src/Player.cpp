@@ -9,7 +9,7 @@
 #include <glm/gtx/string_cast.hpp>
 
 Player::Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrain)
-    : state(IDLE_LAND), position(initialPosition), direction(1.0f, 0.0f, 0.0f), upVector(0.0f, 1.0f, 0.0f), 
+    : state(IDLE_LAND), position(initialPosition), direction(1.0f, 0.0f, 0.0f), upVector(0.0f, 1.0f, 0.0f),
     length(fixedLength), landColor(0.55f, 0.27f, 0.07f), swimColor(1.0f, 0.7f, 0.4f),
     speed(0.0f), walkSpeed(8.0f), runSpeed(16.0f), swimSpeed(6.0f), fastSwimSpeed(12.0f),
     climbSpeed(20.0f), jumpHorizenSpeed(14.0f), jumpUpSpeed(10.0f), jumpHeight(5.0f),
@@ -134,7 +134,7 @@ void Player::Update(Terrain* terrain) {
         climbtheta_delta = 0.0f;
         climbtheta = 0.0f;
     }
-    if(state != IDLE_CLIMB && state != CLIMBING && state != LAND_TO_CLIMB 
+    if(state != IDLE_CLIMB && state != CLIMBING && state != LAND_TO_CLIMB
         && state != CLIMB_TO_LAND && state != JUMPING){
         upVector = averageNormal;
     }
@@ -342,7 +342,7 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
                     state = IDLE_LAND;
                 else if (state == IDLE_WATER || state == SWIMMING_WATER || state == FAST_SWIMMING_WATER)
                     state = IDLE_WATER;
-                break;  
+                break;
             default:
                 break;
         }
@@ -375,7 +375,7 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
         jumpUp = true;
         targetJumpHeight = position.y + jumpHeight;
     }
-    
+
     // 判断水的逻辑
     float waterHeight = checkHeight(newPosition.x, newPosition.z);
     if (waterHeight != -1.0f && (waterHeight + 0.1f) > 0.001f && waterHeight > newPosition.y - 0.5f) {
@@ -436,7 +436,7 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
         position = newPosition;
         Update(terrain);
     }
-    
+
     // 判断边界
     glm::vec3 length = getLength();
     if (position.x > MAP_SZIE.x / 2.0f - length.x / 2.0f) position.x = MAP_SZIE.x / 2.0f - length.x / 2.0f;

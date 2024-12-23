@@ -4,16 +4,23 @@
 
 #pragma once
 
-#include <vector>
-#include <iostream>
-#include <glad/glad.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <stb/stb_image.h>
-#include "MyTexture.h"
 #include "Def.h"
+#include "MyTexture.h"
 #include "Shader.h"
 #include "FrameBuffer.h"
+
+class WaterFrameBuffer : public FrameBuffer { // 继承 FrameBuffer，一个 FBO 拥有两个纹理附件
+// private:
+public:
+    Texture2D_attach* Texture2DBuffer2 = nullptr; // 二号颜色缓冲
+
+public:
+    WaterFrameBuffer(GLuint width, GLuint height);
+    ~WaterFrameBuffer();
+
+    void BindTextureBuffer2(GLint unit = 0) const;
+    void UnBindTextureBuffer2() const;
+};
 
 class Water {
 private:
@@ -25,7 +32,7 @@ private:
     const int pointNum;
 public:
     Texture2D* dudvMap = nullptr, *normalMap = nullptr; // dudv map and normal map
-    FrameBuffer* refractionFBO = nullptr, *reflectionFBO = nullptr; // FBO for refraction and reflection
+    WaterFrameBuffer* waterFBO = nullptr; // FBO for water reflection and refraction
 
     Water(const glm::vec2 mapScale, const float heightScale, const float height, const float* points, const int pointNum);
     ~Water();
