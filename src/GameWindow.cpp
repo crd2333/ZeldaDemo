@@ -31,6 +31,7 @@ float lastFrame = 0.0f;
 bool mainMenu = false;
 bool ESC_pressed = false;
 bool ALT_pressed = false;
+bool Q_pressed = false;
 
 GLFWwindow* Create_glfw_Window() {
     // glfw: initialize and configure
@@ -62,22 +63,13 @@ GLFWwindow* Create_glfw_Window() {
 }
 
 // 渲染前处理
-void RenderLoopPreProcess(GLFWwindow* window, Player* player, Terrain* terrain) {
+void RenderLoopPreProcess(GLFWwindow* window, Player* player, Terrain* terrain, Bomb* playerBomb) {
     // per-frame time logic
     currentFrame = static_cast<float>(glfwGetTime());
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
-    processInput(window, player, terrain);
-    for (auto bomb = bombs.begin(); bomb != bombs.end(); ) {
-        bomb->update(terrain, deltaTime);
-        if (bomb->isExploded()) {
-            bomb = bombs.erase(bomb);
-            explosions.push_back(ExplosionEffect(bomb->getPosition()));
-        } else {
-            bomb++;
-        }
-    }
+    processInput(window, player, terrain, playerBomb);
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -103,12 +95,12 @@ void RenderLoopPostProcess(GLFWwindow* window) {
 }
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-void processInput(GLFWwindow* window, Player* player, Terrain* terrain) {
+void processInput(GLFWwindow* window, Player* player, Terrain* terrain, Bomb* playerBomb) {
     moveDirection move_Direction = moveDirection::MOVE_STATIC; 
     bool shift = false;
     bool jump = false;
     bool fly = false;
-    bool bomb = false;
+    bool bomb_state = false;
     bool reset = false;
     bool mouseLeft = false;
     bool mouseRight = false;
@@ -133,9 +125,12 @@ void processInput(GLFWwindow* window, Player* player, Terrain* terrain) {
         // camera.ProcessKeyboard(UP, deltaTime / 2);
     if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) // fly
         fly = true;
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS) // throw bom
-        bomb = true;
-    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) // throw bom
+    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS && !Q_pressed) { // throw bomb
+        bomb_state = true;
+        Q_pressed = true;
+    } else if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_RELEASE)
+        Q_pressed = false;
+    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) // reset
         reset = true;
 
 
@@ -163,7 +158,7 @@ void processInput(GLFWwindow* window, Player* player, Terrain* terrain) {
     } else if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_RELEASE)
         ALT_pressed = false;
 
-    player->ProcessMoveInput(move_Direction, shift, jump, fly, bomb, reset, mouseLeft, mouseRight, terrain, deltaTime);
+    player->ProcessMoveInput(move_Direction, shift, jump, fly, bomb_state, reset, mouseLeft, mouseRight, terrain, playerBomb, deltaTime);
 }
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 void framebuffer_size_callback([[maybe_unused]] GLFWwindow* window, int width, int height) {

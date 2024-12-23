@@ -1,30 +1,66 @@
+#pragma once
 #include "Def.h"
 #include "Shader.h"
+#include "Terrain.h"
 #include "Model.h"
+#include "geometry/SphereGeometry.h"
+
+#define gravity 9.8f
 
 class Bomb {
 public:
+
     Shader* shader = nullptr;
     MeshVC* bomb = nullptr;
     glm::vec3 position = glm::vec3(0.0f);
+    glm::vec3 velocity = glm::vec3(0.0f);
+    int active = 3;
+    bool land = false;
+    bool explode = false;
+    SphereGeometry sphere;
+    std::vector<Vertex> vertices;
+    std::vector<unsigned int> indices;
+    unsigned int VAO, VBO, EBO;
+    float life = 0.0f;
 
-    Bomb() : shader(new Shader("resources/vertex_color.vs", "resources/vertex_color.fs")) {
+    Bomb() : shader(new Shader("resources/vertex_color.vs", "resources/vertex_color.fs")), sphere(3.0f) {
         bomb = new MeshVC("resources/model/bomb/bomb_vc.txt");
+        vertices = sphere.vertices;
+        indices = sphere.indices;
+        glGenVertexArrays(1, &VAO);
+        glGenBuffers(1, &VBO);
+        glGenBuffers(1, &EBO);
+        glBindVertexArray(VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
+        glEnableVertexAttribArray(2);
+        glBindVertexArray(0);
     }
     ~Bomb() {
         delete shader;
         delete bomb;
+        glDeleteVertexArrays(1, &VAO);
+        glDeleteBuffers(1, &VBO);
+        glDeleteBuffers(1, &EBO);
     }
-    void draw() {
+    void draw(glm::mat4 proj_view) {
         shader->use();
-        shader->setMat4("model", glm::translate(glm::mat4(1.0f), position));
+        shader->setMat4("proj_view", proj_view);
+        shader->setMat4("model", glm::scale(glm::translate(glm::mat4(1.0f), position), glm::vec3(0.5f)));
         bomb->draw(*shader);
     }
-
+    void moveParabola(Terrain* terrain, float t); 
+    void Explode(Shader& shader, float deltaTime);
 private:
-    // 根据时间 t 在抛物线上移动（调整 position），直到碰撞
-    void moveParabola(float t); // TODO
 };
+
 
 // 定义树的基类，包括可破坏和不可破坏的树（特别大的那种）
 class TreeUnbreakable {

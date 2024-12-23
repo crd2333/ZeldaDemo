@@ -6,8 +6,8 @@
 #include "Water.h"
 #include "Skybox.h"
 #include "Player.h"
-#include "Bomb.h"
-#include "ExplosionEffect.h"
+#include "Objects.h"
+
 
 int main() {
     GLFWwindow* window = Create_glfw_Window();
@@ -28,6 +28,7 @@ int main() {
 
     // player
     Player player(glm::vec3(50.0f, 0.0f, 50.0f), glm::vec3(1.0f, 2.0f, 1.0f), &terrain);
+    Bomb playerBomb;
 
     // sun.load(); // 这个必须在 Create_glfw_Window() 之后，不然会 segfault（但是不画太阳了，算了）
 
@@ -81,7 +82,7 @@ int main() {
     float symFar = 700.f;
 
     while (!glfwWindowShouldClose(window)) {
-        RenderLoopPreProcess(window, &player, &terrain);
+        RenderLoopPreProcess(window, &player, &terrain, &playerBomb);
 
         // ImGui windows
         if (mainMenu) {
@@ -184,13 +185,6 @@ int main() {
         // render the player
         player.draw(shadow_shader);
 
-        for (auto &bomb : bombs) {
-            bomb.draw(shadow_shader);
-        }
-        // for (auto &explosion : explosions) {
-        //     explosion.draw(shadow_shader);
-        // }
-
         depthMapFBO.UnBind();
         // ---------- shadow pass ----------
 
@@ -264,23 +258,23 @@ int main() {
         water.waterFBO->BindTextureBuffer2(4); // 绑定 reflectionMap 到纹理单元 4
         water.draw(water_shader, GL_TRIANGLE_FAN);
 
-        for (auto &bomb : bombs) {
-            bomb.draw(player_shader);
+        if (playerBomb.active == 1 || playerBomb.active == 2) {
+            playerBomb.draw(proj_view);
         }
-        // for (auto &explosion : explosions) {
-        //     explosion.draw(explosion_shader);
-        // }
-
-        // render the player
-        depthMapFBO.BindTextureBuffer(0);
-        glDepthMask(GL_FALSE);
-        player.draw(player_shader);
-        glDepthMask(GL_TRUE);
 
         // sun.draw(); // 这个太阳太难看了，用天空盒的太阳吧（（
 
         // render the skybox
         skybox.draw(projection, view);
+        // render the player
+        depthMapFBO.BindTextureBuffer(0);
+        glDepthMask(GL_FALSE);
+        if (playerBomb.explode) {
+            playerBomb.Explode(player_shader, deltaTime);
+        }
+        player.draw(player_shader);
+        glDepthMask(GL_TRUE);
+
         // ---------- normal pass ----------
 
         RenderLoopPostProcess(window);

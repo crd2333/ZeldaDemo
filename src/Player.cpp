@@ -318,12 +318,11 @@ void Player::draw(Shader& shader) {
     
     glBindVertexArray(0);
     
-    // if (bombFlag) DrawLine(line_shader);
 }
 
 
-void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jump, bool fly, bool bomb, bool reset,
-                bool mouseLeft, bool mouseRight,Terrain* terrain, float deltaTime) {
+void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jump, bool fly, bool bomb_state, bool reset,
+                bool mouseLeft, bool mouseRight,Terrain* terrain, Bomb* playerBomb, float deltaTime) {
     // shift 为 true 时表示按下了 shift 键，即跑步
     // jump 为 true 时表示按下了空格键，即跳跃
     if (reset) position = glm::vec3(50.0f, 0.0f, 50.0f);
@@ -502,18 +501,7 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
         position = newPosition;
         Update(terrain);
     }
-
-    if (bomb) {
-        if (bombCount % 8 == 7) {
-            bombCount = 0;
-            glm::vec3 horizenDirection = glm::normalize(glm::vec3(direction.x, 0.0f, direction.z));
-            glm::vec3 left = glm::normalize(glm::cross(upVector, horizenDirection));
-            bombs.push_back(Bomb(position + left * length.x / 2.0f, direction));
-            std::cout << "Bomb!" << std::endl;
-        } else {
-            bombCount ++;
-        }
-    }
+  
     // 处理击剑动画
     if(actionCount % 1 == 0 && weaponFactor <= 1.0f && mouseLeft){
             weaponFactor = weaponFactor >= 1.0f ? 1.0f : weaponFactor + 0.05;
@@ -528,7 +516,24 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
     }else if(!mouseRight){
         shieldFactor = 0.0f;
     }
-    
+
+    if (bomb_state && !playerBomb->explode) {
+        playerBomb->active = ( playerBomb->active + 1 ) % 3;
+        if (playerBomb->active == 1) {
+            playerBomb->velocity = direction * 20.0f;
+            playerBomb->velocity.y += 5.0f;
+        }
+        if (playerBomb->active == 0) {
+            playerBomb->land = false;
+            playerBomb->life = 1.0f;
+            playerBomb->explode = true;
+        }
+    }
+
+    if (playerBomb->active == 1) {
+        playerBomb->position = position + upVector * length.y;
+    } else if (playerBomb->active == 2) 
+        playerBomb->moveParabola(terrain, deltaTime);
     // 判断边界
     glm::vec3 length = getLength();
     if (position.x > MAP_SZIE.x / 2.0f - length.x / 2.0f) position.x = MAP_SZIE.x / 2.0f - length.x / 2.0f;
