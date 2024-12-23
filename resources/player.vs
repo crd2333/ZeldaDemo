@@ -2,11 +2,13 @@
 layout (location = 0) in vec3 aPos;
 layout (location = 1) in vec3 aNormal;
 layout (location = 2) in vec2 aTexCoords;
+layout (location = 3) in vec3 acolor;
 
 out vec3 worldFragPos;
 out vec3 normal;
 out vec2 texCoords;
 out vec4 shadowFragPos;
+out vec3 Wcolor;
 
 uniform mat4 model;
 uniform mat4 normalMat; // 在外部计算好 normal matrix（避免 GPU 频繁求逆）
@@ -22,4 +24,5 @@ void main() {
     texCoords = aTexCoords;
 
     gl_Position = proj_view * vec4(worldFragPos, 1.0);
+    Wcolor = acolor;
 }

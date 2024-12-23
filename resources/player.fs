@@ -4,6 +4,8 @@ in vec3 worldFragPos;
 in vec3 normal;
 in vec2 texCoords;
 in vec4 shadowFragPos;
+in vec3 Wcolor;
+
 
 out vec4 FragColor;
 
@@ -64,7 +66,7 @@ float calcShadow(vec4 FragPos, vec3 normal, vec3 sunDir) {
 }
 
 void main() {
-    vec3 color = objectColor;
+    vec3 color = (objectColor == vec3(1.0,1.0,0.99))? Wcolor :objectColor;
     // vec3 objectColor = texture(diffuseTexture, texCoords).rgb;
     float ambientStrength = 0.5;
     vec3 ambient = ambientStrength * lightColor;
@@ -80,7 +82,7 @@ void main() {
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
     vec3 specular = specularStrength * spec * lightColor;
 
-    vec3 result = (ambient + diffuse + specular) * objectColor;
+    vec3 result = (ambient + diffuse + specular) * color;
 
     float shadow = calcShadow(shadowFragPos, normal, lightDir);
 

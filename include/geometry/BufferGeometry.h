@@ -22,6 +22,7 @@ struct Vertex {
 
     glm::vec3 Tangent;   // 切线
     glm::vec3 Bitangent; // 副切线
+    glm::vec3 Color;     // 颜色
 };
 
 class BufferGeometry {

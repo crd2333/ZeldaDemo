@@ -26,13 +26,16 @@ public:
         //plane 1
         vertex1.Position = glm::vec3(-height/2,-width/2,0.0f);
         vertex2.Position = glm::vec3(height/2, -width/2,0.0f);
-        vertex3.Position = glm::vec3(0.0f, 0.0f, -width);
+        vertex3.Position = glm::vec3(0.0f, 0.0f, -1.0f);
 
         vertex1.Normal = vertex2.Normal = vertex3.Normal = 
             glm::normalize(glm::cross(vertex2.Position - vertex1.Position, vertex3.Position - vertex1.Position));
         vertex1.TexCoords = glm::vec2(0,0);
         vertex2.TexCoords = glm::vec2(1,0);
         vertex3.TexCoords = glm::vec2(0.5,1);
+        vertex1.Color = glm::vec3(0.0784f, 0.88235f, 1.0f);
+        vertex2.Color = glm::vec3(0.0784f, 0.88235f, 1.0f);
+        vertex3.Color = glm::vec3(1.0f, 1.0f, 1.0f);
         
         this->vertices.push_back(vertex1);
         this->vertices.push_back(vertex2);
@@ -41,7 +44,7 @@ public:
         // plane 2
         vertex1.Position = glm::vec3(height/2,-width/2,0.0f);
         vertex2.Position = glm::vec3(height/2, width/2,0.0f);
-        vertex3.Position = glm::vec3(0.0f, 0.0f, -width);
+        vertex3.Position = glm::vec3(0.0f, 0.0f, -1.0f);
 
         vertex1.Normal = vertex2.Normal = vertex3.Normal = 
             glm::normalize(glm::cross(vertex2.Position - vertex1.Position, vertex3.Position - vertex1.Position));
@@ -49,7 +52,6 @@ public:
         vertex2.TexCoords = glm::vec2(1,0);
         vertex3.TexCoords = glm::vec2(0.5,1);
         
-
         this->vertices.push_back(vertex1);
         this->vertices.push_back(vertex2);
         this->vertices.push_back(vertex3);
@@ -57,7 +59,7 @@ public:
         // plane 3
         vertex1.Position = glm::vec3(height/2,width/2,0.0f);
         vertex2.Position = glm::vec3(-height/2, width/2,0.0f);
-        vertex3.Position = glm::vec3(0.0f, 0.0f, -width);
+        vertex3.Position = glm::vec3(0.0f, 0.0f, -1.0f);
 
         vertex1.Normal = vertex2.Normal = vertex3.Normal = 
             glm::normalize(-glm::cross(vertex2.Position - vertex1.Position, vertex3.Position - vertex1.Position));
@@ -65,7 +67,6 @@ public:
         vertex2.TexCoords = glm::vec2(1,0);
         vertex3.TexCoords = glm::vec2(0.5,1);
         
-
         this->vertices.push_back(vertex1);
         this->vertices.push_back(vertex2);
         this->vertices.push_back(vertex3);
@@ -74,7 +75,7 @@ public:
         // plane 4
         vertex1.Position = glm::vec3(-height/2,width/2,0.0f);
         vertex2.Position = glm::vec3(-height/2, -width/2,0.0f);
-        vertex3.Position = glm::vec3(0.0f, 0.0f, -width);
+        vertex3.Position = glm::vec3(0.0f, 0.0f, -1.0f);
 
         vertex1.Normal = vertex2.Normal = vertex3.Normal = 
             glm::normalize(glm::cross(vertex2.Position - vertex1.Position, vertex3.Position - vertex1.Position));
@@ -82,7 +83,6 @@ public:
         vertex2.TexCoords = glm::vec2(1,0);
         vertex3.TexCoords = glm::vec2(0.5,1);
         
-
         this->vertices.push_back(vertex1);
         this->vertices.push_back(vertex2);
         this->vertices.push_back(vertex3);
@@ -92,8 +92,6 @@ public:
             this->indices.push_back(i+1);
             this->indices.push_back(i+2);
         }
-
-
 
         this->setupBuffers();
     }

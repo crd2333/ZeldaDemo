@@ -7,7 +7,7 @@ using namespace std;
 
 class PlaneGeometry : public BufferGeometry {
 public:
-    PlaneGeometry(float width = 1.0, float height = 1.0, float wSegment = 1.0, float hSegment = 1.0) {
+    PlaneGeometry(float width = 1.0, float height = 1.0, float wSegment = 2.0, float hSegment = 2.0) {
 
         float width_half = width / 2.0f;
         float height_half = height / 2.0f;
@@ -30,6 +30,10 @@ public:
                 vertex.Position = glm::vec3(x, -y, 0.0f);
                 vertex.Normal = glm::vec3(0.0f, 0.0f, 1.0f);
                 vertex.TexCoords = glm::vec2(ix / wSegment, 1.0f - (iy / hSegment));
+                if(iy == 0 || ix == 0 || iy == gridY1-1 || ix == gridX1-1)
+                vertex.Color = glm::vec3(0.9686f, 1.0f, 0.0f);
+                else
+                vertex.Color = glm::vec3(1.0f, 1.0f, 1.0f);
 
                 this->vertices.push_back(vertex);
             }

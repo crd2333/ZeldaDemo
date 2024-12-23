@@ -7,7 +7,6 @@
 Player::Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrain)
     : state(IDLE_LAND), position(initialPosition), direction(1.0f, 0.0f, 0.0f), upVector(0.0f, 1.0f, 0.0f),
     length(fixedLength), landColor(0.55f, 0.27f, 0.07f), swimColor(1.0f, 0.7f, 0.4f),
-    weapon1Color(1.0f, 0.16f, 0.16f), weapon2Color(0.2627f, 0.655f, 0.9607f),
     speed(0.0f), walkSpeed(8.0f), runSpeed(16.0f), swimSpeed(6.0f), fastSwimSpeed(12.0f),
     climbSpeed(20.0f),
     // 游泳参数
@@ -21,7 +20,7 @@ Player::Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrai
     flyColor(0.05f,0.45f,0.25f),
     // 人物相关模型参数
     playerShield(3.0f, 4.0f), 
-    playerWeapon(1.0f, 3.0f),
+    playerWeapon(0.3f, 4.0f),
     boxGeometry(fixedLength.x, fixedLength.y, fixedLength.z)
 {
     color = landColor;
@@ -85,6 +84,8 @@ void Player::InitializeBuffers() {
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
     glEnableVertexAttribArray(2);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Color));
+    glEnableVertexAttribArray(3);
     glBindVertexArray(0);
 
     // 盾牌
@@ -104,6 +105,8 @@ void Player::InitializeBuffers() {
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
     glEnableVertexAttribArray(2);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Color));
+    glEnableVertexAttribArray(3);
     glBindVertexArray(0);
 }
 
@@ -293,7 +296,7 @@ void Player::draw(Shader& shader) {
     modelWeapon_2 = glm::scale(modelWeapon_2, glm::vec3(shieldFactor, shieldFactor, shieldFactor));
     shader.setMat4("model", modelWeapon_2);
     shader.setMat4("normalMat", glm::transpose(glm::inverse(modelWeapon_2))); // 在外部计算好 normal matrix（避免 GPU 频繁求逆）
-    shader.setVec3("objectColor", weapon2Color);
+    shader.setVec3("objectColor", glm::vec3(1.0f, 1.0f, 0.99f));//这里的颜色特殊，参数是着色器特殊判断符，修改颜色到对应类里面修改
     glBindVertexArray(VAO_weapon2);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices_weapon2.size()), GL_UNSIGNED_INT, 0);
 
@@ -304,7 +307,7 @@ void Player::draw(Shader& shader) {
     modelWeapon_1 = glm::scale(modelWeapon_1, glm::vec3(weaponFactor, weaponFactor, weaponFactor));
     shader.setMat4("model", modelWeapon_1);
     shader.setMat4("normalMat", glm::transpose(glm::inverse(modelWeapon_1))); // 在外部计算好 normal matrix（避免 GPU 频繁求逆）
-    shader.setVec3("objectColor", weapon1Color);
+    shader.setVec3("objectColor", glm::vec3(1.0f, 1.0f, 0.99f));//这里的颜色特殊，参数是着色器特殊判断符，修改颜色到对应类里面修改
     glBindVertexArray(VAO_weapon1);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices_weapon1.size()), GL_UNSIGNED_INT, 0);
     
@@ -575,14 +578,15 @@ void Player::DrawLine(Shader& line_shader) {
 
 void Player::DoJump(Terrain* terrain, float deltaTime,bool fly) {
     float currentJumpHeight = position.y;
-    position += jumpDirection * jumpHorizenSpeed * deltaTime;
-    float speedInair = fly? jumpUpSpeed * 0.1 : jumpUpSpeed;
-    color = fly? flyColor : landColor;
+    bool isTrulyFly = (currentJumpHeight > terrain->getHeight(position.x, position.z) + length.y + 4.05f) ? fly : false;
+    position += isTrulyFly? direction * jumpHorizenSpeed * deltaTime : jumpDirection * jumpHorizenSpeed * deltaTime;
+    float speedInair = isTrulyFly? jumpUpSpeed * 0.3 : jumpUpSpeed;
+    color = isTrulyFly? flyColor : landColor;
     if (jumpUp) {
         currentJumpHeight += speedInair * deltaTime;
-        if (currentJumpHeight >= targetJumpHeight || fly) {
+        if (currentJumpHeight >= targetJumpHeight || isTrulyFly) {
             jumpUp = false;
-            currentJumpHeight = fly? currentJumpHeight : targetJumpHeight;
+            currentJumpHeight = isTrulyFly? currentJumpHeight : targetJumpHeight;
         }
     } else {
         currentJumpHeight -= speedInair * deltaTime;

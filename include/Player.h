@@ -44,8 +44,6 @@ private:
     glm::vec3 landColor;
     glm::vec3 swimColor;
     glm::vec3 flyColor;
-    glm::vec3 weapon1Color;
-    glm::vec3 weapon2Color;
     float alpha=1.0f;
     float speed;
 
