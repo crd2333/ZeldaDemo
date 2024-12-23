@@ -110,6 +110,8 @@ void processInput(GLFWwindow* window, Player* player, Terrain* terrain) {
     bool fly = false;
     bool bomb = false;
     bool reset = false;
+    bool mouseLeft = false;
+    bool mouseRight = false;
     // 移动：WASD + 上下
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         move_Direction = moveDirection::MOVE_FORWARD;
@@ -136,6 +138,15 @@ void processInput(GLFWwindow* window, Player* player, Terrain* terrain) {
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS) // throw bom
         reset = true;
 
+
+    // 检测左键
+    if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS){
+        mouseLeft = true;
+    } 
+    if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS){
+        mouseRight = true;
+    }
+
     // 检测 ESC 键的按下事件，用于打开/关闭主菜单
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS && !ESC_pressed) {
         mainMenu = !mainMenu;
@@ -152,7 +163,7 @@ void processInput(GLFWwindow* window, Player* player, Terrain* terrain) {
     } else if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_RELEASE)
         ALT_pressed = false;
 
-    player->ProcessMoveInput(move_Direction, shift, jump, fly, bomb, reset, terrain, deltaTime);
+    player->ProcessMoveInput(move_Direction, shift, jump, fly, bomb, reset, mouseLeft, mouseRight, terrain, deltaTime);
 }
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 void framebuffer_size_callback([[maybe_unused]] GLFWwindow* window, int width, int height) {
