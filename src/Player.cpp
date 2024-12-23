@@ -1,22 +1,27 @@
 // Player.cpp
 #include "Player.h"
-#include "Terrain.h"
-#include "geometry/BoxGeometry.h"
-#include "shader.h"
-#include "GameWindow.h"
-#include <iostream>
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
 
 Player::Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrain)
     : state(IDLE_LAND), position(initialPosition), direction(1.0f, 0.0f, 0.0f), upVector(0.0f, 1.0f, 0.0f), 
     length(fixedLength), landColor(0.55f, 0.27f, 0.07f), swimColor(1.0f, 0.7f, 0.4f),
+    weapon1Color(1.0f, 0.16f, 0.16f), weapon2Color(0.2627f, 0.655f, 0.9607f),
     speed(0.0f), walkSpeed(8.0f), runSpeed(16.0f), swimSpeed(6.0f), fastSwimSpeed(12.0f),
-    swimtheta_delta(0.0f),
-    climbSpeed(20.0f), jumpHorizenSpeed(14.0f), jumpUpSpeed(15.0f), jumpHeight(5.0f),
-    jumpDirection(0.0f, 0.0f, 1.0f), targetJumpHeight(0.0f), jumpUp(true), swimFlag(false),
+    climbSpeed(20.0f),
+    // 游泳参数
+    swimtheta_delta(0.0f),swimFlag(false),
+    // 跳跃参数
+    jumpHorizenSpeed(14.0f), jumpUpSpeed(15.0f), jumpHeight(5.0f),
+    jumpDirection(0.0f, 0.0f, 1.0f), targetJumpHeight(0.0f), jumpUp(true), 
+    // 攀爬参数
     climbtheta(-20.0f), climbRotateAxis(0.0f, 0.0f, 1.0f),climbcolor(1.0f,0.0f,0.0f),
+    // 滑翔参数
     flyColor(0.05f,0.45f,0.25f),
+    // 人物相关模型参数
+    playerShield(3.0f, 4.0f), 
+    playerWeapon(1.0f, 3.0f),
     boxGeometry(fixedLength.x, fixedLength.y, fixedLength.z)
 {
     color = landColor;
@@ -25,6 +30,11 @@ Player::Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrai
     std::cout << "Player created at " << glm::to_string(position) << std::endl;
     vertices = boxGeometry.vertices;
     indices = boxGeometry.indices;
+    vertices_weapon1 = playerWeapon.vertices;
+    indices_weapon1 = playerWeapon.indices;
+    vertices_weapon2 = playerShield.vertices;
+    indices_weapon2 = playerShield.indices;
+
     InitializeBuffers();
 }
 
@@ -33,6 +43,9 @@ Player::~Player() {
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);
+    glDeleteVertexArrays(1, &VAO_weapon2);
+    glDeleteBuffers(1, &VBO_weapon2);
+    glDeleteBuffers(1, &EBO_weapon2);
 }
 
 
@@ -47,6 +60,44 @@ void Player::InitializeBuffers() {
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
+    glEnableVertexAttribArray(2);
+    glBindVertexArray(0);
+
+    // 武器
+    glGenVertexArrays(1, &VAO_weapon1);
+    glGenBuffers(1, &VBO_weapon1);
+    glGenBuffers(1, &EBO_weapon1);
+
+    glBindVertexArray(VAO_weapon1);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_weapon1);
+    glBufferData(GL_ARRAY_BUFFER, vertices_weapon1.size() * sizeof(Vertex), &vertices_weapon1[0], GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_weapon1);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_weapon1.size() * sizeof(unsigned int), &indices_weapon1[0], GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
+    glEnableVertexAttribArray(2);
+    glBindVertexArray(0);
+
+    // 盾牌
+    glGenVertexArrays(1, &VAO_weapon2);
+    glGenBuffers(1, &VBO_weapon2);
+    glGenBuffers(1, &EBO_weapon2);
+
+    glBindVertexArray(VAO_weapon2);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO_weapon2);
+    glBufferData(GL_ARRAY_BUFFER, vertices_weapon2.size() * sizeof(Vertex), &vertices_weapon2[0], GL_STATIC_DRAW);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO_weapon2);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices_weapon2.size() * sizeof(unsigned int), &indices_weapon2[0], GL_STATIC_DRAW);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
@@ -129,14 +180,13 @@ void Player::Update(Terrain* terrain) {
         climbRotateAxis = - glm::normalize(glm::cross(averageNormal, upVector));
     }
     if(glm::dot(averageNormal, defaultUp) > 0.8f){
-        if(state == CLIMBING || state == LAND_TO_CLIMB || state == CLIMB_TO_LAND){
+        if(state == CLIMBING ){
             state = IDLE_LAND;
         }
         climbtheta_delta = 0.0f;
         climbtheta = 0.0f;
     }
-    if(state != IDLE_CLIMB && state != CLIMBING && state != LAND_TO_CLIMB 
-        && state != CLIMB_TO_LAND && state != JUMPING){
+    if(state != CLIMBING && state != JUMPING){
         upVector = averageNormal;
     }
 
@@ -234,19 +284,44 @@ void Player::draw(Shader& shader) {
     }
 
     shader.use();
+    shader.setFloat("alpha", alpha);
+
+    // 绘制盾牌 
+    glm::mat4 modelWeapon_2 = glm::rotate(model, PI + PI/2 ,glm::vec3(0.0f,1.0f,0.0f));
+    modelWeapon_2 = glm::translate(modelWeapon_2, glm::vec3(length.x/2, 0.0f, 0.0f));
+    modelWeapon_2 = glm::translate(modelWeapon_2, glm::vec3(0.0f, 0.0f, -3.0f));
+    modelWeapon_2 = glm::scale(modelWeapon_2, glm::vec3(shieldFactor, shieldFactor, shieldFactor));
+    shader.setMat4("model", modelWeapon_2);
+    shader.setMat4("normalMat", glm::transpose(glm::inverse(modelWeapon_2))); // 在外部计算好 normal matrix（避免 GPU 频繁求逆）
+    shader.setVec3("objectColor", weapon2Color);
+    glBindVertexArray(VAO_weapon2);
+    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices_weapon2.size()), GL_UNSIGNED_INT, 0);
+
+    // 绘制武器
+    glm::mat4 modelWeapon_1 = glm::rotate(model, PI + PI/2 ,glm::vec3(0.0f,1.0f,0.0f));
+    modelWeapon_1 = glm::translate(modelWeapon_1, glm::vec3(length.x/3, 0.0f, 0.0f));
+    modelWeapon_1 = glm::translate(modelWeapon_1, glm::vec3(0.0f, 0.0f, -3.0*weaponFactor));
+    modelWeapon_1 = glm::scale(modelWeapon_1, glm::vec3(weaponFactor, weaponFactor, weaponFactor));
+    shader.setMat4("model", modelWeapon_1);
+    shader.setMat4("normalMat", glm::transpose(glm::inverse(modelWeapon_1))); // 在外部计算好 normal matrix（避免 GPU 频繁求逆）
+    shader.setVec3("objectColor", weapon1Color);
+    glBindVertexArray(VAO_weapon1);
+    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices_weapon1.size()), GL_UNSIGNED_INT, 0);
+    
+    // 绘制人物
     shader.setMat4("model", model);
     shader.setMat4("normalMat", glm::transpose(glm::inverse(model))); // 在外部计算好 normal matrix（避免 GPU 频繁求逆）
     shader.setVec3("objectColor", color);
-    shader.setFloat("alpha", alpha);
-
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
+
+    
     glBindVertexArray(0);
 }
 
 
-void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jump, bool fly,Terrain* terrain,
-                             float deltaTime) {
+void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jump, bool fly,
+                bool mouseLeft, bool mouseRight, Terrain* terrain,float deltaTime) {
     // shift 为 true 时表示按下了 shift 键，即跑步
     // jump 为 true 时表示按下了空格键，即跳跃
     actionCount_unused += deltaTime;
@@ -309,16 +384,9 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
                 else
                     speed = fastSwimSpeed;
                 break;
-            case IDLE_CLIMB:
-                state = CLIMBING;
-                speed = climbSpeed;
             case CLIMBING:
                 speed = climbSpeed;
-                break;
-            case JUMPING:
-            case LAND_TO_CLIMB:
-            case CLIMB_TO_LAND:
-                break;
+            break;
             default:
                 break;
         }
@@ -430,6 +498,20 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
     } else if (!swimFlag ) {
         position = newPosition;
         Update(terrain);
+    }
+    // 处理击剑动画
+    if(actionCount % 1 == 0 && weaponFactor <= 1.0f && mouseLeft){
+            weaponFactor = weaponFactor >= 1.0f ? 1.0f : weaponFactor + 0.05;
+            actionCount ++;
+    }else if(!mouseLeft){
+        weaponFactor = 0.0f;
+    }
+    // 处理举盾动画
+    if(actionCount % 1 == 0 && shieldFactor <= 1.0f && mouseRight){
+            shieldFactor = shieldFactor >= 1.0f ? 1.0f : shieldFactor + 0.1;
+            actionCount ++;
+    }else if(!mouseRight){
+        shieldFactor = 0.0f;
     }
     
     // 判断边界

@@ -6,11 +6,15 @@
 #include <GLFW/glfw3.h>
 #include "Terrain.h"
 #include "geometry/BoxGeometry.h"
+#include "geometry/PlaneGeometry.h"
+#include "geometry/SphereGeometry.h"
+#include "geometry/SwordQiGeometry.h"
 #include "GameWindow.h"
 #include "Shader.h"
 #include "Camera.h"
 #include "Def.h"
 #include "Water.h"
+#include <iostream>
 
 enum PlayerState {
     IDLE_LAND = 0,
@@ -19,13 +23,8 @@ enum PlayerState {
     IDLE_WATER,
     SWIMMING_WATER,
     FAST_SWIMMING_WATER,
-    IDLE_CLIMB,
     CLIMBING,
-    JUMPING,
-    LAND_TO_CLIMB,
-    CLIMB_TO_LAND,
-    CLIMB_TO_WATER,
-    WATER_TO_CLIMB
+    JUMPING
 };
 
 enum moveDirection {
@@ -48,6 +47,8 @@ private:
     glm::vec3 landColor;
     glm::vec3 swimColor;
     glm::vec3 flyColor;
+    glm::vec3 weapon1Color;
+    glm::vec3 weapon2Color;
     float alpha=1.0f;
     float speed;
 
@@ -72,6 +73,10 @@ private:
     float climbtheta;
     float climbtheta_delta;
     glm::vec3 climbRotateAxis;
+    // 盾牌相关参数
+    float shieldFactor = 1.0f;
+    // 武器相关参数
+    float weaponFactor = 1.0f;
     // 动画计数器1s1拍
     int actionCount = 0;
     float actionCount_unused = 0;
@@ -81,7 +86,7 @@ public:
     Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrain);
     ~Player();
     void draw(Shader& player_shader);
-    void ProcessMoveInput(moveDirection move_Direction, bool shift, bool jump, bool fly,Terrain* terrain, float deltaTime);
+    void ProcessMoveInput(moveDirection move_Direction, bool shift, bool jump, bool fly,bool mouseLeft,bool mouseRight, Terrain* terrain, float deltaTime);
     // void Transfer();
     glm::vec3 getPosition() const { return position; }
     glm::vec3 getDirection() const { return direction; }
@@ -111,14 +116,17 @@ public:
     float getJumpHeight() const { return jumpHeight; }
     void setJumpHeight(float newJumpHeight) { jumpHeight = newJumpHeight; }
     void setAlpha(float newAlpha) { alpha = newAlpha; }
-
 private:
     void DoJump(Terrain* terrain, float deltaTime, bool fly = false);
     void Update(Terrain* terrain);
     void Rebind();
     unsigned int VAO, VBO, EBO;
-    std::vector<Vertex> vertices;
-    std::vector<unsigned int> indices;
+    unsigned int VAO_weapon1, VBO_weapon1, EBO_weapon1;
+    unsigned int VAO_weapon2, VBO_weapon2, EBO_weapon2;
+    std::vector<Vertex> vertices, vertices_weapon1, vertices_weapon2;
+    std::vector<unsigned int> indices, indices_weapon1, indices_weapon2;
     BoxGeometry boxGeometry;
+    PlaneGeometry playerShield;
+    SwordQiGeometry playerWeapon;
     void InitializeBuffers();
 };
