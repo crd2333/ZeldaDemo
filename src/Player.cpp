@@ -646,7 +646,10 @@ void Player::DrawLine(Shader& line_shader) {
 
 void Player::DoJump(Terrain* terrain, float deltaTime,bool fly) {
     float currentJumpHeight = position.y;
-    bool isTrulyFly = (currentJumpHeight > terrain->getHeight(position.x, position.z) + length.y + 4.05f) ? fly : false;
+    bool isTrulyFly = (currentJumpHeight > terrain->getHeight(position.x, position.z) + length.y + 4.05f || isflying) ? fly : false;
+    if(isTrulyFly){
+        isflying = true;
+    }
     position += isTrulyFly? direction * jumpHorizenSpeed * deltaTime : jumpDirection * jumpHorizenSpeed * deltaTime;
     float speedInair = isTrulyFly? jumpUpSpeed * 0.3 : jumpUpSpeed;
     color = isTrulyFly? flyColor : landColor;
@@ -664,10 +667,10 @@ void Player::DoJump(Terrain* terrain, float deltaTime,bool fly) {
         if (currentJumpHeight <= ground_position.y) {
             currentJumpHeight = ground_position.y;
             state = IDLE_LAND;
+            isflying = false;
         }
     }
     position.y = currentJumpHeight;
-    return;
 }
 
 void Player::Rebind() {

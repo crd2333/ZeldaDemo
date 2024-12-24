@@ -60,6 +60,7 @@ private:
     glm::vec3 jumpDirection;
     float targetJumpHeight;
     bool jumpUp;
+    bool isflying = false;
     // 游泳相关参数
     bool swimFlag; // 初次进水由0变1，初次出水由1变0
     float swimtheta_delta;
