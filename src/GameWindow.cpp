@@ -66,15 +66,18 @@ GLFWwindow* Create_glfw_Window() {
 void RenderLoopPreProcess(GLFWwindow* window, Player* player, Terrain* terrain,
  Bomb* playerBomb, BroadLeaf* broadLeaf, WhiteBirch* whiteBirch, TreeApple* treeApple,
  WoodBox* woodBoxs, int numWoodbox, MetalBox_breakable* metalBox_breakables , int numMetalBox,
- int numBroadLeaf,  int numWhiteBirch, int numTreeApple
- ) {
+ MetalBox_B * metalBox_Bs, int numMetalBox_B, MetalBox_C * metalBox_Cs, int numMetalBox_C,
+ int numBroadLeaf,  int numWhiteBirch, int numTreeApple) {
     // per-frame time logic
     currentFrame = static_cast<float>(glfwGetTime());
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
     // 处理人物相关逻辑处理
-    processInput(window, player, terrain, playerBomb, broadLeaf, whiteBirch, treeApple);
+    processInput(window, player, terrain, playerBomb, broadLeaf, whiteBirch, treeApple, 
+        woodBoxs, numWoodbox, metalBox_breakables, numMetalBox,
+        metalBox_Bs, numMetalBox_B, metalBox_Cs, numMetalBox_C,
+        numBroadLeaf, numWhiteBirch, numTreeApple);
 
     // 处理部分Object的逻辑
     processBreak(window, player, playerBomb, terrain, woodBoxs, numWoodbox, metalBox_breakables,numMetalBox, 
@@ -105,7 +108,10 @@ void RenderLoopPostProcess(GLFWwindow* window) {
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 void processInput(GLFWwindow* window, Player* player, Terrain* terrain, Bomb* playerBomb,
- BroadLeaf* broadLeaf, WhiteBirch* whiteBirch, TreeApple* treeApple) {
+ BroadLeaf* broadLeaf, WhiteBirch* whiteBirch, TreeApple* treeApple,
+ WoodBox* woodBoxs, int numWoodbox, MetalBox_breakable* metalBox_breakables , int numMetalBox,
+MetalBox_B * metalBox_Bs, int numMetalBox_B, MetalBox_C * metalBox_Cs, int numMetalBox_C,
+ int numBroadLeaf,  int numWhiteBirch, int numTreeApple) {
     moveDirection move_Direction = moveDirection::MOVE_STATIC; 
     bool shift = false;
     bool jump = false;
@@ -169,7 +175,8 @@ void processInput(GLFWwindow* window, Player* player, Terrain* terrain, Bomb* pl
         ALT_pressed = false;
 
     player->ProcessMoveInput(move_Direction, shift, jump, fly, bomb_state, reset, 
-    mouseLeft, mouseRight, terrain, playerBomb, deltaTime, broadLeaf, whiteBirch, treeApple);
+    mouseLeft, mouseRight, terrain, playerBomb, deltaTime, broadLeaf, whiteBirch, treeApple,
+    woodBoxs, numWoodbox, metalBox_breakables, numMetalBox, metalBox_Bs, numMetalBox_B, metalBox_Cs, numMetalBox_C);
 }
 
 void processBreak(GLFWwindow* window, Player* player, Bomb* bomb, Terrain* terrain,  WoodBox* woodBoxs,

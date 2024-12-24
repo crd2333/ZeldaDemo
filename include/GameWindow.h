@@ -23,11 +23,15 @@ GLFWwindow* Create_glfw_Window();
 void RenderLoopPreProcess(GLFWwindow* window, Player* player, Terrain* terrain, 
 Bomb* playerBomb, BroadLeaf* broadLeaf, WhiteBirch* whiteBirch, TreeApple* treeApple,
 WoodBox* woodBoxs, int numWoodbox, MetalBox_breakable* metalBox_breakables , int numMetalBox,
-int numBroadLeaf,  int numWhiteBirch, int numTreeApple);
+MetalBox_B * metalBox_Bs, int numMetalBox_B, MetalBox_C * metalBox_Cs, int numMetalBox_C,
+ int numBroadLeaf,  int numWhiteBirch, int numTreeApple);
 void RenderLoopPostProcess(GLFWwindow* window);
 
 void processInput(GLFWwindow* window, Player* player, Terrain* terrain, Bomb* playerBomb
-, BroadLeaf* broadLeaf, WhiteBirch* whiteBirch, TreeApple* treeApple);
+, BroadLeaf* broadLeaf, WhiteBirch* whiteBirch, TreeApple* treeApple,
+    WoodBox* woodBoxs, int numWoodbox, MetalBox_breakable* metalBox_breakables , int numMetalBox,
+    MetalBox_B * metalBox_Bs, int numMetalBox_B, MetalBox_C * metalBox_Cs, int numMetalBox_C,
+    int numBroadLeaf,  int numWhiteBirch, int numTreeApple);
 void processBreak(GLFWwindow* window,Player* player, Bomb* bomb, Terrain* terrain,  WoodBox* woodBoxs, 
     int numWoodbox, MetalBox_breakable* metalBox_breakables , int numMetalBox,
     BroadLeaf* boradLeaf, int numBroadLeaf, WhiteBirch* whiteBirch, int numWhiteBirch,

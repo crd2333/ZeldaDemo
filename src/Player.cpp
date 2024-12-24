@@ -325,7 +325,9 @@ void Player::draw(Shader& shader) {
 
 void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jump, bool fly, bool bomb_state, bool reset,
                 bool mouseLeft, bool mouseRight,Terrain* terrain, Bomb* playerBomb, float deltaTime,
-                BroadLeaf* broadLeaf, WhiteBirch* whiteBirch, TreeApple* treeApple) {
+                BroadLeaf* broadLeaf, WhiteBirch* whiteBirch, TreeApple* treeApple,
+                WoodBox* woodBoxs, int numWoodbox, MetalBox_breakable* metalBox_breakables , int numMetalBox,
+                MetalBox_B * metalBox_Bs, int numMetalBox_B, MetalBox_C * metalBox_Cs, int numMetalBox_C) {
     // shift 为 true 时表示按下了 shift 键，即跑步
     // jump 为 true 时表示按下了空格键，即跳跃
     if (reset) position = glm::vec3(50.0f, 0.0f, 50.0f);
@@ -554,6 +556,119 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
             }
         }
     }
+
+    // 箱子不能碰撞穿模
+    glm::vec3 forward = direction;
+    glm::vec3 right = glm::normalize(glm::cross(forward, upVector));
+    bool Collision_front = false;
+    bool Collision_left = false;
+    bool Collision_right = false;
+    bool Collision_back = false;
+    for (int i = 0; i < numWoodbox; i++) {
+        if(glm::distance(position+forward * glm::vec3(2.0f), woodBoxs[i].position) < 1.0f){
+                Collision_front |= true;
+        }else{
+            Collision_front |= false;
+        }
+        if(glm::distance(position-forward * glm::vec3(2.0f), woodBoxs[i].position) < 1.0f){
+                Collision_back |= true;
+        }else{
+            Collision_back |= false;
+        }
+        if(glm::distance(position+right * glm::vec3(2.0f), woodBoxs[i].position) < 1.0f){
+                Collision_right |= true;
+        }else{
+            Collision_right |= false;
+        }
+        if(glm::distance(position-right * glm::vec3(2.0f), woodBoxs[i].position) < 1.0f){
+                Collision_left |= true;
+        }else{
+            Collision_left |= false;
+        }
+    }
+
+    for(int i = 0; i < numMetalBox; i++){
+        if(glm::distance(position+forward * glm::vec3(2.0f), metalBox_breakables[i].position) < 1.0f){
+                Collision_front |= true;
+        }else{
+            Collision_front |= false;
+        }
+        if(glm::distance(position-forward * glm::vec3(2.0f), metalBox_breakables[i].position) < 1.0f){
+                Collision_back |= true;
+        }else{
+            Collision_back |= false;
+        }
+        if(glm::distance(position+right * glm::vec3(2.0f), metalBox_breakables[i].position) < 1.0f){
+                Collision_right |= true;
+        }else{
+            Collision_right |= false;
+        }
+        if(glm::distance(position-right * glm::vec3(2.0f), metalBox_breakables[i].position) < 1.0f){
+                Collision_left |= true;
+        }else{
+            Collision_left |= false;
+        }
+    }
+
+    for(int i = 0; i < numMetalBox_B; i++){
+        if(glm::distance(position+forward * glm::vec3(2.0f), metalBox_Bs[i].position) < 1.0f){
+                Collision_front |= true;
+        }else{
+            Collision_front |= false;
+        }
+        if(glm::distance(position-forward * glm::vec3(2.0f), metalBox_Bs[i].position) < 1.0f){
+                Collision_back |= true;
+        }else{
+            Collision_back |= false;
+        }
+        if(glm::distance(position+right * glm::vec3(2.0f), metalBox_Bs[i].position) < 1.0f){
+                Collision_right |= true;
+        }else{
+            Collision_right |= false;
+        }
+        if(glm::distance(position-right * glm::vec3(2.0f), metalBox_Bs[i].position) < 1.0f){
+                Collision_left |= true;
+        }else{
+            Collision_left |= false;
+        }
+    }
+
+    for(int i = 0; i < numMetalBox_C; i++){
+        if(glm::distance(position+forward * glm::vec3(2.0f), metalBox_Cs[i].position) < 1.0f){
+                Collision_front |= true;
+        }else{
+            Collision_front |= false;
+        }
+        if(glm::distance(position-forward * glm::vec3(2.0f), metalBox_Cs[i].position) < 1.0f){
+                Collision_back |= true;
+        }else{
+            Collision_back |= false;
+        }
+        if(glm::distance(position+right * glm::vec3(2.0f), metalBox_Cs[i].position) < 1.0f){
+                Collision_right |= true;
+        }else{
+            Collision_right |= false;
+        }
+        if(glm::distance(position-right * glm::vec3(2.0f), metalBox_Cs[i].position) < 1.0f){
+                Collision_left |= true;
+        }else{
+            Collision_left |= false;
+        }
+    }
+
+    if(Collision_front){
+        position -= forward * speed * deltaTime;
+    }
+    if(Collision_back){
+        position += forward * speed * deltaTime;
+    }
+    if(Collision_right){
+        position -= right * speed * deltaTime;
+    }
+    if(Collision_left){
+        position += right * speed * deltaTime;
+    }
+
 
     // 处理击剑动画
     if(actionCount % 1 == 0 && weaponFactor <= 1.0f && mouseLeft){

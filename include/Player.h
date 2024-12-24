@@ -86,7 +86,9 @@ public:
     void draw(Shader& shader);
     void ProcessMoveInput(moveDirection move_Direction, bool shift, bool jump, bool fly, bool bomb_state,
          bool reset, bool mouseLeft,bool mouseRight, Terrain* terrain, Bomb* playerBomb, float deltaTime,
-         BroadLeaf* broadLeaf, WhiteBirch* whiteBirch, TreeApple* treeApple);
+         BroadLeaf* broadLeaf, WhiteBirch* whiteBirch, TreeApple* treeApple,
+         WoodBox* woodBoxs, int numWoodbox, MetalBox_breakable* metalBox_breakables , int numMetalBox,
+                MetalBox_B * metalBox_Bs, int numMetalBox_B, MetalBox_C * metalBox_Cs, int numMetalBox_C);
     // void Transfer();
     glm::vec3 getPosition() const { return position; }
     glm::vec3 getDirection() const { return direction; }

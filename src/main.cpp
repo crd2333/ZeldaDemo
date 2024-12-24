@@ -181,6 +181,7 @@ int main() {
     while (!glfwWindowShouldClose(window)) {
         RenderLoopPreProcess(window, &player, &terrain, &playerBomb, broadLeaf, whiteBirch, 
         treeApple,woodboxs,numWoodBox, metalBreakableboxs,numMetalBox_Breakable,
+        metalBoxs_B,numMetalBox_B,metalBoxs_C,numMetalBox_C,
         numBroadLeaf,numWhiteBirch, numTreeApple);
         
         // ImGui windows
