@@ -428,10 +428,11 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
             default:
                 break;
         }
-        if (glm::distance(newPosition,position) > 0.001f && !swimFlag) {
-            newPosition.y = terrain->getHeight(newPosition.x, newPosition.z) + length.y / 2.0f;
-            newPosition = position + glm::normalize(newPosition - position) * speed * deltaTime;
-        }
+        // if (glm::distance(newPosition,position) > 0.001f && !swimFlag) {
+        //     newPosition.y = terrain->getHeight(newPosition.x, newPosition.z) + length.y / 2.0f;
+        //     newPosition = position + glm::normalize(newPosition - position) * speed * deltaTime;
+        // }
+        
     } else {
         towardDirection = jumpDirection;
     }
@@ -471,12 +472,12 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
         else if (state == WALKING_LAND) state = SWIMMING_WATER;
         else if (state == RUNNING_LAND) state = FAST_SWIMMING_WATER;
         if (state == IDLE_WATER || state == SWIMMING_WATER || state == FAST_SWIMMING_WATER) {
-            newPosition.y = waterHeight + 0.5f;
+            newPosition.y = waterHeight + 0.49f;
             upVector = glm::vec3(0.0f, 1.0f, 0.0f);
             position = newPosition;
         }
         if(actionCount % 1 == 0 && swimtheta_delta <= 90.0f){
-            swimtheta_delta = swimtheta_delta >= 90.0f ? 90.0f : swimtheta_delta + 2;
+            swimtheta_delta = swimtheta_delta >= 90.0f ? 90.0f : swimtheta_delta + 5;
             actionCount ++;
         }
         color = swimColor;
@@ -486,7 +487,7 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
             return;
         }
     }
-    else if (newPosition.y > waterHeight) {
+    else if (newPosition.y > waterHeight + 0.5f) {
         if (state == IDLE_WATER) state = IDLE_LAND;
         else if (state == SWIMMING_WATER) state = IDLE_LAND;
         else if (state == FAST_SWIMMING_WATER) state = IDLE_LAND;
@@ -532,21 +533,25 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
             position.x = temPosition.x;
             position.z = temPosition.z;
         }
-        x2 = whiteBirch[i].position.x;
-        z2 = whiteBirch[i].position.z;
-        distance = sqrt((x1-x2)*(x1-x2) + (z1-z2)*(z1-z2));
-        if (distance < 1.0f) {
-            temPosition = whiteBirch[i].position - towardDirection * 1.5f;
-            position.x = temPosition.x;
-            position.z = temPosition.z;
+        if (!whiteBirch[i].breaked) {
+            x2 = whiteBirch[i].position.x;
+            z2 = whiteBirch[i].position.z;
+            distance = sqrt((x1-x2)*(x1-x2) + (z1-z2)*(z1-z2));
+            if (distance < 1.0f) {
+                temPosition = whiteBirch[i].position - towardDirection * 1.5f;
+                position.x = temPosition.x;
+                position.z = temPosition.z;
+            }
         }
-        x2 = treeApple[i].position.x;
-        z2 = treeApple[i].position.z;
-        distance = sqrt((x1-x2)*(x1-x2) + (z1-z2)*(z1-z2));
-        if (distance < 1.0f) {
-            temPosition = treeApple[i].position - towardDirection * 1.5f;
-            position.x = temPosition.x;
-            position.z = temPosition.z;
+        if (!treeApple[i].breaked) {
+            x2 = treeApple[i].position.x;
+            z2 = treeApple[i].position.z;
+            distance = sqrt((x1-x2)*(x1-x2) + (z1-z2)*(z1-z2));
+            if (distance < 1.0f) {
+                temPosition = treeApple[i].position - towardDirection * 1.5f;
+                position.x = temPosition.x;
+                position.z = temPosition.z;
+            }
         }
     }
 
@@ -577,9 +582,9 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
             playerBomb->land = false;
             playerBomb->life = 1.0f;
             playerBomb->explode = true;
-            for (int i = 0; i < 4; i++) {
-                x1 = playerBomb->position.x;
-                z1 = playerBomb->position.z;
+            x1 = playerBomb->position.x;
+            z1 = playerBomb->position.z;
+            for (int i = 0; i < 4; i++) {    
                 x2 = whiteBirch[i].position.x;
                 z2 = whiteBirch[i].position.z;
                 distance = sqrt((x1-x2)*(x1-x2) + (z1-z2)*(z1-z2));
@@ -600,6 +605,8 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
         playerBomb->position = position + upVector * length.y;
     } else if (playerBomb->active == 2)
         playerBomb->moveParabola(terrain, deltaTime);
+
+    
     // 判断边界
     glm::vec3 length = getLength();
     if (position.x > MAP_SZIE.x / 2.0f - length.x / 2.0f) position.x = MAP_SZIE.x / 2.0f - length.x / 2.0f;
