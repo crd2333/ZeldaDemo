@@ -129,7 +129,7 @@ public:
 class WhiteBirch : public TreeBreakable {
 public:
     WhiteBirch() {
-        tree = new Model("resources/model/TreeWhiteBirch/WhiteBirch_A1.obj");
+        tree = new Model("resources/model/TreeWhiteBirch/WhiteBirch_A4.obj");
         stump = new Model("resources/model/TreeWhiteBirch/stump.obj");
         breakable = true;
         breaked = false;

@@ -330,6 +330,7 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
                 MetalBox_B * metalBox_Bs, int numMetalBox_B, MetalBox_C * metalBox_Cs, int numMetalBox_C) {
     // shift 为 true 时表示按下了 shift 键，即跑步
     // jump 为 true 时表示按下了空格键，即跳跃
+    int countBroadLeaf = 12, countWhiteBirch = 53, countTreeApple = 11;
     if (reset) position = glm::vec3(50.0f, 0.0f, 50.0f);
     actionCount_unused += deltaTime;
     if(actionCount_unused > 1){
@@ -525,7 +526,7 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
     float z1 = position.z;
     float x2, z2, distance;
     glm::vec3 temPosition;
-    for (int i=0;i<4;i++) {
+    for (int i=0;i<countBroadLeaf;i++) {
         x2 = broadLeaf[i].position.x;
         z2 = broadLeaf[i].position.z;
         distance = sqrt((x1-x2)*(x1-x2) + (z1-z2)*(z1-z2));
@@ -535,6 +536,8 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
             position.x = temPosition.x;
             position.z = temPosition.z;
         }
+    }
+    for (int i=0;i<countWhiteBirch;i++) {
         if (!whiteBirch[i].breaked) {
             x2 = whiteBirch[i].position.x;
             z2 = whiteBirch[i].position.z;
@@ -545,6 +548,8 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
                 position.z = temPosition.z;
             }
         }
+    }
+    for (int i=0;i<countTreeApple;i++) {
         if (!treeApple[i].breaked) {
             x2 = treeApple[i].position.x;
             z2 = treeApple[i].position.z;
@@ -699,13 +704,15 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
             playerBomb->explode = true;
             x1 = playerBomb->position.x;
             z1 = playerBomb->position.z;
-            for (int i = 0; i < 4; i++) {    
+            for (int i = 0; i < countWhiteBirch; i++) {    
                 x2 = whiteBirch[i].position.x;
                 z2 = whiteBirch[i].position.z;
                 distance = sqrt((x1-x2)*(x1-x2) + (z1-z2)*(z1-z2));
                 if (distance < 4.0f && !whiteBirch[i].breaked && playerBomb->position.y - whiteBirch[i].position.y < 7.0f) {
                     whiteBirch[i].breaked = true;
                 }
+            }
+            for (int i = 0; i < countTreeApple; i++){
                 x2 = treeApple[i].position.x;
                 z2 = treeApple[i].position.z;
                 distance = sqrt((x1-x2)*(x1-x2) + (z1-z2)*(z1-z2));
