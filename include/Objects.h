@@ -23,7 +23,7 @@ public:
     unsigned int VAO, VBO, EBO;
     float life = 0.0f;
 
-    Bomb() : shader(new Shader("resources/vertex_color.vs", "resources/vertex_color.fs")), sphere(3.0f) {
+    Bomb() : shader(new Shader("resources/vertex_color.vs", "resources/vertex_color.fs")), sphere(3.5f) {
         bomb = new MeshVC("resources/model/bomb/bomb_vc.txt");
         vertices = sphere.vertices;
         indices = sphere.indices;
