@@ -31,45 +31,96 @@ int main() {
     Bomb playerBomb;
 
     // tree
-    BroadLeaf broadLeaf[4];
-    WhiteBirch whiteBirch[4];
-    TreeApple treeApple[4];
+    int numBroadLeaf = 4;
+    int numWhiteBirch = 4;
+    int numTreeApple = 4;
+    BroadLeaf broadLeaf[numBroadLeaf];
+    WhiteBirch whiteBirch[numWhiteBirch];
+    TreeApple treeApple[numTreeApple];
 
     broadLeaf[0].position = glm::vec3(-35.0f, 0.0f, 21.0f);
-    broadLeaf[0].position.y = terrain.getHeight(broadLeaf[0].position.x, broadLeaf[0].position.z);
     broadLeaf[0].angle = acos(terrain.getNormal(broadLeaf[0].position.x, broadLeaf[0].position.z).y) * 180.0f / glm::pi<float>();
     broadLeaf[1].position = glm::vec3(60.0f, 0.0f, 60.0f);
-    broadLeaf[1].scale = glm::vec3(1.5f);
-    broadLeaf[1].position.y = terrain.getHeight(broadLeaf[1].position.x, broadLeaf[1].position.z);
     broadLeaf[2].position = glm::vec3(-9.0f, 0.0f, 112.0f);
-    broadLeaf[2].scale = glm::vec3(2.5f);
-    broadLeaf[2].position.y = terrain.getHeight(broadLeaf[2].position.x, broadLeaf[2].position.z);
     broadLeaf[3].position = glm::vec3(28.0f, 0.0f, -83.0f);
-    broadLeaf[3].scale = glm::vec3(1.5f);
-    broadLeaf[3].position.y = terrain.getHeight(broadLeaf[3].position.x, broadLeaf[3].position.z);
+    for( int i = 0; i < 4; i++ ){
+        broadLeaf[i].position.y = terrain.getHeight(broadLeaf[i].position.x, broadLeaf[i].position.z);
+        broadLeaf[i].scale = (i == 0) ? glm::vec3(1.0f) : glm::vec3(1.5f);
+        broadLeaf[i].scale = (i == 2) ? broadLeaf[i].scale : glm::vec3(2.5f);
+    }
 
     whiteBirch[0].position = glm::vec3(63.0f, 0.0f, -113.0f);
-    whiteBirch[0].position.y = terrain.getHeight(whiteBirch[0].position.x, whiteBirch[0].position.z);
     whiteBirch[1].position = glm::vec3(133.0f, 0.0f, -7.0f);
-    whiteBirch[1].position.y = terrain.getHeight(whiteBirch[1].position.x, whiteBirch[1].position.z);
     whiteBirch[2].position = glm::vec3(13.0f, 0.0f, 178.0f);
-    whiteBirch[2].position.y = terrain.getHeight(whiteBirch[2].position.x, whiteBirch[2].position.z);
     whiteBirch[3].position = glm::vec3(-10.0f, 0.0f, 126.0f);
-    whiteBirch[3].position.y = terrain.getHeight(whiteBirch[3].position.x, whiteBirch[3].position.z);
+    for( int i = 0; i < 4; i++ ){
+        whiteBirch[i].position.y = terrain.getHeight(whiteBirch[i].position.x, whiteBirch[i].position.z);
+    }
 
     treeApple[0].position = glm::vec3(-80.0f, 0.0f, 99.0f);
-    treeApple[0].position.y = terrain.getHeight(treeApple[0].position.x, treeApple[0].position.z);
-    treeApple[0].scale = glm::vec3(0.7f);
     treeApple[1].position = glm::vec3(-67.0f, 0.0f, -102.0f);
-    treeApple[1].position.y = terrain.getHeight(treeApple[1].position.x, treeApple[1].position.z);
-    treeApple[1].scale = glm::vec3(0.7f);
     treeApple[2].position = glm::vec3(68.0f, 0.0f, -71.0f);
-    treeApple[2].position.y = terrain.getHeight(treeApple[2].position.x, treeApple[2].position.z);
-    treeApple[2].scale = glm::vec3(0.7f);
     treeApple[3].position = glm::vec3(13.0f, 0.0f, -162.0f);
-    treeApple[3].position.y = terrain.getHeight(treeApple[3].position.x, treeApple[3].position.z);
-    treeApple[3].scale = glm::vec3(0.7f);
+    for( int i = 0; i < 4; i++ ){
+        treeApple[i].position.y = terrain.getHeight(treeApple[i].position.x, treeApple[i].position.z);
+        treeApple[i].scale = glm::vec3(0.7f);
+    }
     // sun.load(); // 这个必须在 Create_glfw_Window() 之后，不然会 segfault（但是不画太阳了，算了）
+
+    // Box
+    int numWoodBox = 4;
+    WoodBox woodboxs[numWoodBox]; 
+    woodboxs[0].position = glm::vec3(53.8f, 0.0f, -48.0f);
+    woodboxs[1].position = glm::vec3(59.6f, 0.0f, -39.7f);
+    woodboxs[2].position = glm::vec3(53.8f, 0.0f, -39.7f);
+    woodboxs[3].position = glm::vec3(59.6f, 0.0f, -48.0f);
+    for( int i = 0; i < numWoodBox; i++ ){
+        woodboxs[i].position.y = terrain.getHeight(woodboxs[i].position.x, woodboxs[i].position.z);
+        woodboxs[i].angle = acos(terrain.getNormal(woodboxs[i].position.x, woodboxs[i].position.z).y) * 180.0f / glm::pi<float>();
+        woodboxs[i].scale = glm::vec3(1.2f);
+    }
+
+    // MetalBox_Breakable
+    int numMetalBox_Breakable = 4;
+    MetalBox_breakable metalBreakableboxs[numMetalBox_Breakable];
+    metalBreakableboxs[0].position = glm::vec3(131.6f, 0.0f, -59.8f);
+    metalBreakableboxs[1].position = glm::vec3(132.2f, 0.0f, -39.4f);
+    metalBreakableboxs[2].position = glm::vec3(125.6f, 0.0f, -39.4f);
+    metalBreakableboxs[3].position = glm::vec3(125.2f, 0.0f, -59.8f);
+    
+    for( int i = 0; i < numMetalBox_Breakable; i++ ){
+        metalBreakableboxs[i].position.y = terrain.getHeight(metalBreakableboxs[i].position.x, metalBreakableboxs[i].position.z);
+        metalBreakableboxs[i].angle = acos(terrain.getNormal(metalBreakableboxs[i].position.x, metalBreakableboxs[i].position.z).y) * 180.0f / glm::pi<float>();
+        metalBreakableboxs[i].scale = glm::vec3(0.7f);
+    }
+
+    // MetalBox_B
+    int numMetalBox_B = 4;
+    MetalBox_B metalBoxs_B[numMetalBox_B];
+    metalBoxs_B[0].position = glm::vec3(118.6f, 0.0f, 44.8f);
+    metalBoxs_B[1].position = glm::vec3(118.6f, 0.0f, 64.8f);
+    metalBoxs_B[2].position = glm::vec3(128.6f, 0.0f, 84.8f);
+    metalBoxs_B[3].position = glm::vec3(128.6f, 0.0f, 104.8f);
+
+    for( int i = 0; i < numMetalBox_B; i++ ){
+        metalBoxs_B[i].position.y = terrain.getHeight(metalBoxs_B[i].position.x, metalBoxs_B[i].position.z);
+        metalBoxs_B[i].angle = acos(terrain.getNormal(metalBoxs_B[i].position.x, metalBoxs_B[i].position.z).y) * 180.0f / glm::pi<float>();
+        metalBoxs_B[i].scale = glm::vec3(1.3f);
+    }
+
+    int numMetalBox_C = 4;
+    MetalBox_C metalBoxs_C[numMetalBox_C];
+    metalBoxs_C[0].position = glm::vec3(98.6f, 0.0f, 44.8f);
+    metalBoxs_C[1].position = glm::vec3(98.6f, 0.0f, 64.8f);
+    metalBoxs_C[2].position = glm::vec3(108.6f, 0.0f, 84.8f);
+    metalBoxs_C[3].position = glm::vec3(108.6f, 0.0f, 104.8f);
+
+    for( int i = 0; i < numMetalBox_C; i++ ){
+        metalBoxs_C[i].position.y = terrain.getHeight(metalBoxs_C[i].position.x, metalBoxs_C[i].position.z);
+        metalBoxs_C[i].angle = acos(terrain.getNormal(metalBoxs_C[i].position.x, metalBoxs_C[i].position.z).y) * 180.0f / glm::pi<float>();
+        metalBoxs_C[i].scale = glm::vec3(1.0f);
+    }
+
 
     // shaders
     Shader terrain_shader("resources/terrain.vs", "resources/terrain.fs");
@@ -121,7 +172,9 @@ int main() {
     float symFar = 700.f;
 
     while (!glfwWindowShouldClose(window)) {
-        RenderLoopPreProcess(window, &player, &terrain, &playerBomb, broadLeaf, whiteBirch, treeApple);
+        RenderLoopPreProcess(window, &player, &terrain, &playerBomb, broadLeaf, whiteBirch, 
+        treeApple,woodboxs,numWoodBox, metalBreakableboxs,numMetalBox_Breakable,
+        numBroadLeaf,numWhiteBirch, numTreeApple);
         
         // ImGui windows
         if (mainMenu) {
@@ -306,6 +359,26 @@ int main() {
             broadLeaf[i].draw(proj_view);
             whiteBirch[i].draw(proj_view);
             treeApple[i].draw(proj_view);
+        }
+
+        // render the woodboxs
+        for (int i = 0; i < numWoodBox; i++) {
+            woodboxs[i].draw(proj_view);
+        }
+
+        // render the metalBreakableboxs
+        for (int i = 0; i < numMetalBox_Breakable; i++) {
+            metalBreakableboxs[i].draw(proj_view);
+        }
+
+        // render the metalBoxs_B
+        for (int i = 0; i < numMetalBox_B; i++) {
+            metalBoxs_B[i].draw(proj_view);
+        }
+
+        // render the metalBoxs_C
+        for (int i = 0; i < numMetalBox_C; i++) {
+            metalBoxs_C[i].draw(proj_view);
         }
 
         // sun.draw(); // 这个太阳太难看了，用天空盒的太阳吧（（

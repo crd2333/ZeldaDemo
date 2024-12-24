@@ -21,11 +21,17 @@ extern float deltaTime;
 
 GLFWwindow* Create_glfw_Window();
 void RenderLoopPreProcess(GLFWwindow* window, Player* player, Terrain* terrain, 
-Bomb* playerBomb, BroadLeaf* broadLeaf, WhiteBirch* whiteBirch, TreeApple* treeApple);
+Bomb* playerBomb, BroadLeaf* broadLeaf, WhiteBirch* whiteBirch, TreeApple* treeApple,
+WoodBox* woodBoxs, int numWoodbox, MetalBox_breakable* metalBox_breakables , int numMetalBox,
+int numBroadLeaf,  int numWhiteBirch, int numTreeApple);
 void RenderLoopPostProcess(GLFWwindow* window);
 
 void processInput(GLFWwindow* window, Player* player, Terrain* terrain, Bomb* playerBomb
 , BroadLeaf* broadLeaf, WhiteBirch* whiteBirch, TreeApple* treeApple);
+void processBreak(GLFWwindow* window,Player* player, Bomb* bomb, Terrain* terrain,  WoodBox* woodBoxs, 
+    int numWoodbox, MetalBox_breakable* metalBox_breakables , int numMetalBox,
+    BroadLeaf* boradLeaf, int numBroadLeaf, WhiteBirch* whiteBirch, int numWhiteBirch,
+    TreeApple* treeApple,int numTreeApple);
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);

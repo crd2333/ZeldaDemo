@@ -456,6 +456,8 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
         case moveDirection::MOVE_RIGHT:
             jumpDirection = glm::normalize(glm::cross(jumpDirection, upVector));
             break;
+        case moveDirection::MOVE_STATIC:
+            jumpDirection = glm::vec3(0.0f, 0.0f, 0.0f);
         default:
             break;
         }
@@ -551,10 +553,12 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
   
     // 处理击剑动画
     if(actionCount % 1 == 0 && weaponFactor <= 1.0f && mouseLeft){
-            weaponFactor = weaponFactor >= 1.0f ? 1.0f : weaponFactor + 0.05;
-            actionCount ++;
+        weaponFactor = weaponFactor >= 1.0f ? 1.0f : weaponFactor + 0.05;
+        actionCount ++;
+        isAttacking = true;
     }else if(!mouseLeft){
         weaponFactor = 0.0f;
+        isAttacking = false;
     }
     // 处理举盾动画
     if(actionCount % 1 == 0 && shieldFactor <= 1.0f && mouseRight){

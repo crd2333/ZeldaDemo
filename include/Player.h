@@ -72,6 +72,7 @@ private:
     float shieldFactor = 1.0f;
     // 武器相关参数
     float weaponFactor = 1.0f;
+    bool isAttacking = false;
     // 动画计数器1s1拍
     int actionCount = 0;
     float actionCount_unused = 0;
@@ -114,6 +115,7 @@ public:
     float getJumpHeight() const { return jumpHeight; }
     void setJumpHeight(float newJumpHeight) { jumpHeight = newJumpHeight; }
     void setAlpha(float newAlpha) { alpha = newAlpha; }
+    bool isAttack() { return isAttacking; }
 private:
     void DoJump(Terrain* terrain, float deltaTime, bool fly = false);
     void Update(Terrain* terrain);

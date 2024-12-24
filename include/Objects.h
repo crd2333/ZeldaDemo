@@ -173,3 +173,120 @@ public:
         delete tree;
     }
 };
+
+
+// 定义游戏中箱子的类
+class BoxUnbreakable {
+public:
+    Shader* shader = nullptr;
+    Model* box = nullptr;
+    glm::vec3 position = glm::vec3(0.0f);
+    glm::vec3 scale = glm::vec3(1.0f);
+    float angle = 0.0f;
+
+    BoxUnbreakable() : shader(new Shader("resources/model.vs", "resources/model.fs")) {}
+    virtual ~BoxUnbreakable() {
+        delete shader;
+    }
+    void draw(glm::mat4 proj_view) {
+        glm::mat4 model = glm::translate(glm::mat4(1.0f), position);
+        model = glm::scale(model, scale);
+        float rotation_angle = glm::radians(90.0f + angle); 
+        glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), rotation_angle, glm::vec3(1.0f, 0.0f, 0.0f));
+        model = model * rotationMatrix;
+        shader->use();
+        shader->setMat4("proj_view", proj_view);
+        shader->setMat4("model", model);
+        box->draw(*shader);
+    }
+};
+
+class BoxBreakable {
+public:
+    Shader* shader = nullptr;
+    Model* box = nullptr;
+    Model *breaked_box = nullptr;
+    glm::vec3 position = glm::vec3(0.0f);
+    glm::vec3 scale = glm::vec3(1.0f);
+    float angle = 0.0f;
+    bool breakable;
+    bool breaked = false;
+
+    BoxBreakable() : shader(new Shader("resources/model.vs", "resources/model.fs")) {}
+    virtual ~BoxBreakable() {
+        delete shader;
+    }
+    void draw(glm::mat4 proj_view) {
+        glm::mat4 model = glm::translate(glm::mat4(1.0f), position);
+        model = glm::scale(model, scale);
+        float rotation_angle = glm::radians(90.0f + angle); 
+        glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), rotation_angle, glm::vec3(1.0f, 0.0f, 0.0f));
+        model = model * rotationMatrix;
+        shader->use();
+        shader->setMat4("proj_view", proj_view);
+        shader->setMat4("model", model);
+        if (breaked) {
+            if(breaked_box != nullptr){
+                model = glm::scale(model, glm::vec3(2.0f));
+                shader->setMat4("model", model);
+                breaked_box->draw(*shader);
+            }
+        }else{
+            box->draw(*shader);
+        }
+    }
+};
+
+class WoodBox : public BoxBreakable {
+public:
+    WoodBox() {
+        box = new Model("resources/model/Box/BoxWood.obj");
+        breakable = true;
+        breaked = false;
+    }
+    ~WoodBox() {
+        delete box;
+    }
+
+    void breakBox() {
+        breaked = true;
+    }
+};
+
+class MetalBox_breakable : public BoxBreakable {
+public:
+    MetalBox_breakable() {
+        box = new Model("resources/model/Box/BoxIron_A.obj");
+        breaked_box = new Model("resources/model/Box/BoxIron_Breakable.obj");
+        breakable = true;
+        breaked = false;
+        
+    }
+    ~MetalBox_breakable() {
+        delete box;
+    }
+    void breakBox() {
+        breaked = true;
+    }
+};
+
+class MetalBox_B : public BoxUnbreakable {
+public:
+    MetalBox_B() {
+        box = new Model("resources/model/Box/BoxIron_B_2x2x2.obj");
+    }
+    ~MetalBox_B() {
+        delete box;
+    }
+};
+
+class MetalBox_C : public BoxUnbreakable {  
+public:
+    MetalBox_C() {
+        box = new Model("resources/model/Box/BoxIron_B_4x4x4.obj");
+    }
+    ~MetalBox_C() {
+        delete box;
+    }
+};
+
