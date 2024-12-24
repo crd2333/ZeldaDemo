@@ -51,9 +51,13 @@ public:
         glDeleteBuffers(1, &EBO);
     }
     void draw(glm::mat4 proj_view) {
+        glm::mat4 model =  glm::scale(glm::translate(glm::mat4(1.0f), position), glm::vec3(0.5f));
+        float angle = glm::radians(90.0f); // 转换为弧度
+        glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), angle, glm::vec3(1.0f, 0.0f, 0.0f));
+        model = model * rotationMatrix;
         shader->use();
         shader->setMat4("proj_view", proj_view);
-        shader->setMat4("model", glm::scale(glm::translate(glm::mat4(1.0f), position), glm::vec3(0.5f)));
+        shader->setMat4("model", model);
         bomb->draw(*shader);
     }
     void moveParabola(Terrain* terrain, float t); 
@@ -69,10 +73,22 @@ public:
     Model* tree = nullptr;
     glm::vec3 position = glm::vec3(0.0f);
     glm::vec3 scale = glm::vec3(1.0f);
+    float angle = 0.0f;
 
     TreeUnbreakable() : shader(new Shader("resources/model.vs", "resources/model.fs")) {}
     virtual ~TreeUnbreakable() {
         delete shader;
+    }
+    void draw(glm::mat4 proj_view) {
+        glm::mat4 model = glm::translate(glm::mat4(1.0f), position);
+        model = glm::scale(model, scale);
+        float rotation_angle = glm::radians(90.0f + angle); 
+        glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), rotation_angle, glm::vec3(1.0f, 0.0f, 0.0f));
+        model = model * rotationMatrix;
+        shader->use();
+        shader->setMat4("proj_view", proj_view);
+        shader->setMat4("model", model);
+        tree->draw(*shader);
     }
 };
 
@@ -83,12 +99,28 @@ public:
     Model *stump = nullptr;
     glm::vec3 position = glm::vec3(0.0f);
     glm::vec3 scale = glm::vec3(1.0f);
+    float angle = 0.0f;
     bool breakable;
-    bool breaked;
+    bool breaked = false;
 
     TreeBreakable() : shader(new Shader("resources/model.vs", "resources/model.fs")) {}
     virtual ~TreeBreakable() {
         delete shader;
+    }
+    void draw(glm::mat4 proj_view) {
+        glm::mat4 model = glm::translate(glm::mat4(1.0f), position);
+        model = glm::scale(model, scale);
+        float rotation_angle = glm::radians(90.0f + angle); 
+        glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), rotation_angle, glm::vec3(1.0f, 0.0f, 0.0f));
+        model = model * rotationMatrix;
+        shader->use();
+        shader->setMat4("proj_view", proj_view);
+        shader->setMat4("model", model);
+        if (breaked) {
+            stump->draw(*shader);
+        } else {
+            tree->draw(*shader);
+        }
     }
 };
 
@@ -135,7 +167,7 @@ public:
 class BroadLeaf : public TreeUnbreakable {
 public:
     BroadLeaf() {
-        tree = new Model("resources/model/BroadLeaf/BroadLeaf_LL.obj");
+        tree = new Model("resources/model/TreeBroadLeaf/BroadLeaf_LL.obj");
     }
     ~BroadLeaf() {
         delete tree;

@@ -5,7 +5,7 @@ void Bomb::moveParabola(Terrain* terrain, float t) {
     velocity.y -= gravity * t;
     position += velocity * t;
     float terrainHeight = terrain->getHeight(position.x, position.z);
-    if (position.y <= terrainHeight) {
+    if (position.y <= terrainHeight + 1.0f) {
         land = true;
         std::cout << "Bomb exploded at (" << position.x << ", " << position.y << ", " << position.z << ")" << std::endl;
     }

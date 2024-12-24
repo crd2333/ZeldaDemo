@@ -63,13 +63,14 @@ GLFWwindow* Create_glfw_Window() {
 }
 
 // 渲染前处理
-void RenderLoopPreProcess(GLFWwindow* window, Player* player, Terrain* terrain, Bomb* playerBomb) {
+void RenderLoopPreProcess(GLFWwindow* window, Player* player, Terrain* terrain,
+ Bomb* playerBomb, BroadLeaf* broadLeaf, WhiteBirch* whiteBirch, TreeApple* treeApple) {
     // per-frame time logic
     currentFrame = static_cast<float>(glfwGetTime());
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
-    processInput(window, player, terrain, playerBomb);
+    processInput(window, player, terrain, playerBomb, broadLeaf, whiteBirch, treeApple);
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -95,7 +96,8 @@ void RenderLoopPostProcess(GLFWwindow* window) {
 }
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-void processInput(GLFWwindow* window, Player* player, Terrain* terrain, Bomb* playerBomb) {
+void processInput(GLFWwindow* window, Player* player, Terrain* terrain, Bomb* playerBomb,
+ BroadLeaf* broadLeaf, WhiteBirch* whiteBirch, TreeApple* treeApple) {
     moveDirection move_Direction = moveDirection::MOVE_STATIC; 
     bool shift = false;
     bool jump = false;
@@ -158,7 +160,8 @@ void processInput(GLFWwindow* window, Player* player, Terrain* terrain, Bomb* pl
     } else if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_RELEASE)
         ALT_pressed = false;
 
-    player->ProcessMoveInput(move_Direction, shift, jump, fly, bomb_state, reset, mouseLeft, mouseRight, terrain, playerBomb, deltaTime);
+    player->ProcessMoveInput(move_Direction, shift, jump, fly, bomb_state, reset, 
+    mouseLeft, mouseRight, terrain, playerBomb, deltaTime, broadLeaf, whiteBirch, treeApple);
 }
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 void framebuffer_size_callback([[maybe_unused]] GLFWwindow* window, int width, int height) {
