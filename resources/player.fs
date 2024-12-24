@@ -82,11 +82,11 @@ void main() {
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
     vec3 specular = specularStrength * spec * lightColor;
 
-    vec3 result = (ambient + diffuse + specular) * color;
+    vec3 result = ( diffuse + specular) * color;
 
     float shadow = calcShadow(shadowFragPos, normal, lightDir);
 
-    vec3 color = (lightAmbient + (1 - shadow) * smoothstep(0, 1, diffuse + specular)) * objectColor; // apply shadow, exclude ambient
+    color = (lightAmbient + (1 - shadow) * smoothstep(0, 1, diffuse + specular)) * color; // apply shadow, exclude ambient
 
     FragColor = vec4(color, alpha);
 }
