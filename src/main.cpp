@@ -7,6 +7,8 @@
 #include "Skybox.h"
 #include "Player.h"
 #include "Objects.h"
+#include <cstdlib>
+#include <ctime> 
 
 
 int main() {
@@ -29,39 +31,102 @@ int main() {
     // player
     Player player(glm::vec3(50.0f, 0.0f, 50.0f), glm::vec3(1.0f, 2.0f, 1.0f), &terrain);
     Bomb playerBomb;
-
+    
     // tree
-    int numBroadLeaf = 4;
-    int numWhiteBirch = 4;
-    int numTreeApple = 4;
+    int numBroadLeaf = 12;
+    int numWhiteBirch = 53;
+    int numTreeApple = 11;
     BroadLeaf broadLeaf[numBroadLeaf];
     WhiteBirch whiteBirch[numWhiteBirch];
     TreeApple treeApple[numTreeApple];
 
-    broadLeaf[0].position = glm::vec3(-35.0f, 0.0f, 21.0f);
-    broadLeaf[0].angle = acos(terrain.getNormal(broadLeaf[0].position.x, broadLeaf[0].position.z).y) * 180.0f / glm::pi<float>();
+    broadLeaf[0].position = glm::vec3(63.0f, 0.0f, -113.0f);
     broadLeaf[1].position = glm::vec3(60.0f, 0.0f, 60.0f);
-    broadLeaf[2].position = glm::vec3(-9.0f, 0.0f, 112.0f);
+    broadLeaf[2].position = glm::vec3(57.0f, 0.0f, -83.0f);
     broadLeaf[3].position = glm::vec3(28.0f, 0.0f, -83.0f);
-    for( int i = 0; i < 4; i++ ){
+    broadLeaf[4].position = glm::vec3(8.0f, 0.0f, -103.0f);
+    broadLeaf[5].position = glm::vec3(-93.0f, 0.0f, -110.0f);
+    broadLeaf[6].position = glm::vec3(-67.0f, 0.0f, -136.0f);
+    broadLeaf[7].position = glm::vec3(18.0f, 0.0f, 130.0f);
+    broadLeaf[8].position = glm::vec3(-34.0f, 0.0f, -85.0f);
+    broadLeaf[9].position = glm::vec3(-11.0f, 0.0f, 124.0f);
+    broadLeaf[10].position = glm::vec3(-5.5f, 0.0f, -172.0f);
+    broadLeaf[11].position = glm::vec3(-24.0f, 0.0f, -148.0f);
+    for( int i = 0; i < numBroadLeaf; i++ ){
         broadLeaf[i].position.y = terrain.getHeight(broadLeaf[i].position.x, broadLeaf[i].position.z);
         broadLeaf[i].scale = (i == 0) ? glm::vec3(1.0f) : glm::vec3(1.5f);
-        broadLeaf[i].scale = (i == 2) ? broadLeaf[i].scale : glm::vec3(2.5f);
+        broadLeaf[i].scale = (i == 2 || i == 8 || i == 11) ? broadLeaf[i].scale : glm::vec3(2.5f);
     }
 
-    whiteBirch[0].position = glm::vec3(63.0f, 0.0f, -113.0f);
-    whiteBirch[1].position = glm::vec3(133.0f, 0.0f, -7.0f);
-    whiteBirch[2].position = glm::vec3(13.0f, 0.0f, 178.0f);
-    whiteBirch[3].position = glm::vec3(-10.0f, 0.0f, 126.0f);
-    for( int i = 0; i < 4; i++ ){
+    whiteBirch[0].position = glm::vec3(-35.0f, 0.0f, 21.0f);
+    whiteBirch[1].position = glm::vec3(-52.0f, 0.0f, 21.0f);
+    whiteBirch[2].position = glm::vec3(-101.0f, 0.0f, 50.0f);
+    whiteBirch[3].position = glm::vec3(-15.0f, 0.0f, 84.0f);
+    whiteBirch[4].position = glm::vec3(133.0f, 0.0f, -7.0f);
+    whiteBirch[5].position = glm::vec3(13.0f, 0.0f, 178.0f);
+    whiteBirch[6].position = glm::vec3(-10.0f, 0.0f, 126.0f);
+    whiteBirch[7].position = glm::vec3(133.0f, 0.0f, -26.4f);
+    whiteBirch[8].position = glm::vec3(138.0f, 0.0f, -52.4f);
+    whiteBirch[9].position = glm::vec3(145.0f, 0.0f, -58.0f);
+    whiteBirch[10].position = glm::vec3(152.0f, 0.0f, -60.4f);
+    whiteBirch[11].position = glm::vec3(162.0f, 0.0f, -60.4f);
+    whiteBirch[12].position = glm::vec3(157.0f, 0.0f, -43.3f);
+    whiteBirch[13].position = glm::vec3(151.0f, 0.0f, -38.4f);
+    whiteBirch[14].position = glm::vec3(145.0f, 0.0f, -32.2f);
+    whiteBirch[15].position = glm::vec3(136.0f, 0.0f, -31.2f);
+    whiteBirch[16].position = glm::vec3(127.0f, 0.0f, -30.2f);
+    whiteBirch[17].position = glm::vec3(128.0f, 0.0f, -48.2f);
+    whiteBirch[18].position = glm::vec3(131.0f, 0.0f, -69.2f);
+    whiteBirch[19].position = glm::vec3(178.0f, 0.0f, -2.2f);
+    whiteBirch[20].position = glm::vec3(185.0f, 0.0f, -2.5f);
+    whiteBirch[21].position = glm::vec3(184.0f, 0.0f, 8.5f);
+    whiteBirch[22].position = glm::vec3(185.7f, 0.0f, 20.5f);
+    whiteBirch[23].position = glm::vec3(189.0f, 0.0f, 33.5f);
+    whiteBirch[24].position = glm::vec3(179.0f, 0.0f, 40.5f);
+    whiteBirch[25].position = glm::vec3(168.0f, 0.0f, 43.5f);
+    whiteBirch[26].position = glm::vec3(100.0f, 0.0f, -22.0f);
+    whiteBirch[27].position = glm::vec3(99.0f, 0.0f, -33.0f);
+    glm::vec2 p1(146, 48);
+    glm::vec2 p2(104, 123);
+    glm::vec2 p3(68, 94);
+    glm::vec2 p4(121, 32);
+    int gridSize = 4; // 4x4 网格
+    std::srand(static_cast<unsigned int>(std::time(0)));
+    for (int i = 0; i <= gridSize; ++i) {
+        for (int j = 0; j <= gridSize; ++j) {
+            float u = i / static_cast<float>(gridSize);
+            float v = j / static_cast<float>(gridSize);
+            glm::vec2 point = (1 - u) * (1 - v) * p1 +
+                            u * (1 - v) * p2 +
+                            u * v * p3 +
+                            (1 - u) * v * p4;
+            float randomOffsetX = (std::rand() / static_cast<float>(RAND_MAX)) * 4.0f - 2.0f;
+            float randomOffsetY = (std::rand() / static_cast<float>(RAND_MAX)) * 8.0f - 4.0f;
+            point.x += randomOffsetX;
+            point.y += randomOffsetY;
+            int z = 5*i+j;
+            whiteBirch[28+z].position = glm::vec3(point.x,0.0f,point.y);
+        }
+    }
+
+    for( int i = 0; i < numWhiteBirch; i++ ){
         whiteBirch[i].position.y = terrain.getHeight(whiteBirch[i].position.x, whiteBirch[i].position.z);
+        if (i <= 3)
+            whiteBirch[i].tree =  new Model("resources/model/TreeWhiteBirch/WhiteBirch_A2.obj");
     }
 
     treeApple[0].position = glm::vec3(-80.0f, 0.0f, 99.0f);
     treeApple[1].position = glm::vec3(-67.0f, 0.0f, -102.0f);
     treeApple[2].position = glm::vec3(68.0f, 0.0f, -71.0f);
     treeApple[3].position = glm::vec3(13.0f, 0.0f, -162.0f);
-    for( int i = 0; i < 4; i++ ){
+    treeApple[4].position = glm::vec3(-61.0f, 0.0f, -87.0f);
+    treeApple[5].position = glm::vec3(-85.0f, 0.0f, -126.0f);
+    treeApple[6].position = glm::vec3(-3.0f, 0.0f, -149.0f);
+    treeApple[7].position = glm::vec3(22.0f, 0.0f, -106.0f);
+    treeApple[8].position = glm::vec3(-48.0f, 0.0f, -118.0f);
+    treeApple[9].position = glm::vec3(-70.0f, 0.0f, -93.0f);
+    treeApple[10].position = glm::vec3(3.0f, 0.0f, -123.0f);
+    for( int i = 0; i < numTreeApple; i++ ){
         treeApple[i].position.y = terrain.getHeight(treeApple[i].position.x, treeApple[i].position.z);
         treeApple[i].scale = glm::vec3(0.7f);
     }
@@ -203,7 +268,7 @@ int main() {
             ImGui::SliderFloatWithDefault("Shadow Near", &shadowNear, 50.0f, 400.0f, SHADOW_NEAR);
             ImGui::SliderFloatWithDefault("Shadow Far", &shadowFar, 100.0f, 1500.0f, SHADOW_FAR);
             ImGui::Text("Water Height: %.1f", checkHeight(player.getPosition().x, player.getPosition().z));
-            ImGui::Text("Player height: %.1f", player.getPosition().y);
+            ImGui::Text("Player Position:(%.1f, %.1f, %.1f)",player.getPosition().x, player.getPosition().y, player.getPosition().z);
             ImGui::Separator();
             ImGui::Text("Player");
             glm::vec3 direction = player.getDirection();
@@ -361,11 +426,12 @@ int main() {
         }
 
         // render the trees
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < numBroadLeaf; i++) 
             broadLeaf[i].draw(proj_view);
+        for (int i = 0; i < numWhiteBirch; i++) 
             whiteBirch[i].draw(proj_view);
+        for (int i = 0; i < numTreeApple; i++)
             treeApple[i].draw(proj_view);
-        }
 
         // render the woodboxs
         for (int i = 0; i < numWoodBox; i++) {
