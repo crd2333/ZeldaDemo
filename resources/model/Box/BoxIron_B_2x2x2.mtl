@@ -22,7 +22,5 @@ newmtl Mt_Metal_BoxIronB2x2x2_A
 	Kd 0.5880 0.5880 0.5880
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Ka Metal_BoxIronB2x2x2_A_Alb.png
 	map_Kd Metal_BoxIronB2x2x2_A_Alb.png
-	map_d Metal_BoxIronB2x2x2_A_Alb.png
 	norm Metal_BoxIronB2x2x2_A_Nrm.png

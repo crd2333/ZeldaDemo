@@ -22,7 +22,6 @@ newmtl Mt_Tree_Stump
 	Kd 0.5880 0.5880 0.5880
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Ka Wood_TreeApple_A_Alb.png
 	map_Kd Wood_TreeApple_A_Alb.png
 	norm Wood_TreeApple_A_Nrm.png
 
@@ -37,7 +36,6 @@ newmtl Mt_TreeSection_Stump
 	Kd 0.5880 0.5880 0.5880
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Ka Wood_AnnualRing_A_Alb.png
 	map_Kd Wood_AnnualRing_A_Alb.png
 	norm Wood_AnnualRing_A_Nrm.png
 
@@ -52,6 +50,5 @@ newmtl Mt_TreeSection_Trunk
 	Kd 0.5880 0.5880 0.5880
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Ka Wood_AnnualRing_A_Alb.png
 	map_Kd Wood_AnnualRing_A_Alb.png
 	norm Wood_AnnualRing_A_Nrm.png
