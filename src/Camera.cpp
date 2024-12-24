@@ -97,9 +97,9 @@ void Camera::UpdateThirdPerson(Terrain* terrain, Player *player,
             break;
         }
     }
-    if (i < maxSteps / 5 ) 
+    if (i < maxSteps / 5 )
         player->setAlpha(0.1f);
-    else 
+    else
         player->setAlpha(1.0f);
     // targetPosition = finalPos;
 
@@ -147,6 +147,5 @@ glm::mat4 Camera::GetSymmetricViewMatrix_y(float height) const {
     glm::vec3 symPos = glm::vec3(Position.x, 2.f * height - Position.y, Position.z);
     glm::vec3 symFront = glm::vec3(Front.x, -Front.y, Front.z);
     glm::vec3 symUp = glm::vec3(Up.x, -Up.y, Up.z);
-    // return glm::scale(glm::mat4(), glm::vec3(-1.0f, 1.0f, 1.0f)) * glm::lookAt(symPos, symPos + symFront, symUp);
     return glm::lookAt(symPos, symPos + symFront, symUp);
 }

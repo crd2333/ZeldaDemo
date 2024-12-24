@@ -20,7 +20,7 @@ int main() {
     Skybox skybox("resources/textures/skybox/sun");
 
     // terrain
-    Terrain terrain(MAP_SZIE, HEIGHT_SCALE, 2, 7);
+    Terrain terrain(MAP_SZIE, HEIGHT_SCALE, RESOLUTION_RATIO, SAMPLE_NUM, SMOOTH_TIMES);
     camera.terrain = &terrain;
 
     // water
@@ -76,6 +76,11 @@ int main() {
     terrain_shader.use();
     terrain_shader.setInt("shadowMap", 0);
     terrain_shader.setInt("terrain_texture1", 1);
+    terrain_shader.setInt("terrain_texture2", 2);
+    terrain_shader.setInt("terrain_texture3", 3);
+    terrain_shader.setInt("terrain_texture4", 4);
+    terrain_shader.setInt("normalMap1", 5);
+    terrain_shader.setInt("normalMap2", 6);
     Shader water_shader("resources/water.vs", "resources/water.fs");
     water_shader.use();
     water_shader.setInt("shadowMap", 0);
@@ -117,8 +122,10 @@ int main() {
     WaterFrameBuffer waterFBO(1024, 1024);
     water.waterFBO = &waterFBO;
 
-    float symNear = 40.f;
-    float symFar = 700.f;
+    float symNear = SYM_NEAR;
+    float symFar = SYM_FAR;
+    float shadowNear = SHADOW_NEAR;
+    float shadowFar = SHADOW_FAR;
 
     while (!glfwWindowShouldClose(window)) {
         RenderLoopPreProcess(window, &player, &terrain, &playerBomb, broadLeaf, whiteBirch, treeApple);
@@ -129,19 +136,21 @@ int main() {
             if (ImGui::Button("Quit")) { // quit button
                 glfwSetWindowShouldClose(window, true);
             }
+            ImGui::Text("Time: %.1f", glfwGetTime());
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
             ImGui::SliderFloatWithDefault("Camera Speed", &camera.MovementSpeed, 0.0f, 30.0f, 20.0f);
             glm::vec3 cameraPos = camera.Position;
             ImGui::Text("Camera Position: (%.1f, %.1f, %.1f)", cameraPos.x, cameraPos.y, cameraPos.z);
             glm::vec3 cameraFront = camera.Front;
             ImGui::Text("Camera Look At: (%.1f, %.1f, %.1f)", cameraFront.x, cameraFront.y, cameraFront.z);
-            ImGui::SliderFloatWithDefault("Perspective Near", &camera.Near, 0.01f, 1.0f, 0.1f);
-            ImGui::SliderFloatWithDefault("Perspective Far", &camera.Far, 100.0f, 1000.0f, 400.0f);
-            ImGui::SliderFloatWithDefault("Symmetric Perspective Near", &symNear, 0.01f, 50.f, 30.f);
-            ImGui::SliderFloatWithDefault("Symmetric Perspective Far", &symFar, 100.0f, 1000.f, 700.f);
+            ImGui::SliderFloatWithDefault("Perspective Near", &camera.Near, 0.01f, 1.0f, NEAR);
+            ImGui::SliderFloatWithDefault("Perspective Far", &camera.Far, 100.0f, 1000.0f, FAR);
+            ImGui::SliderFloatWithDefault("Symmetric Perspective Near", &symNear, 0.01f, 50.f, SYM_NEAR);
+            ImGui::SliderFloatWithDefault("Symmetric Perspective Far", &symFar, 100.0f, 1000.f, SYM_FAR);
+            ImGui::SliderFloatWithDefault("Shadow Near", &shadowNear, 50.0f, 400.0f, SHADOW_NEAR);
+            ImGui::SliderFloatWithDefault("Shadow Far", &shadowFar, 100.0f, 1500.0f, SHADOW_FAR);
             ImGui::Text("Water Height: %.1f", checkHeight(player.getPosition().x, player.getPosition().z));
             ImGui::Text("Player height: %.1f", player.getPosition().y);
-            // ImGui::Checkbox("Sub Menu", &SubMenu);
             ImGui::Separator();
             ImGui::Text("Player");
             glm::vec3 direction = player.getDirection();
@@ -204,8 +213,8 @@ int main() {
         camera.UpdateThirdPerson(&terrain, &player, 10.0f, 1.0f);
 
         // ---------- shadow pass ----------
-        GLfloat orthoWidth = 100.0f;
-        glm::mat4 lightProjection = camera.GetOrthoMatrix(-orthoWidth, orthoWidth, -orthoWidth, orthoWidth);
+        // GLfloat orthoWidth = 100.0f;
+        glm::mat4 lightProjection = camera.GetOrthoMatrix(100.0f, shadowNear, shadowFar);
         glm::mat4 lightView = glm::lookAt(sun.LightPos, player.getPosition(), glm::vec3(0.0f, 1.0f, 0.0f)); // look at the camera
         glm::mat4 shadowMat = lightProjection * lightView;
         depthMapFBO.Bind();
@@ -281,9 +290,6 @@ int main() {
         projection = camera.GetPerspectiveMatrix();
         proj_view = projection * view;
         UBO_Matrices->setData(0, sizeof(glm::mat4), glm::value_ptr(proj_view));
-
-        water_shader.use();
-        water_shader.setFloat("time", glfwGetTime());
 
         // render the terrain
         depthMapFBO.BindTextureBuffer(0);

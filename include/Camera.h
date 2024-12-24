@@ -26,6 +26,10 @@ enum Camera_Movement {
 #define ZOOM 45.0f
 #define NEAR 0.1f
 #define FAR 400.0f
+#define SYM_NEAR 30.0f
+#define SYM_FAR 700.0f
+#define SHADOW_NEAR 250.0f
+#define SHADOW_FAR 750.0f
 #define CAMERA_POS glm::vec3(35.0f, 120.0f, 35.0f)
 #define CAMERA_UP glm::vec3(0.0f, 1.0f, 0.0f)
 
@@ -65,7 +69,8 @@ public:
     glm::mat4 GetPerspectiveMatrix() const { return glm::perspective(glm::radians(Zoom), SCR_SCALE, Near, Far); }
     glm::mat4 GetPerspectiveMatrix(const float deg, const float aspect) const { return glm::perspective(glm::radians(deg), aspect, Near, Far); }
     glm::mat4 GetPerspectiveMatrix(const float deg, const float aspect, const float near, const float far) const { return glm::perspective(glm::radians(deg), aspect, near, far); }
-    glm::mat4 GetOrthoMatrix(float left, float right, float bottom, float top) const { return glm::ortho(left, right, bottom, top, Near, Far); }
+    glm::mat4 GetOrthoMatrix(const float left, const float right, const float bottom, const float top) const { return glm::ortho(left, right, bottom, top, Near, Far); }
+    glm::mat4 GetOrthoMatrix(const float lrbt, const float near, const float far) const { return glm::ortho(-lrbt, lrbt, -lrbt, lrbt, near, far); }
     glm::mat4 GetViewMatrix() const { return glm::lookAt(Position, Position + Front, Up); }
     glm::mat4 GetSymmetricViewMatrix_y(float height) const; // 与 xz 平面对称点的视图矩阵
 

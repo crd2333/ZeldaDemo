@@ -1,6 +1,6 @@
 #include "Terrain.h"
 
-Terrain::Terrain(const glm::vec2 mapScale, const float heightScale, const int resolutionRatio, const int sampleNum) : mapScale(mapScale), heightScale(heightScale), textureScale(3.f) {
+Terrain::Terrain(const glm::vec2 mapScale, const float heightScale, const int resolutionRatio, const int sampleNum, const int smooth_times) : mapScale(mapScale), heightScale(heightScale), textureScale(TEXTURE_SCALE) {
     // height map and generate mesh
     int components;
     // unsigned char* heightMap = stbi_load("resources/textures/heightmap.png", &cols, &rows, &components, 0);
@@ -14,15 +14,32 @@ Terrain::Terrain(const glm::vec2 mapScale, const float heightScale, const int re
     texCoords.resize(rows * cols);
     normals.resize(rows * cols);
     indices.resize((rows - 1) * (cols - 1));
-    generateMesh(heightMap, sampleNum);
+    tangents.resize(rows * cols);
+    bitangents.resize(rows * cols);
+    generateMesh(heightMap, sampleNum, smooth_times);
     stbi_image_free(heightMap); // release after generating mesh
     gridSizeX = mapScale.x / (cols - 1);
     gridSizeZ = mapScale.y / (rows - 1);
 
     // TODO: more textures
     grass_texture = new Texture2D();
-    grass_texture->image_format = GL_RGBA;
-    grass_texture->Generate("resources/textures/grass.png");
+    grass_texture->image_format = GL_RGB;
+    grass_texture->Generate("resources/textures/terrain/Grass_Diffuse.png");
+    rock_texture = new Texture2D();
+    rock_texture->image_format = GL_RGBA;
+    rock_texture->Generate("resources/textures/terrain/Rock_Diffuse.png");
+    snow_texture = new Texture2D();
+    snow_texture->image_format = GL_RGBA;
+    snow_texture->Generate("resources/textures/terrain/Snow_Diffuse.png");
+    grass_snow_inter = new Texture2D();
+    grass_snow_inter->image_format = GL_RGBA;
+    grass_snow_inter->Generate("resources/textures/terrain/Snow_Grass_Diffuse.png");
+    grass_normal = new Texture2D();
+    grass_normal->image_format = GL_RGBA;
+    grass_normal->Generate("resources/textures/terrain/Grass_Normal.png");
+    rock_normal = new Texture2D();
+    rock_normal->image_format = GL_RGBA;
+    rock_normal->Generate("resources/textures/terrain/Rock_Normal.png");
 
     // generate and bind buffer
     glGenVertexArrays(1, &VAO);
@@ -30,19 +47,25 @@ Terrain::Terrain(const glm::vec2 mapScale, const float heightScale, const int re
     glGenBuffers(1, &EBO);
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * (2 * sizeof(glm::vec3) + sizeof(glm::vec2)), NULL, GL_STATIC_DRAW); // vertices, texCoords, normals
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * (4 * sizeof(glm::vec3) + sizeof(glm::vec2)), NULL, GL_STATIC_DRAW); // vertices, texCoords, normals, tangents, bitangents
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(std::array<GLuint, 6>), &indices[0], GL_STATIC_DRAW);
-    // data and attribute: vertices, texCoords, normals
+    // data and attribute: vertices, texCoords, normals, tangents, bitangents
     glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size() * sizeof(glm::vec3), &vertices[0]);
     glBufferSubData(GL_ARRAY_BUFFER, vertices.size() * sizeof(glm::vec3), vertices.size() * sizeof(glm::vec2), &texCoords[0]);
     glBufferSubData(GL_ARRAY_BUFFER, vertices.size() * (sizeof(glm::vec3) + sizeof(glm::vec2)), vertices.size() * sizeof(glm::vec3), &normals[0]);
+    glBufferSubData(GL_ARRAY_BUFFER, vertices.size() * (2 * sizeof(glm::vec3) + sizeof(glm::vec2)), vertices.size() * sizeof(glm::vec3), &tangents[0]);
+    glBufferSubData(GL_ARRAY_BUFFER, vertices.size() * (3 * sizeof(glm::vec3) + sizeof(glm::vec2)), vertices.size() * sizeof(glm::vec3), &bitangents[0]);
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void*)(vertices.size() * sizeof(glm::vec3)));
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(vertices.size() * (sizeof(glm::vec3) + sizeof(glm::vec2))));
     glEnableVertexAttribArray(2);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(vertices.size() * (2 * sizeof(glm::vec3) + sizeof(glm::vec2))));
+    glEnableVertexAttribArray(3);
+    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)(vertices.size() * (3 * sizeof(glm::vec3) + sizeof(glm::vec2))));
+    glEnableVertexAttribArray(4);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0); // unbind
     glBindVertexArray(0);
@@ -148,6 +171,12 @@ glm::vec3 Terrain::getNormal(const float& worldX, const float& worldZ) const {
 }
 
 void Terrain::draw(Shader& shader, GLenum mode) const {
+    grass_texture->Bind(1);
+    rock_texture->Bind(2);
+    snow_texture->Bind(3);
+    grass_snow_inter->Bind(4);
+    grass_normal->Bind(5);
+    rock_normal->Bind(6);
     shader.use();
     glBindVertexArray(VAO);
     glDrawElements(mode, indices.size() * 6, GL_UNSIGNED_INT, 0);
@@ -171,8 +200,11 @@ glm::vec3 Terrain::barycentricCoord(const glm::vec2 p1, const glm::vec2 p2, cons
 }
 
 // 根据高度图生成网格型 mesh
-void Terrain::generateMesh(unsigned char* heightMap, const int sampleNum) {
+void Terrain::generateMesh(unsigned char* heightMap, const int sampleNum, const int smooth_times) {
     /************************** Generate Vertices and TexCoords ************************/
+    float cliffHeight = heightScale * 0.05f;
+    // Load height values from height map
+    std::vector<float> heights(rows * cols);
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
             // map coords to height map coords
@@ -185,38 +217,48 @@ void Terrain::generateMesh(unsigned char* heightMap, const int sampleNum) {
             x = (x >= map_cols) ? map_cols - 1 : (x < 0) ? 0 : x; // boundary check: clamp to [0, map_cols - 1]
             y = (y >= map_rows) ? map_rows - 1 : (y < 0) ? 0 : y;
 
-            float baseHeight = heightMap[y * map_cols + x] / 255.f * heightScale;
+            heights[i * cols + j] = heightMap[y * map_cols + x] / 255.f * heightScale;
+        }
+    }
+    // Smooth the heights
+    for (int s = 0; s < smooth_times; s++) {
+        std::vector<float> smoothedHeights = heights;
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                float heightSum = 0.0f;
+                float weightSum = 0.0f;
+                float baseHeight = heights[i * cols + j];
 
-            float cliffHeight = heightScale * 0.1f;
+                for (int dy = -sampleNum; dy <= sampleNum; dy++) {
+                    for (int dx = -sampleNum; dx <= sampleNum; dx++) {
+                        if (dx == 0 && dy == 0) continue; // skip the center point
+                        int nx = j + dx;
+                        int ny = i + dy;
+                        if (nx >= 0 && nx < cols && ny >= 0 && ny < rows) { // boundary check
+                            float neighborHeight = heights[ny * cols + nx];
+                            float weight = 1.0f;
+                            if (abs(neighborHeight - baseHeight) > cliffHeight)
+                                weight = 0.05f;
 
-            // weighted sum
-            float heightSum = 0.0f;
-            float weightSum = 0.0f;
-            for (int dy = -sampleNum; dy <= sampleNum; dy++) {
-                for (int dx = -sampleNum; dx <= sampleNum; dx++) {
-                    if (dx == 0 && dy == 0) continue; // jump the center point
-                    int nx = x + dx;
-                    int ny = y + dy;
-                    if (nx >= 0 && nx < map_cols && ny >= 0 && ny < map_rows) { // boundary check
-                        float neighborHeight = heightMap[ny * map_cols + nx] / 255.f * heightScale;
-                        float weight = 1.0f;
-                        if (abs(neighborHeight - baseHeight) > cliffHeight)
-                            weight = 0.1f;
-
-                        heightSum += neighborHeight * weight;
-                        weightSum += weight;
+                            heightSum += neighborHeight * weight;
+                            weightSum += weight;
+                        }
                     }
                 }
+
+                smoothedHeights[i * cols + j] = (heightSum + baseHeight) / (weightSum + 1.0f); // average
             }
+        }
+        heights = smoothedHeights;
+    }
 
-            float height = (heightSum + baseHeight) / (weightSum + 1.0f); // average
-
-            // map to [-0.5, 0.5]
-            float scaleCol = j / (cols - 1.f) - 0.5f;
-            float scaleRow = i / (rows - 1.f) - 0.5f;
-            // map to world coordinates
-            vertices[i * cols + j] = {scaleCol * mapScale.x, height, scaleRow * mapScale.y};
-            texCoords[i * cols + j] = {scaleCol * textureScale, scaleRow * textureScale}; // TODO: how to generate more beautiful texCoords
+    // Map heights to vertices and texCoords
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            float scaleCol = j / (cols - 1.f);
+            float scaleRow = i / (rows - 1.f);
+            vertices[i * cols + j] = {scaleCol * mapScale.x - 0.5f * mapScale.x, heights[i * cols + j], scaleRow * mapScale.y - 0.5f * mapScale.y};
+            texCoords[i * cols + j] = {scaleCol * textureScale, scaleRow * textureScale};
         }
     }
     /************************** Generate Normals ************************/
@@ -283,6 +325,26 @@ void Terrain::generateMesh(unsigned char* heightMap, const int sampleNum) {
             normals[i * cols + j] = glm::normalize(sum); // and do average
         }
     }
+    // 3. and smooth the normals for one time
+    std::vector<glm::vec3> smoothedNormals = normals;
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < cols; j++) {
+            glm::vec3 sum = glm::vec3(0.f);
+            int count = 0;
+            for (int dy = -1; dy <= 1; dy++) {
+                for (int dx = -1; dx <= 1; dx++) {
+                    int nx = j + dx;
+                    int ny = i + dy;
+                    if (nx >= 0 && nx < cols && ny >= 0 && ny < rows) { // boundary check
+                        sum += normals[ny * cols + nx];
+                        count++;
+                    }
+                }
+            }
+            smoothedNormals[i * cols + j] = sum / (float)count;
+        }
+    }
+    normals = smoothedNormals;
     /************************** Generate Indices ************************/
     for (int i = 0; i < rows - 1; i++) {
         for (int j = 0; j < cols - 1; j++)
@@ -299,5 +361,38 @@ void Terrain::generateMesh(unsigned char* heightMap, const int sampleNum) {
                 (GLuint)(i * cols + j), (GLuint)((i + 1) * cols + j), (GLuint)(i * cols + j + 1),
                 (GLuint)(i * cols + j + 1), (GLuint)((i + 1) * cols + j), (GLuint)((i + 1) * cols + j + 1)
             };
+    }
+    /************************** Generate Tangents and Bitangents ************************/
+    for (int i = 0; i < rows - 1; i++) {
+        for (int j = 0; j < cols - 1; j++) {
+            glm::vec3 p1 = vertices[i * cols + j];
+            glm::vec3 p2 = vertices[(i + 1) * cols + j];
+            glm::vec3 p3 = vertices[i * cols + j + 1];
+            glm::vec2 uv1 = texCoords[i * cols + j];
+            glm::vec2 uv2 = texCoords[(i + 1) * cols + j];
+            glm::vec2 uv3 = texCoords[i * cols + j + 1];
+
+            glm::vec3 edge1 = p2 - p1;
+            glm::vec3 edge2 = p3 - p1;
+            glm::vec2 deltaUV1 = uv2 - uv1;
+            glm::vec2 deltaUV2 = uv3 - uv1;
+
+            float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+            glm::vec3 tangent, bitangent;
+
+            tangent.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+            tangent.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+            tangent.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+            tangent = glm::normalize(tangent);
+
+            bitangent.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+            bitangent.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+            bitangent.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+            bitangent = glm::normalize(bitangent);
+
+            tangents[i * cols + j] = tangent;
+            bitangents[i * cols + j] = bitangent;
+        }
     }
 }

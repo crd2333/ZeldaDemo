@@ -15,8 +15,6 @@ layout (std140) uniform Matrices {
 uniform vec2 mapScale;
 uniform float height; // 每条河有自己的 height
 
-#define TEXT_SCALE 100.0
-
 void main() {
     texCoords = aTexcoord; // texture 需要 Scale 吗？好像要，再说吧
 

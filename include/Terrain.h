@@ -40,11 +40,16 @@ private:
     std::vector<glm::vec2> texCoords; // rows * cols
     std::vector<glm::vec3> normals;   // rows * cols
     std::vector<std::array<GLuint, 6>> indices; // (rows - 1) * (cols - 1)
+    std::vector<glm::vec3> tangents;
+    std::vector<glm::vec3> bitangents;
+
     // textures
     Texture2D* grass_texture = nullptr, *rock_texture = nullptr, *snow_texture = nullptr; // TODO, more textures
+    Texture2D* grass_snow_inter = nullptr;
+    Texture2D* grass_normal = nullptr, *rock_normal = nullptr; // normal maps
 
 public:
-    Terrain(const glm::vec2 mapScale, const float heightScale, const int resolutionRatio, const int sampleNum);
+    Terrain(const glm::vec2 mapScale, const float heightScale, const int resolutionRatio, const int sampleNum, const int smooth_times);
     ~Terrain();
 
     // 给定世界坐标 x, z，返回该点的高度和法向量
@@ -58,5 +63,5 @@ public:
 private:
     glm::vec3 barycentricCoord(const glm::vec2 p1, const glm::vec2 p2, const glm::vec2 p3, const glm::vec2 pos) const; // 给定三角形的三个顶点和一个点，计算该点的重心坐标 alpha, beta, gamma
 
-    void generateMesh(unsigned char* heightMap, const int sampleNum); // 根据高度图生成网格型 mesh
+    void generateMesh(unsigned char* heightMap, const int sampleNum, const int smooth_times); // 根据高度图生成网格型 mesh
 };
