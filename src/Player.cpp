@@ -433,7 +433,7 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
         //     newPosition = position + glm::normalize(newPosition - position) * speed * deltaTime;
         // }
         
-    } else 
+    } else {
         towardDirection = jumpDirection;
     }
 
