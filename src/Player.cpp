@@ -577,13 +577,13 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
                 x2 = whiteBirch[i].position.x;
                 z2 = whiteBirch[i].position.z;
                 distance = sqrt((x1-x2)*(x1-x2) + (z1-z2)*(z1-z2));
-                if (distance < 3.0f && !whiteBirch[i].breaked && playerBomb->position.y < 7.0f) {
+                if (distance < 4.0f && !whiteBirch[i].breaked && playerBomb->position.y - whiteBirch[i].position.y < 7.0f) {
                     whiteBirch[i].breaked = true;
                 }
                 x2 = treeApple[i].position.x;
                 z2 = treeApple[i].position.z;
                 distance = sqrt((x1-x2)*(x1-x2) + (z1-z2)*(z1-z2));
-                if (distance < 3.0f && !treeApple[i].breaked && playerBomb->position.y < 4.0f) {
+                if (distance < 4.0f && !treeApple[i].breaked && playerBomb->position.y - treeApple[i].position.y < 4.0f) {
                     treeApple[i].breaked = true;
                 }
             }
