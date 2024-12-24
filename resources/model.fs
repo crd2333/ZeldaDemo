@@ -16,5 +16,8 @@ uniform bool useTransTexture;
 void main() {
     vec3 color = texture(texture_diffuse1, TexCoords).rgb;
     float alpha = useTransTexture ? texture(texture_trans1, TexCoords).r : 1.0;
+    if (alpha < 0.1) {
+        discard;
+    }
     FragColor = vec4(color, alpha);
 }

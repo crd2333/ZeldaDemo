@@ -22,7 +22,6 @@ newmtl Mt_Tree_Wood_RedBark_A
 	Kd 0.5880 0.5880 0.5880
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Ka Wood_MossWood_A_Nrm.png
 	map_Kd Wood_MossWood_A_Nrm.png
 	norm Wood_RedBark_A_Nrm.png
 
@@ -37,7 +36,6 @@ newmtl Mt_TreeLeaf_A
 	Kd 0.5000 0.5000 0.5000
 	Ks 0.0450 0.0450 0.0450
 	Ke 0.0000 0.0000 0.0000
-	map_Ka Plant_TreeLeaf_B_Alb.png
 	map_Kd Plant_TreeLeaf_B_Alb.png
 	map_d Plant_TreeLeaf_B_Msk.png
 	norm Plant_TreeLeaf_B_Nrm.png

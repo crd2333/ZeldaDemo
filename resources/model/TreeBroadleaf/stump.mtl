@@ -22,9 +22,7 @@ newmtl Mt_Wood_MossWood_A
 	Kd 0.5880 0.5880 0.5880
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Ka Wood_MossWood_A_Alb.png
 	map_Kd Wood_MossWood_A_Alb.png
-	map_d Wood_MossWood_A_Alb.png
 	norm Wood_MossWood_A_Nrm.png
 
 newmtl Plant_TreeLeaf_B
@@ -38,7 +36,6 @@ newmtl Plant_TreeLeaf_B
 	Kd 0.5880 0.5880 0.5880
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Ka Plant_TreeLeaf_B_Alb.png
 	map_Kd Plant_TreeLeaf_B_Alb.png
 	map_d Plant_TreeLeaf_B_Msk.png
 	norm Plant_TreeLeaf_B_Nrm.png

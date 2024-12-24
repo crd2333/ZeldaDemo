@@ -22,9 +22,7 @@ newmtl Mt_Wood_BoxWood_A_01
 	Kd 0.5880 0.5880 0.5880
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Ka Obj_BoxWood_A_01_Alb.png
 	map_Kd Obj_BoxWood_A_01_Alb.png
-	map_d Obj_BoxWood_A_01_Alb.png
 	norm Obj_BoxWood_A_01_Nrm.png
 
 newmtl Mt_Wood_BoxWood_A_02
@@ -38,7 +36,5 @@ newmtl Mt_Wood_BoxWood_A_02
 	Kd 0.5880 0.5880 0.5880
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Ka Obj_BoxWood_A_01_Alb.png
 	map_Kd Obj_BoxWood_A_01_Alb.png
-	map_d Obj_BoxWood_A_01_Alb.png
 	norm Obj_BoxWood_A_01_Nrm.png

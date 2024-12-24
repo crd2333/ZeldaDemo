@@ -22,7 +22,6 @@ newmtl Mt_Treeleaf_00
 	Kd 0.5880 0.5880 0.5880
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Ka Plant_TreeWhiteBirch_A_Leaf_01_Alb.png
 	map_Kd Plant_TreeWhiteBirch_A_Leaf_01_Alb.png
 	map_d Plant_TreeWhiteBirch_A_Leaf_01_Msk.png
 	norm Plant_TreeWhiteBirch_A_Leaf_01_Nrm.png
@@ -38,7 +37,6 @@ newmtl Mt_Treeleaf_01
 	Kd 0.5880 0.5880 0.5880
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Ka Plant_TreeWhiteBirch_A_Leaf_02_Alb.png
 	map_Kd Plant_TreeWhiteBirch_A_Leaf_02_Alb.png
 	map_d Plant_TreeWhiteBirch_A_Leaf_02_Msk.png
 	norm Plant_TreeWhiteBirch_A_Leaf_02_Nrm.png
@@ -54,9 +52,7 @@ newmtl Mt_TreeSection_Stump
 	Kd 0.5880 0.5880 0.5880
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Ka Wood_AnnualRing_A_Alb.png
 	map_Kd Wood_AnnualRing_A_Alb.png
-	map_d Wood_AnnualRing_A_Alb.png
 	norm Wood_AnnualRing_A_Nrm.png
 
 newmtl Mt_TreeSection_Trunk
@@ -70,9 +66,7 @@ newmtl Mt_TreeSection_Trunk
 	Kd 0.5880 0.5880 0.5880
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Ka Wood_AnnualRing_A_Alb.png
 	map_Kd Wood_AnnualRing_A_Alb.png
-	map_d Wood_AnnualRing_A_Alb.png
 	norm Wood_AnnualRing_A_Nrm.png
 
 newmtl Mt_Treeleaf_02
@@ -86,7 +80,6 @@ newmtl Mt_Treeleaf_02
 	Kd 0.5880 0.5880 0.5880
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Ka Plant_TreeWhiteBirch_A_Leaf_02_Alb.png
 	map_Kd Plant_TreeWhiteBirch_A_Leaf_02_Alb.png
 	map_d Plant_TreeWhiteBirch_A_Leaf_02_Msk.png
 	norm Plant_TreeWhiteBirch_A_Leaf_02_Nrm.png
@@ -102,9 +95,7 @@ newmtl Mt_Tree_Stump
 	Kd 0.5880 0.5880 0.5880
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Ka Plant_TreeWhiteBirch_A_Bark_Alb.png
 	map_Kd Plant_TreeWhiteBirch_A_Bark_Alb.png
-	map_d Plant_TreeWhiteBirch_A_Bark_Alb.png
 	norm Plant_TreeWhiteBirch_A_Bark_Nrm.png
 
 newmtl Mt_Tree_Trunk
@@ -118,9 +109,7 @@ newmtl Mt_Tree_Trunk
 	Kd 0.5880 0.5880 0.5880
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Ka Plant_TreeWhiteBirch_A_Bark_Alb.png
 	map_Kd Plant_TreeWhiteBirch_A_Bark_Alb.png
-	map_d Plant_TreeWhiteBirch_A_Bark_Alb.png
 	norm Plant_TreeWhiteBirch_A_Bark_Nrm.png
 
 newmtl Mt_Treeleaf_03
@@ -134,7 +123,6 @@ newmtl Mt_Treeleaf_03
 	Kd 0.5880 0.5880 0.5880
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Ka Plant_TreeWhiteBirch_A_Bark_Alb.png
 	map_Kd Plant_TreeWhiteBirch_A_Bark_Alb.png
-	map_d Plant_TreeWhiteBirch_A_Bark_Alb.png
+	map_d Plant_TreeWhiteBirch_A_Bark_Msk.png
 	norm Plant_TreeWhiteBirch_A_Bark_Nrm.png
