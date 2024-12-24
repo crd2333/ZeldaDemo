@@ -43,9 +43,11 @@
 
 // terrain config
 #define MAP_SZIE glm::vec2(400.0f)
-#define HEIGHT_SCALE 300.0f
+#define HEIGHT_SCALE 500.0f
+#define TEXTURE_SCALE 3.0f
 #define RESOLUTION_RATIO 2
 #define SAMPLE_NUM 3
+#define SMOOTH_TIMES 3
 
 #define Err(message) do {                                                           \
     std::cout << "\33[1;31m[" << __FILE__ << ":" << __LINE__ << ", in function " << \

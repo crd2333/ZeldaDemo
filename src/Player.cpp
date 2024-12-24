@@ -13,7 +13,7 @@ Player::Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrai
     swimtheta_delta(0.0f),swimFlag(false),
     // 跳跃参数
     jumpHorizenSpeed(14.0f), jumpUpSpeed(15.0f), jumpHeight(5.0f),
-    jumpDirection(0.0f, 0.0f, 1.0f), targetJumpHeight(0.0f), jumpUp(true), 
+    jumpDirection(0.0f, 0.0f, 1.0f), targetJumpHeight(0.0f), jumpUp(true),
     // 攀爬参数
     climbtheta(-20.0f), climbRotateAxis(0.0f, 0.0f, 1.0f),climbcolor(1.0f,0.0f,0.0f),
     // 滑翔参数
@@ -289,7 +289,7 @@ void Player::draw(Shader& shader) {
     shader.use();
     shader.setFloat("alpha", alpha);
 
-    // 绘制盾牌 
+    // 绘制盾牌
     glm::mat4 modelWeapon_2 = glm::rotate(model, PI + PI/2 ,glm::vec3(0.0f,1.0f,0.0f));
     modelWeapon_2 = glm::translate(modelWeapon_2, glm::vec3(length.x/2, 0.0f, 0.0f));
     modelWeapon_2 = glm::translate(modelWeapon_2, glm::vec3(0.0f, 0.0f, -3.0f));
@@ -310,7 +310,7 @@ void Player::draw(Shader& shader) {
     shader.setVec3("objectColor", glm::vec3(1.0f, 1.0f, 0.99f));//这里的颜色特殊，参数是着色器特殊判断符，修改颜色到对应类里面修改
     glBindVertexArray(VAO_weapon1);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices_weapon1.size()), GL_UNSIGNED_INT, 0);
-    
+
     // 绘制人物
     shader.setMat4("model", model);
     shader.setMat4("normalMat", glm::transpose(glm::inverse(model))); // 在外部计算好 normal matrix（避免 GPU 频繁求逆）
@@ -318,9 +318,8 @@ void Player::draw(Shader& shader) {
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, 0);
 
-    
+
     glBindVertexArray(0);
-    
 }
 
 
@@ -433,9 +432,9 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
             newPosition.y = terrain->getHeight(newPosition.x, newPosition.z) + length.y / 2.0f;
             newPosition = position + glm::normalize(newPosition - position) * speed * deltaTime;
         }
-        
-    } else 
+    } else {
         towardDirection = jumpDirection;
+    }
 
     // 处理跳跃时的状态+参数设置
     if (state != JUMPING && jump) {
@@ -509,7 +508,7 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
     }else if(state == IDLE_LAND || state == WALKING_LAND || state == RUNNING_LAND){
         color = landColor;
     }
-    
+
     // 处理跳跃的逻辑
     if(state == JUMPING) {
         DoJump(terrain, deltaTime,fly);
@@ -550,7 +549,7 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
             position.z = temPosition.z;
         }
     }
-  
+
     // 处理击剑动画
     if(actionCount % 1 == 0 && weaponFactor <= 1.0f && mouseLeft){
         weaponFactor = weaponFactor >= 1.0f ? 1.0f : weaponFactor + 0.05;
@@ -599,7 +598,7 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
 
     if (playerBomb->active == 1) {
         playerBomb->position = position + upVector * length.y;
-    } else if (playerBomb->active == 2) 
+    } else if (playerBomb->active == 2)
         playerBomb->moveParabola(terrain, deltaTime);
     // 判断边界
     glm::vec3 length = getLength();
