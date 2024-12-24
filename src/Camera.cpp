@@ -106,6 +106,7 @@ void Camera::UpdateThirdPerson(Terrain* terrain, Player *player,
     // // Smoothly interpolate to target position
     // float distanceToTarget = glm::length(targetPosition - Position);
     // if (distanceToTarget > minDistance) {
+    //     std:cout << "distanceToTarget: " << distanceToTarget << std::endl;
     //     Position = glm::mix(Position, targetPosition, smoothSpeed * deltaTime);
     // }
 

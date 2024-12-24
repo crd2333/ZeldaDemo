@@ -467,12 +467,12 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
         else if (state == WALKING_LAND) state = SWIMMING_WATER;
         else if (state == RUNNING_LAND) state = FAST_SWIMMING_WATER;
         if (state == IDLE_WATER || state == SWIMMING_WATER || state == FAST_SWIMMING_WATER) {
-            newPosition.y = waterHeight + 0.5f;
+            newPosition.y = waterHeight + 0.49f;
             upVector = glm::vec3(0.0f, 1.0f, 0.0f);
             position = newPosition;
         }
         if(actionCount % 1 == 0 && swimtheta_delta <= 90.0f){
-            swimtheta_delta = swimtheta_delta >= 90.0f ? 90.0f : swimtheta_delta + 2;
+            swimtheta_delta = swimtheta_delta >= 90.0f ? 90.0f : swimtheta_delta + 5;
             actionCount ++;
         }
         color = swimColor;
@@ -482,7 +482,7 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
             return;
         }
     }
-    else if (newPosition.y > waterHeight) {
+    else if (newPosition.y > waterHeight + 0.5f) {
         if (state == IDLE_WATER) state = IDLE_LAND;
         else if (state == SWIMMING_WATER) state = IDLE_LAND;
         else if (state == FAST_SWIMMING_WATER) state = IDLE_LAND;

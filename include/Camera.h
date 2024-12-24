@@ -82,7 +82,7 @@ private:
     // 新增成员变量
     glm::vec3 targetPosition; // 目标相机位置
     float smoothSpeed = 5.0f; // 平滑因子
-    float minDistance = 0.1f; // 最小距离阈值
+    float minDistance = 1.0f; // 最小距离阈值
 
     // 约束 phi 以限制相机在半球体内
     void constrainAngles();
