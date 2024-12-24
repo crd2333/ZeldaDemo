@@ -321,12 +321,12 @@ void Player::draw(Shader& shader) {
     
     glBindVertexArray(0);
     
-    // if (bombFlag) DrawLine(line_shader);
 }
 
 
-void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jump, bool fly, bool bomb, bool reset,
-                bool mouseLeft, bool mouseRight,Terrain* terrain, float deltaTime) {
+void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jump, bool fly, bool bomb_state, bool reset,
+                bool mouseLeft, bool mouseRight,Terrain* terrain, Bomb* playerBomb, float deltaTime,
+                BroadLeaf* broadLeaf, WhiteBirch* whiteBirch, TreeApple* treeApple) {
     // shift 为 true 时表示按下了 shift 键，即跑步
     // jump 为 true 时表示按下了空格键，即跳跃
     if (reset) position = glm::vec3(50.0f, 0.0f, 50.0f);
@@ -336,6 +336,7 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
         actionCount ++;
     }
     glm::vec3 newPosition = position;
+    glm::vec3 towardDirection;
     if (move_Direction != moveDirection::MOVE_STATIC) {
         switch (state) {
             case IDLE_LAND:
@@ -399,20 +400,25 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
     }
     // 处理未跳跃时的位移变化
     if (state != JUMPING) {
-        glm::vec3 forward = direction;
+        glm::vec3 moveDirection = direction;
+        glm::vec3 forward = moveDirection;
         glm::vec3 right = glm::normalize(glm::cross(forward, upVector));
         switch (move_Direction) {
             case moveDirection::MOVE_FORWARD:
                 newPosition += forward * speed * deltaTime;
+                towardDirection = forward;
                 break;
             case moveDirection::MOVE_BACKWARD:
                 newPosition -= forward * speed * deltaTime;
+                towardDirection = -forward;
                 break;
             case moveDirection::MOVE_LEFT:
                 newPosition -= right * speed * deltaTime;
+                towardDirection = -right;
                 break;
             case moveDirection::MOVE_RIGHT:
                 newPosition += right * speed * deltaTime;
+                towardDirection = right;
                 break;
             case moveDirection::MOVE_STATIC: // 切换为静止
                 if (state == IDLE_LAND || state == WALKING_LAND || state == RUNNING_LAND)
@@ -423,9 +429,13 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
             default:
                 break;
         }
-        newPosition.y = terrain->getHeight(newPosition.x, newPosition.z) + length.y / 2.0f;
-        newPosition = position + glm::normalize(newPosition - position) * speed * deltaTime;
-    }
+        if (glm::distance(newPosition,position) > 0.001f && !swimFlag) {
+            newPosition.y = terrain->getHeight(newPosition.x, newPosition.z) + length.y / 2.0f;
+            newPosition = position + glm::normalize(newPosition - position) * speed * deltaTime;
+        }
+        
+    } else 
+        towardDirection = jumpDirection;
 
     // 处理跳跃时的状态+参数设置
     if (state != JUMPING && jump) {
@@ -460,7 +470,7 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
         else if (state == WALKING_LAND) state = SWIMMING_WATER;
         else if (state == RUNNING_LAND) state = FAST_SWIMMING_WATER;
         if (state == IDLE_WATER || state == SWIMMING_WATER || state == FAST_SWIMMING_WATER) {
-            newPosition.y = waterHeight;
+            newPosition.y = waterHeight + 0.5f;
             upVector = glm::vec3(0.0f, 1.0f, 0.0f);
             position = newPosition;
         }
@@ -475,7 +485,7 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
             return;
         }
     }
-    else {
+    else if (newPosition.y > waterHeight) {
         if (state == IDLE_WATER) state = IDLE_LAND;
         else if (state == SWIMMING_WATER) state = IDLE_LAND;
         else if (state == FAST_SWIMMING_WATER) state = IDLE_LAND;
@@ -497,7 +507,7 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
     }else if(state == IDLE_LAND || state == WALKING_LAND || state == RUNNING_LAND){
         color = landColor;
     }
-
+    
     // 处理跳跃的逻辑
     if(state == JUMPING) {
         DoJump(terrain, deltaTime,fly);
@@ -506,17 +516,39 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
         Update(terrain);
     }
 
-    if (bomb) {
-        if (bombCount % 8 == 7) {
-            bombCount = 0;
-            glm::vec3 horizenDirection = glm::normalize(glm::vec3(direction.x, 0.0f, direction.z));
-            glm::vec3 left = glm::normalize(glm::cross(upVector, horizenDirection));
-            bombs.push_back(Bomb(position + left * length.x / 2.0f, direction));
-            std::cout << "Bomb!" << std::endl;
-        } else {
-            bombCount ++;
+    // 不能穿模
+    float x1 = position.x;
+    float z1 = position.z;
+    float x2, z2, distance;
+    glm::vec3 temPosition;
+    for (int i=0;i<4;i++) {
+        x2 = broadLeaf[i].position.x;
+        z2 = broadLeaf[i].position.z;
+        distance = sqrt((x1-x2)*(x1-x2) + (z1-z2)*(z1-z2));
+        if (distance < 5.0f) {
+            std::cout << "Hit broadLeaf" << std::endl;
+            temPosition = broadLeaf[i].position - towardDirection * 5.5f;
+            position.x = temPosition.x;
+            position.z = temPosition.z;
+        }
+        x2 = whiteBirch[i].position.x;
+        z2 = whiteBirch[i].position.z;
+        distance = sqrt((x1-x2)*(x1-x2) + (z1-z2)*(z1-z2));
+        if (distance < 1.0f) {
+            temPosition = whiteBirch[i].position - towardDirection * 1.5f;
+            position.x = temPosition.x;
+            position.z = temPosition.z;
+        }
+        x2 = treeApple[i].position.x;
+        z2 = treeApple[i].position.z;
+        distance = sqrt((x1-x2)*(x1-x2) + (z1-z2)*(z1-z2));
+        if (distance < 1.0f) {
+            temPosition = treeApple[i].position - towardDirection * 1.5f;
+            position.x = temPosition.x;
+            position.z = temPosition.z;
         }
     }
+  
     // 处理击剑动画
     if(actionCount % 1 == 0 && weaponFactor <= 1.0f && mouseLeft){
             weaponFactor = weaponFactor >= 1.0f ? 1.0f : weaponFactor + 0.05;
@@ -531,7 +563,40 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
     }else if(!mouseRight){
         shieldFactor = 0.0f;
     }
-    
+
+    if (bomb_state && !playerBomb->explode) {
+        playerBomb->active = ( playerBomb->active + 1 ) % 3;
+        if (playerBomb->active == 1) {
+            playerBomb->velocity = direction * 15.0f;
+            playerBomb->velocity.y += 10.0f;
+        }
+        if (playerBomb->active == 0) {
+            playerBomb->land = false;
+            playerBomb->life = 1.0f;
+            playerBomb->explode = true;
+            for (int i = 0; i < 4; i++) {
+                x1 = playerBomb->position.x;
+                z1 = playerBomb->position.z;
+                x2 = whiteBirch[i].position.x;
+                z2 = whiteBirch[i].position.z;
+                distance = sqrt((x1-x2)*(x1-x2) + (z1-z2)*(z1-z2));
+                if (distance < 4.0f && !whiteBirch[i].breaked && playerBomb->position.y - whiteBirch[i].position.y < 7.0f) {
+                    whiteBirch[i].breaked = true;
+                }
+                x2 = treeApple[i].position.x;
+                z2 = treeApple[i].position.z;
+                distance = sqrt((x1-x2)*(x1-x2) + (z1-z2)*(z1-z2));
+                if (distance < 4.0f && !treeApple[i].breaked && playerBomb->position.y - treeApple[i].position.y < 4.0f) {
+                    treeApple[i].breaked = true;
+                }
+            }
+        }
+    }
+
+    if (playerBomb->active == 1) {
+        playerBomb->position = position + upVector * length.y;
+    } else if (playerBomb->active == 2) 
+        playerBomb->moveParabola(terrain, deltaTime);
     // 判断边界
     glm::vec3 length = getLength();
     if (position.x > MAP_SZIE.x / 2.0f - length.x / 2.0f) position.x = MAP_SZIE.x / 2.0f - length.x / 2.0f;

@@ -6,8 +6,8 @@
 #include "Water.h"
 #include "Skybox.h"
 #include "Player.h"
-#include "Bomb.h"
-#include "ExplosionEffect.h"
+#include "Objects.h"
+
 
 int main() {
     GLFWwindow* window = Create_glfw_Window();
@@ -28,7 +28,47 @@ int main() {
 
     // player
     Player player(glm::vec3(50.0f, 0.0f, 50.0f), glm::vec3(1.0f, 2.0f, 1.0f), &terrain);
+    Bomb playerBomb;
 
+    // tree
+    BroadLeaf broadLeaf[4];
+    WhiteBirch whiteBirch[4];
+    TreeApple treeApple[4];
+
+    broadLeaf[0].position = glm::vec3(-35.0f, 0.0f, 21.0f);
+    broadLeaf[0].position.y = terrain.getHeight(broadLeaf[0].position.x, broadLeaf[0].position.z);
+    broadLeaf[0].angle = acos(terrain.getNormal(broadLeaf[0].position.x, broadLeaf[0].position.z).y) * 180.0f / glm::pi<float>();
+    broadLeaf[1].position = glm::vec3(60.0f, 0.0f, 60.0f);
+    broadLeaf[1].scale = glm::vec3(1.5f);
+    broadLeaf[1].position.y = terrain.getHeight(broadLeaf[1].position.x, broadLeaf[1].position.z);
+    broadLeaf[2].position = glm::vec3(-9.0f, 0.0f, 112.0f);
+    broadLeaf[2].scale = glm::vec3(2.5f);
+    broadLeaf[2].position.y = terrain.getHeight(broadLeaf[2].position.x, broadLeaf[2].position.z);
+    broadLeaf[3].position = glm::vec3(28.0f, 0.0f, -83.0f);
+    broadLeaf[3].scale = glm::vec3(1.5f);
+    broadLeaf[3].position.y = terrain.getHeight(broadLeaf[3].position.x, broadLeaf[3].position.z);
+
+    whiteBirch[0].position = glm::vec3(63.0f, 0.0f, -113.0f);
+    whiteBirch[0].position.y = terrain.getHeight(whiteBirch[0].position.x, whiteBirch[0].position.z);
+    whiteBirch[1].position = glm::vec3(133.0f, 0.0f, -7.0f);
+    whiteBirch[1].position.y = terrain.getHeight(whiteBirch[1].position.x, whiteBirch[1].position.z);
+    whiteBirch[2].position = glm::vec3(13.0f, 0.0f, 178.0f);
+    whiteBirch[2].position.y = terrain.getHeight(whiteBirch[2].position.x, whiteBirch[2].position.z);
+    whiteBirch[3].position = glm::vec3(-10.0f, 0.0f, 126.0f);
+    whiteBirch[3].position.y = terrain.getHeight(whiteBirch[3].position.x, whiteBirch[3].position.z);
+
+    treeApple[0].position = glm::vec3(-80.0f, 0.0f, 99.0f);
+    treeApple[0].position.y = terrain.getHeight(treeApple[0].position.x, treeApple[0].position.z);
+    treeApple[0].scale = glm::vec3(0.7f);
+    treeApple[1].position = glm::vec3(-67.0f, 0.0f, -102.0f);
+    treeApple[1].position.y = terrain.getHeight(treeApple[1].position.x, treeApple[1].position.z);
+    treeApple[1].scale = glm::vec3(0.7f);
+    treeApple[2].position = glm::vec3(68.0f, 0.0f, -71.0f);
+    treeApple[2].position.y = terrain.getHeight(treeApple[2].position.x, treeApple[2].position.z);
+    treeApple[2].scale = glm::vec3(0.7f);
+    treeApple[3].position = glm::vec3(13.0f, 0.0f, -162.0f);
+    treeApple[3].position.y = terrain.getHeight(treeApple[3].position.x, treeApple[3].position.z);
+    treeApple[3].scale = glm::vec3(0.7f);
     // sun.load(); // 这个必须在 Create_glfw_Window() 之后，不然会 segfault（但是不画太阳了，算了）
 
     // shaders
@@ -81,8 +121,8 @@ int main() {
     float symFar = 700.f;
 
     while (!glfwWindowShouldClose(window)) {
-        RenderLoopPreProcess(window, &player, &terrain);
-
+        RenderLoopPreProcess(window, &player, &terrain, &playerBomb, broadLeaf, whiteBirch, treeApple);
+        
         // ImGui windows
         if (mainMenu) {
             ImGui::Begin("Main Menu: left ALT to focus", &mainMenu);
@@ -184,13 +224,6 @@ int main() {
         // render the player
         player.draw(shadow_shader);
 
-        for (auto &bomb : bombs) {
-            bomb.draw(shadow_shader);
-        }
-        // for (auto &explosion : explosions) {
-        //     explosion.draw(shadow_shader);
-        // }
-
         depthMapFBO.UnBind();
         // ---------- shadow pass ----------
 
@@ -264,23 +297,30 @@ int main() {
         water.waterFBO->BindTextureBuffer2(4); // 绑定 reflectionMap 到纹理单元 4
         water.draw(water_shader, GL_TRIANGLE_FAN);
 
-        for (auto &bomb : bombs) {
-            bomb.draw(player_shader);
+        if (playerBomb.active == 1 || playerBomb.active == 2) {
+            playerBomb.draw(proj_view);
         }
-        // for (auto &explosion : explosions) {
-        //     explosion.draw(explosion_shader);
-        // }
 
-        // render the player
-        depthMapFBO.BindTextureBuffer(0);
-        glDepthMask(GL_FALSE);
-        player.draw(player_shader);
-        glDepthMask(GL_TRUE);
+        // render the trees
+        for (int i = 0; i < 4; i++) {
+            broadLeaf[i].draw(proj_view);
+            whiteBirch[i].draw(proj_view);
+            treeApple[i].draw(proj_view);
+        }
 
         // sun.draw(); // 这个太阳太难看了，用天空盒的太阳吧（（
 
         // render the skybox
         skybox.draw(projection, view);
+        // render the player
+        depthMapFBO.BindTextureBuffer(0);
+        glDepthMask(GL_FALSE);
+        if (playerBomb.explode) {
+            playerBomb.Explode(player_shader, deltaTime);
+        }
+        player.draw(player_shader);
+        glDepthMask(GL_TRUE);
+
         // ---------- normal pass ----------
 
         RenderLoopPostProcess(window);
