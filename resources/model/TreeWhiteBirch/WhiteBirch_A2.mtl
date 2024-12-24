@@ -94,5 +94,4 @@ newmtl Mt_Treeleaf_01
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
 	map_Kd Plant_TreeWhiteBirch_A_Bark_Alb.png
-	map_d Plant_TreeWhiteBirch_A_Bark_Msk.png
 	norm Plant_TreeWhiteBirch_A_Bark_Nrm.png

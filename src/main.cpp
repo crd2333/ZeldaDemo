@@ -41,7 +41,7 @@ int main() {
     TreeApple treeApple[numTreeApple];
 
     broadLeaf[0].position = glm::vec3(63.0f, 0.0f, -113.0f);
-    broadLeaf[1].position = glm::vec3(60.0f, 0.0f, 60.0f);
+    broadLeaf[1].position = glm::vec3(101.0f, 0.0f, -103.0f);
     broadLeaf[2].position = glm::vec3(57.0f, 0.0f, -83.0f);
     broadLeaf[3].position = glm::vec3(28.0f, 0.0f, -83.0f);
     broadLeaf[4].position = glm::vec3(8.0f, 0.0f, -103.0f);

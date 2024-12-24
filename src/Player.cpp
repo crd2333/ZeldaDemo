@@ -521,7 +521,7 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
         Update(terrain);
     }
 
-    // 不能穿模
+    // 树木不能穿模
     float x1 = position.x;
     float z1 = position.z;
     float x2, z2, distance;
@@ -531,7 +531,6 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
         z2 = broadLeaf[i].position.z;
         distance = sqrt((x1-x2)*(x1-x2) + (z1-z2)*(z1-z2));
         if (distance < 5.0f) {
-            std::cout << "Hit broadLeaf" << std::endl;
             temPosition = broadLeaf[i].position - towardDirection * 5.5f;
             position.x = temPosition.x;
             position.z = temPosition.z;
