@@ -9,7 +9,7 @@ Mesh::Mesh(std::vector<_Vertex> vertices, std::vector<GLuint> indices, std::vect
 }
 
 // render the mesh
-void Mesh::draw(Shader &shader) {
+void Mesh::draw(Shader &shader, const int unit_offset) {
     shader.use();
     // active proper texture unit before binding
     glUniform3fv(glGetUniformLocation(shader.ID, "Ka"), 1, glm::value_ptr(Ka));
@@ -27,7 +27,7 @@ void Mesh::draw(Shader &shader) {
     // first set uniform bool useTransTexture to false, avoid using the texture set previously
     glUniform1i(glGetUniformLocation(shader.ID, "useTransTexture"), GL_FALSE);
     for (GLuint i = 0; i < textures.size(); i++) { // 最后一个是默认的白色纹理
-        glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
+        glActiveTexture(GL_TEXTURE0 + i + unit_offset); // active proper texture unit before binding
         // retrieve texture number (the N in diffuse_textureN)
         std::string number;
         std::string name = textures[i].type;
@@ -45,7 +45,7 @@ void Mesh::draw(Shader &shader) {
         }
 
         // now set the sampler to the correct texture unit
-        glUniform1i(glGetUniformLocation(shader.ID, (name + number).c_str()), i);
+        glUniform1i(glGetUniformLocation(shader.ID, (name + number).c_str()), i + unit_offset);
         // and finally bind the texture
         glBindTexture(GL_TEXTURE_2D, textures[i].id);
     }

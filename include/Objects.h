@@ -60,7 +60,7 @@ public:
         shader->setMat4("model", model);
         bomb->draw(*shader);
     }
-    void moveParabola(Terrain* terrain, float t); 
+    void moveParabola(Terrain* terrain, float t);
     void Explode(Shader& shader, float deltaTime);
 private:
 };
@@ -69,32 +69,27 @@ private:
 // 定义树的基类，包括可破坏和不可破坏的树（特别大的那种）
 class TreeUnbreakable {
 public:
-    Shader* shader = nullptr;
     Model* tree = nullptr;
     glm::vec3 position = glm::vec3(0.0f);
     glm::vec3 scale = glm::vec3(1.0f);
     float angle = 0.0f;
 
-    TreeUnbreakable() : shader(new Shader("resources/model.vs", "resources/model.fs")) {}
-    virtual ~TreeUnbreakable() {
-        delete shader;
-    }
-    void draw(glm::mat4 proj_view) {
+    TreeUnbreakable() = default;
+    virtual ~TreeUnbreakable() = default;
+    void draw(Shader& shader, const int unit_offset = 0) {
         glm::mat4 model = glm::translate(glm::mat4(1.0f), position);
         model = glm::scale(model, scale);
-        float rotation_angle = glm::radians(90.0f + angle); 
+        float rotation_angle = glm::radians(90.0f + angle);
         glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), rotation_angle, glm::vec3(1.0f, 0.0f, 0.0f));
         model = model * rotationMatrix;
-        shader->use();
-        shader->setMat4("proj_view", proj_view);
-        shader->setMat4("model", model);
-        tree->draw(*shader);
+        shader.use();
+        shader.setMat4("model", model);
+        tree->draw(shader, unit_offset);
     }
 };
 
 class TreeBreakable {
 public:
-    Shader* shader = nullptr;
     Model* tree = nullptr;
     Model *stump = nullptr;
     glm::vec3 position = glm::vec3(0.0f);
@@ -103,23 +98,20 @@ public:
     bool breakable;
     bool breaked = false;
 
-    TreeBreakable() : shader(new Shader("resources/model.vs", "resources/model.fs")) {}
-    virtual ~TreeBreakable() {
-        delete shader;
-    }
-    void draw(glm::mat4 proj_view) {
+    TreeBreakable() = default;
+    virtual ~TreeBreakable() = default;
+    void draw(Shader& shader, const int unit_offset = 0) {
         glm::mat4 model = glm::translate(glm::mat4(1.0f), position);
         model = glm::scale(model, scale);
-        float rotation_angle = glm::radians(90.0f + angle); 
+        float rotation_angle = glm::radians(90.0f + angle);
         glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), rotation_angle, glm::vec3(1.0f, 0.0f, 0.0f));
         model = model * rotationMatrix;
-        shader->use();
-        shader->setMat4("proj_view", proj_view);
-        shader->setMat4("model", model);
+        shader.use();
+        shader.setMat4("model", model);
         if (breaked) {
-            stump->draw(*shader);
+            stump->draw(shader, unit_offset);
         } else {
-            tree->draw(*shader);
+            tree->draw(shader, unit_offset);
         }
     }
 };
@@ -178,32 +170,27 @@ public:
 // 定义游戏中箱子的类
 class BoxUnbreakable {
 public:
-    Shader* shader = nullptr;
     Model* box = nullptr;
     glm::vec3 position = glm::vec3(0.0f);
     glm::vec3 scale = glm::vec3(1.0f);
     float angle = 0.0f;
 
-    BoxUnbreakable() : shader(new Shader("resources/model.vs", "resources/model.fs")) {}
-    virtual ~BoxUnbreakable() {
-        delete shader;
-    }
-    void draw(glm::mat4 proj_view) {
+    BoxUnbreakable() = default;
+    virtual ~BoxUnbreakable() = default;
+    void draw(Shader& shader, const int unit_offset = 0) {
         glm::mat4 model = glm::translate(glm::mat4(1.0f), position);
         model = glm::scale(model, scale);
-        float rotation_angle = glm::radians(90.0f + angle); 
+        float rotation_angle = glm::radians(90.0f + angle);
         glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), rotation_angle, glm::vec3(1.0f, 0.0f, 0.0f));
         model = model * rotationMatrix;
-        shader->use();
-        shader->setMat4("proj_view", proj_view);
-        shader->setMat4("model", model);
-        box->draw(*shader);
+        shader.use();
+        shader.setMat4("model", model);
+        box->draw(shader, unit_offset);
     }
 };
 
 class BoxBreakable {
 public:
-    Shader* shader = nullptr;
     Model* box = nullptr;
     Model *breaked_box = nullptr;
     glm::vec3 position = glm::vec3(0.0f);
@@ -212,27 +199,24 @@ public:
     bool breakable;
     bool breaked = false;
 
-    BoxBreakable() : shader(new Shader("resources/model.vs", "resources/model.fs")) {}
-    virtual ~BoxBreakable() {
-        delete shader;
-    }
-    void draw(glm::mat4 proj_view) {
+    BoxBreakable() = default;
+    virtual ~BoxBreakable() = default;
+    void draw(Shader& shader, const int unit_offset = 0) {
         glm::mat4 model = glm::translate(glm::mat4(1.0f), position);
         model = glm::scale(model, scale);
-        float rotation_angle = glm::radians(90.0f + angle); 
+        float rotation_angle = glm::radians(90.0f + angle);
         glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), rotation_angle, glm::vec3(1.0f, 0.0f, 0.0f));
         model = model * rotationMatrix;
-        shader->use();
-        shader->setMat4("proj_view", proj_view);
-        shader->setMat4("model", model);
+        shader.use();
+        shader.setMat4("model", model);
         if (breaked) {
             if(breaked_box != nullptr){
                 model = glm::scale(model, glm::vec3(2.0f));
-                shader->setMat4("model", model);
-                breaked_box->draw(*shader);
+                shader.setMat4("model", model);
+                breaked_box->draw(shader, unit_offset);
             }
         }else{
-            box->draw(*shader);
+            box->draw(shader, unit_offset);
         }
     }
 };
@@ -260,7 +244,7 @@ public:
         breaked_box = new Model("resources/model/Box/BoxIron_Breakable.obj");
         breakable = true;
         breaked = false;
-        
+
     }
     ~MetalBox_breakable() {
         delete box;
@@ -280,7 +264,7 @@ public:
     }
 };
 
-class MetalBox_C : public BoxUnbreakable {  
+class MetalBox_C : public BoxUnbreakable {
 public:
     MetalBox_C() {
         box = new Model("resources/model/Box/BoxIron_B_4x4x4.obj");

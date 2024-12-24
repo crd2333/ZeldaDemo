@@ -80,9 +80,9 @@ newmtl Mt_Treeleaf_02
 	Kd 0.5880 0.5880 0.5880
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
-	map_Kd Plant_TreeWhiteBirch_A_Leaf_02_Alb.png
-	map_d Plant_TreeWhiteBirch_A_Leaf_02_Msk.png
-	norm Plant_TreeWhiteBirch_A_Leaf_02_Nrm.png
+	map_Kd Plant_TreeWhiteBirch_A_Leaf_01_Alb.png
+	map_d Plant_TreeWhiteBirch_A_Leaf_01_Msk.png
+	norm Plant_TreeWhiteBirch_A_Leaf_01_Nrm.png
 
 newmtl Mt_Tree_Stump
 	Ns 10.0000
@@ -110,19 +110,4 @@ newmtl Mt_Tree_Trunk
 	Ks 0.0000 0.0000 0.0000
 	Ke 0.0000 0.0000 0.0000
 	map_Kd Plant_TreeWhiteBirch_A_Bark_Alb.png
-	norm Plant_TreeWhiteBirch_A_Bark_Nrm.png
-
-newmtl Mt_Treeleaf_03
-	Ns 10.0000
-	Ni 1.5000
-	d 1.0000
-	Tr 0.0000
-	Tf 1.0000 1.0000 1.0000
-	illum 2
-	Ka 0.5880 0.5880 0.5880
-	Kd 0.5880 0.5880 0.5880
-	Ks 0.0000 0.0000 0.0000
-	Ke 0.0000 0.0000 0.0000
-	map_Kd Plant_TreeWhiteBirch_A_Bark_Alb.png
-	map_d Plant_TreeWhiteBirch_A_Bark_Msk.png
 	norm Plant_TreeWhiteBirch_A_Bark_Nrm.png

@@ -6,9 +6,9 @@ Model::Model(std::string const &path, bool gamma) : gammaCorrection(gamma) {
 }
 
 // draws the model, and thus all its meshes
-void Model::draw(Shader &shader) {
+void Model::draw(Shader &shader, const int unit_offset) {
     for (GLuint i = 0; i < meshes.size(); i++)
-        meshes[i].draw(shader);
+        meshes[i].draw(shader, unit_offset);
 }
 
 // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.

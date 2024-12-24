@@ -19,7 +19,7 @@ Player::Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrai
     // 滑翔参数
     flyColor(0.05f,0.45f,0.25f),
     // 人物相关模型参数
-    playerShield(3.0f, 4.0f), 
+    playerShield(3.0f, 4.0f),
     playerWeapon(0.3f, 4.0f),
     boxGeometry(fixedLength.x, fixedLength.y, fixedLength.z)
 {
@@ -331,7 +331,7 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
     // shift 为 true 时表示按下了 shift 键，即跑步
     // jump 为 true 时表示按下了空格键，即跳跃
     int countBroadLeaf = 12, countWhiteBirch = 53, countTreeApple = 11;
-    if (reset) position = glm::vec3(50.0f, 0.0f, 50.0f);
+    if (reset) position = glm::vec3(-70.0f, 0.0f, -5.0f);
     actionCount_unused += deltaTime;
     if(actionCount_unused > 1){
         actionCount_unused = 0;
@@ -435,7 +435,7 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
         //     newPosition.y = terrain->getHeight(newPosition.x, newPosition.z) + length.y / 2.0f;
         //     newPosition = position + glm::normalize(newPosition - position) * speed * deltaTime;
         // }
-        
+
     } else {
         towardDirection = jumpDirection;
     }
@@ -703,7 +703,7 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
             playerBomb->explode = true;
             x1 = playerBomb->position.x;
             z1 = playerBomb->position.z;
-            for (int i = 0; i < countWhiteBirch; i++) {    
+            for (int i = 0; i < countWhiteBirch; i++) {
                 x2 = whiteBirch[i].position.x;
                 z2 = whiteBirch[i].position.z;
                 distance = sqrt((x1-x2)*(x1-x2) + (z1-z2)*(z1-z2));
@@ -727,7 +727,7 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
     } else if (playerBomb->active == 2)
         playerBomb->moveParabola(terrain, deltaTime);
 
-    
+
     // 判断边界
     glm::vec3 length = getLength();
     if (position.x > MAP_SZIE.x / 2.0f - length.x / 2.0f) position.x = MAP_SZIE.x / 2.0f - length.x / 2.0f;

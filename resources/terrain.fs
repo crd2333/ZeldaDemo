@@ -81,8 +81,8 @@ vec3 mix_color(vec2 texCoords, vec3 normal, float y) {
     vec3 snowGrassColor = texture(terrain_texture4, texCoords).rgb;
 
     // 计算高度混合
-    float snowRegionBlend = smoothstep(225.0, 250.0, y);
-    float snowGrassBlend = smoothstep(200.0, 225.0, y);
+    float snowRegionBlend = smoothstep(240.0, 270.0, y);
+    float snowGrassBlend = smoothstep(210.0, 240.0, y);
 
     vec3 color = mix(grassColor, snowGrassColor, snowGrassBlend);
     color = mix(color, snowColor, snowRegionBlend);

@@ -37,7 +37,7 @@ public:
     Mesh(std::vector<_Vertex> vertices, std::vector<GLuint> indices, std::vector<Texture> textures,
          glm::vec3 Ka=glm::vec3(0.0f), glm::vec3 Kd=glm::vec3(0.0f), glm::vec3 Ks=glm::vec3(0.0f), glm::vec3 Ke=glm::vec3(0.0f));
     // render the mesh
-    void draw(Shader &shader);
+    void draw(Shader &shader, const int unit_offset=0);
 
 private:
     // render data

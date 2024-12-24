@@ -4,7 +4,7 @@ Terrain::Terrain(const glm::vec2 mapScale, const float heightScale, const int re
     // height map and generate mesh
     int components;
     // unsigned char* heightMap = stbi_load("resources/textures/heightmap.png", &cols, &rows, &components, 0);
-    unsigned char* heightMap = stbi_load("resources/textures/heightmap_1024.png", &map_cols, &map_rows, &components, 0);
+    unsigned char* heightMap = stbi_load("resources/textures/heightmap_512.png", &map_cols, &map_rows, &components, 0);
     if (!heightMap || components != 1)
         Err("Something wrong with the height map! Check the path and format.");
 

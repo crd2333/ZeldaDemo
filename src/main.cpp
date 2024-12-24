@@ -8,7 +8,7 @@
 #include "Player.h"
 #include "Objects.h"
 #include <cstdlib>
-#include <ctime> 
+#include <ctime>
 
 
 int main() {
@@ -29,9 +29,9 @@ int main() {
     Water water(MAP_SZIE, HEIGHT_SCALE, river_of_dead_height, river_of_dead, river_of_dead_num);
 
     // player
-    Player player(glm::vec3(50.0f, 0.0f, 50.0f), glm::vec3(1.0f, 2.0f, 1.0f), &terrain);
+    Player player(glm::vec3(-70.0f, 0.0f, -5.0f), glm::vec3(1.0f, 2.0f, 1.0f), &terrain);
     Bomb playerBomb;
-    
+
     // tree
     int numBroadLeaf = 12;
     int numWhiteBirch = 53;
@@ -134,7 +134,7 @@ int main() {
 
     // Box
     int numWoodBox = 4;
-    WoodBox woodboxs[numWoodBox]; 
+    WoodBox woodboxs[numWoodBox];
     woodboxs[0].position = glm::vec3(53.8f, 0.0f, -48.0f);
     woodboxs[1].position = glm::vec3(59.6f, 0.0f, -39.7f);
     woodboxs[2].position = glm::vec3(53.8f, 0.0f, -39.7f);
@@ -152,7 +152,7 @@ int main() {
     metalBreakableboxs[1].position = glm::vec3(132.2f, 0.0f, -39.4f);
     metalBreakableboxs[2].position = glm::vec3(125.6f, 0.0f, -39.4f);
     metalBreakableboxs[3].position = glm::vec3(125.2f, 0.0f, -59.8f);
-    
+
     for( int i = 0; i < numMetalBox_Breakable; i++ ){
         metalBreakableboxs[i].position.y = terrain.getHeight(metalBreakableboxs[i].position.x, metalBreakableboxs[i].position.z);
         metalBreakableboxs[i].angle = acos(terrain.getNormal(metalBreakableboxs[i].position.x, metalBreakableboxs[i].position.z).y) * 180.0f / glm::pi<float>();
@@ -207,6 +207,16 @@ int main() {
     Shader player_shader("resources/player.vs", "resources/player.fs");
     player_shader.use();
     player_shader.setInt("shadowMap", 0);
+    Shader model_shader("resources/model.vs", "resources/model.fs");
+    model_shader.use();
+    // model_shader.setInt("texture_diffuse1", 0);
+    // model_shader.setInt("texture_normal1", 1);
+    // model_shader.setInt("texture_trans1", 2);
+    // model_shader.setInt("shadowMap", 3);
+    model_shader.setInt("shadowMap", 0);
+    model_shader.setInt("texture_diffuse1", 1);
+    model_shader.setInt("texture_normal1", 2);
+    model_shader.setInt("texture_trans1", 3);
     Shader shadow_shader("resources/shadow_depth.vs", "resources/shadow_depth.fs");
     Shader line_shader("resources/line.vs", "resources/line.fs");
     Shader explosion_shader("resources/explosion.vs", "resources/explosion.fs");
@@ -216,6 +226,7 @@ int main() {
     UBO_Matrices->Bind(terrain_shader);
     UBO_Matrices->Bind(water_shader);
     UBO_Matrices->Bind(player_shader);
+    UBO_Matrices->Bind(model_shader);
     UBO_Matrices->Bind(line_shader);
     UBO_Matrices->Bind(explosion_shader);
     // UBO_Matrices->Bind(*sun.sun_shader); // 不画太阳了
@@ -224,12 +235,14 @@ int main() {
     UBO_Light->Bind(terrain_shader);
     UBO_Light->Bind(water_shader);
     UBO_Light->Bind(player_shader);
+    UBO_Light->Bind(model_shader);
     UBO_Light->Bind(line_shader);
     UBO_Light->Bind(explosion_shader);
     UBO* UBO_viewPos = new UBO(sizeof(glm::vec4), 2, "View"); // viewPos
     UBO_viewPos->Bind(terrain_shader);
     UBO_viewPos->Bind(water_shader);
     UBO_viewPos->Bind(player_shader);
+    UBO_viewPos->Bind(model_shader);
     UBO_viewPos->Bind(line_shader);
     UBO_viewPos->Bind(explosion_shader);
 
@@ -244,11 +257,11 @@ int main() {
     float shadowFar = SHADOW_FAR;
 
     while (!glfwWindowShouldClose(window)) {
-        RenderLoopPreProcess(window, &player, &terrain, &playerBomb, broadLeaf, whiteBirch, 
+        RenderLoopPreProcess(window, &player, &terrain, &playerBomb, broadLeaf, whiteBirch,
         treeApple,woodboxs,numWoodBox, metalBreakableboxs,numMetalBox_Breakable,
         metalBoxs_B,numMetalBox_B,metalBoxs_C,numMetalBox_C,
         numBroadLeaf,numWhiteBirch, numTreeApple);
-        
+
         // ImGui windows
         if (mainMenu) {
             ImGui::Begin("Main Menu: left ALT to focus", &mainMenu);
@@ -268,6 +281,7 @@ int main() {
             ImGui::SliderFloatWithDefault("Symmetric Perspective Far", &symFar, 100.0f, 1000.f, SYM_FAR);
             ImGui::SliderFloatWithDefault("Shadow Near", &shadowNear, 50.0f, 400.0f, SHADOW_NEAR);
             ImGui::SliderFloatWithDefault("Shadow Far", &shadowFar, 100.0f, 1500.0f, SHADOW_FAR);
+            ImGui::SliderFloat3("Sun Position", glm::value_ptr(sun.LightPos), -100.0f, 700.0f);
             ImGui::Text("Water Height: %.1f", checkHeight(player.getPosition().x, player.getPosition().z));
             ImGui::Text("Player Position:(%.1f, %.1f, %.1f)",player.getPosition().x, player.getPosition().y, player.getPosition().z);
             ImGui::Separator();
@@ -349,6 +363,25 @@ int main() {
         water.normalMap->Bind(2);
         water.draw(shadow_shader);
 
+        // render the objects
+        for (int i = 0; i < 4; i++) { // render the trees
+            broadLeaf[i].draw(shadow_shader);
+            whiteBirch[i].draw(shadow_shader);
+            treeApple[i].draw(shadow_shader);
+        }
+        for (int i = 0; i < numWoodBox; i++) { // render the woodboxs
+            woodboxs[i].draw(shadow_shader);
+        }
+        for (int i = 0; i < numMetalBox_Breakable; i++) { // render the metalBreakableboxs
+            metalBreakableboxs[i].draw(shadow_shader);
+        }
+        for (int i = 0; i < numMetalBox_B; i++) { // render the metalBoxs_B
+            metalBoxs_B[i].draw(shadow_shader);
+        }
+        for (int i = 0; i < numMetalBox_C; i++) { // render the metalBoxs_C
+            metalBoxs_C[i].draw(shadow_shader);
+        }
+
         // render the player
         player.draw(shadow_shader);
 
@@ -393,7 +426,27 @@ int main() {
         terrain_shader.setBool("doReflection", GL_FALSE);
 
         // 其它水上物体的渲染
-        // ...
+        depthMapFBO.BindTextureBuffer(0);
+        for (int i = 0; i < numBroadLeaf; i++)
+            broadLeaf[i].draw(model_shader, 1);
+        for (int i = 0; i < numWhiteBirch; i++)
+            whiteBirch[i].draw(model_shader, 1);
+        for (int i = 0; i < numTreeApple; i++)
+            treeApple[i].draw(model_shader, 1);
+
+        // render the woodboxs
+        for (int i = 0; i < numWoodBox; i++) {
+            woodboxs[i].draw(model_shader, 1);
+        }
+        for (int i = 0; i < numMetalBox_Breakable; i++) { // render the metalBreakableboxs
+            metalBreakableboxs[i].draw(model_shader, 1);
+        }
+        for (int i = 0; i < numMetalBox_B; i++) { // render the metalBoxs_B
+            metalBoxs_B[i].draw(model_shader, 1);
+        }
+        for (int i = 0; i < numMetalBox_C; i++) { // render the metalBoxs_C
+            metalBoxs_C[i].draw(model_shader, 1);
+        }
 
         // render the skybox
         skybox.draw(symProjection, symView);
@@ -422,36 +475,32 @@ int main() {
         water.waterFBO->BindTextureBuffer2(4); // 绑定 reflectionMap 到纹理单元 4
         water.draw(water_shader, GL_TRIANGLE_FAN);
 
-        if (playerBomb.active == 1 || playerBomb.active == 2) {
+        // now render the objects
+        if (playerBomb.active == 1 || playerBomb.active == 2) { // render the bomb
             playerBomb.draw(proj_view);
         }
 
         // render the trees
-        for (int i = 0; i < numBroadLeaf; i++) 
-            broadLeaf[i].draw(proj_view);
-        for (int i = 0; i < numWhiteBirch; i++) 
-            whiteBirch[i].draw(proj_view);
+        depthMapFBO.BindTextureBuffer(0);
+        for (int i = 0; i < numBroadLeaf; i++)
+            broadLeaf[i].draw(model_shader, 1);
+        for (int i = 0; i < numWhiteBirch; i++)
+            whiteBirch[i].draw(model_shader, 1);
         for (int i = 0; i < numTreeApple; i++)
-            treeApple[i].draw(proj_view);
+            treeApple[i].draw(model_shader, 1);
 
         // render the woodboxs
         for (int i = 0; i < numWoodBox; i++) {
-            woodboxs[i].draw(proj_view);
+            woodboxs[i].draw(model_shader, 1);
         }
-
-        // render the metalBreakableboxs
-        for (int i = 0; i < numMetalBox_Breakable; i++) {
-            metalBreakableboxs[i].draw(proj_view);
+        for (int i = 0; i < numMetalBox_Breakable; i++) { // render the metalBreakableboxs
+            metalBreakableboxs[i].draw(model_shader, 1);
         }
-
-        // render the metalBoxs_B
-        for (int i = 0; i < numMetalBox_B; i++) {
-            metalBoxs_B[i].draw(proj_view);
+        for (int i = 0; i < numMetalBox_B; i++) { // render the metalBoxs_B
+            metalBoxs_B[i].draw(model_shader, 1);
         }
-
-        // render the metalBoxs_C
-        for (int i = 0; i < numMetalBox_C; i++) {
-            metalBoxs_C[i].draw(proj_view);
+        for (int i = 0; i < numMetalBox_C; i++) { // render the metalBoxs_C
+            metalBoxs_C[i].draw(model_shader, 1);
         }
 
         // sun.draw(); // 这个太阳太难看了，用天空盒的太阳吧（（

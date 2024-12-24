@@ -1,8 +1,8 @@
 #version 330 core
 
-in vec3 worldFragPos;
 in vec3 normal;
 in vec2 texCoords;
+in vec3 worldFragPos;
 in vec4 shadowFragPos;
 in vec3 Wcolor;
 
@@ -51,7 +51,8 @@ float calcShadow(vec4 FragPos, vec3 normal, vec3 sunDir) {
     float shadow = 0.0;
     vec3 shadowPos = FragPos.xyz / FragPos.w; // 转换到 NDC 坐标系，在透视投影的 w 分量不为 1 时有用
     shadowPos = shadowPos * 0.5 + 0.5; // 转换到 [0, 1] 范围
-    shadowPos.z -= 0.001; // 防止 z-fighting
+    if (shadowPos.z > 1.0)
+        return 0.0;
     float bias = max(0.05 * (1.0 - dot(normal, sunDir)), 0.005);
     float currentDepth = shadowPos.z;
     for (int i = 0; i < SAMPLES; ++i) {
@@ -59,14 +60,13 @@ float calcShadow(vec4 FragPos, vec3 normal, vec3 sunDir) {
         shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
     }
     shadow /= float(SAMPLES);
-    if (shadowPos.z > 1.0)
-        shadow = 0.0;
+
     shadow = pow(shadow, 0.781) * (1 - lightAmbient.r);
     return shadow;
 }
 
 void main() {
-    vec3 color = (objectColor == vec3(1.0,1.0,0.99))? Wcolor :objectColor;
+    vec3 color = objectColor == vec3(1.0, 1.0, 0.99) ? Wcolor : objectColor;
     // vec3 objectColor = texture(diffuseTexture, texCoords).rgb;
 
     // ambient is not affected by shadow or light direction
@@ -82,7 +82,7 @@ void main() {
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
     vec3 specular = specularStrength * spec * lightColor;
 
-    vec3 result = ( diffuse + specular) * color;
+    vec3 result = (diffuse + specular) * color;
 
     float shadow = calcShadow(shadowFragPos, normal, lightDir);
 

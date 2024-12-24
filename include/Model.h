@@ -18,7 +18,7 @@ public:
     bool gammaCorrection;
 
     Model(std::string const &path, bool gamma=false); // constructor, expects a filepath to a 3D model.
-    void draw(Shader &shader); // draws the model, and thus all its meshes
+    void draw(Shader &shader, const int unit_offset=0); // draws the model, and thus all its meshes
 
 private:
     // loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
