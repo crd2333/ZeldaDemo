@@ -46,8 +46,8 @@
 #define HEIGHT_SCALE 500.0f
 #define TEXTURE_SCALE 3.0f
 #define RESOLUTION_RATIO 2
-#define SAMPLE_NUM 2  // 4
-#define SMOOTH_TIMES 2 // 5
+#define SAMPLE_NUM 4
+#define SMOOTH_TIMES 5
 
 #define Err(message) do {                                                           \
     std::cout << "\33[1;31m[" << __FILE__ << ":" << __LINE__ << ", in function " << \
