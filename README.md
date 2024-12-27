@@ -1,3 +1,10 @@
+# ZeldaDemo
+- 纯用 OpenGL 实现的《塞尔达传说：旷野之息》初始台地的场景模拟（极度简化版）
+
+<p align="middle">
+<img src="assets/demo_clip.gif"><div align="center">gif demo in low resolution</div>
+</p>
+
 ## 环境
 - 环境按照 [github/start-learning-opengl](https://github.com/yocover/start-learning-opengl/tree/main) 搭建，在 windows 下运行，使用 glfw3 + glad
 - 文件目录
@@ -45,4 +52,5 @@
         ```
     - 还有记得改 `.vscode/c_cpp_properties.json` 的 `includePath` 为你的 MingW 路径
 
-## To Be Continued
+## technique details
+- Please refer to `assets/report.pdf`
