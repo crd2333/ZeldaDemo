@@ -54,7 +54,7 @@ public:
     Terrain* terrain = nullptr; // pointer to terrain, remember to set it before using!
 
     // constructor with vectors and scalar values
-    Camera(glm::vec3 position=CAMERA_POS, glm::vec3 up=CAMERA_UP, float yaw=YAW, float pitch=PITCH, float near=NEAR, float far=FAR);
+    Camera(glm::vec3 position = CAMERA_POS, glm::vec3 up = CAMERA_UP, float yaw = YAW, float pitch = PITCH, float near = NEAR, float far = FAR);
     Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch, float near, float far);
     virtual ~Camera() = default;
 
@@ -74,8 +74,7 @@ public:
     glm::mat4 GetViewMatrix() const { return glm::lookAt(Position, Position + Front, Up); }
     glm::mat4 GetSymmetricViewMatrix_y(float height) const; // 与 xz 平面对称点的视图矩阵
 
-    void UpdateThirdPerson(Terrain* terrain, Player *player,
-        float distance = 10.0f, float heightOffset=1.0f);
+    void UpdateThirdPerson(Terrain* terrain, Player* player, float distance = 10.0f, float heightOffset = 1.0f);
     void ProcessMouseOrbit(float deltaX, float deltaY);
 private:
     // calculates the front vector from the Camera's (updated) Euler Angles

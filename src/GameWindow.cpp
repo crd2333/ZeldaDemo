@@ -64,24 +64,24 @@ GLFWwindow* Create_glfw_Window() {
 
 // 渲染前处理
 void RenderLoopPreProcess(GLFWwindow* window, Player* player, Terrain* terrain,
- Bomb* playerBomb, BroadLeaf* broadLeaf, WhiteBirch* whiteBirch, TreeApple* treeApple,
- WoodBox* woodBoxs, int numWoodbox, MetalBox_breakable* metalBox_breakables , int numMetalBox,
- MetalBox_B * metalBox_Bs, int numMetalBox_B, MetalBox_C * metalBox_Cs, int numMetalBox_C,
- int numBroadLeaf,  int numWhiteBirch, int numTreeApple) {
+                          Bomb* playerBomb, BroadLeaf* broadLeaf, WhiteBirch* whiteBirch, TreeApple* treeApple,
+                          WoodBox* woodBoxs, int numWoodbox, MetalBox_breakable* metalBox_breakables, int numMetalBox,
+                          MetalBox_B* metalBox_Bs, int numMetalBox_B, MetalBox_C* metalBox_Cs, int numMetalBox_C,
+                          int numBroadLeaf,  int numWhiteBirch, int numTreeApple) {
     // per-frame time logic
     currentFrame = static_cast<float>(glfwGetTime());
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
 
     // 处理人物相关逻辑处理
-    processInput(window, player, terrain, playerBomb, broadLeaf, whiteBirch, treeApple, 
-        woodBoxs, numWoodbox, metalBox_breakables, numMetalBox,
-        metalBox_Bs, numMetalBox_B, metalBox_Cs, numMetalBox_C,
-        numBroadLeaf, numWhiteBirch, numTreeApple);
+    processInput(window, player, terrain, playerBomb, broadLeaf, whiteBirch, treeApple,
+                 woodBoxs, numWoodbox, metalBox_breakables, numMetalBox,
+                 metalBox_Bs, numMetalBox_B, metalBox_Cs, numMetalBox_C,
+                 numBroadLeaf, numWhiteBirch, numTreeApple);
 
     // 处理部分Object的逻辑
-    processBreak(window, player, playerBomb, terrain, woodBoxs, numWoodbox, metalBox_breakables,numMetalBox, 
-    broadLeaf, numBroadLeaf,whiteBirch, numWhiteBirch,treeApple, numTreeApple);
+    processBreak(window, player, playerBomb, terrain, woodBoxs, numWoodbox, metalBox_breakables, numMetalBox,
+                 broadLeaf, numBroadLeaf, whiteBirch, numWhiteBirch, treeApple, numTreeApple);
 
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -108,11 +108,11 @@ void RenderLoopPostProcess(GLFWwindow* window) {
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 void processInput(GLFWwindow* window, Player* player, Terrain* terrain, Bomb* playerBomb,
- BroadLeaf* broadLeaf, WhiteBirch* whiteBirch, TreeApple* treeApple,
- WoodBox* woodBoxs, int numWoodbox, MetalBox_breakable* metalBox_breakables , int numMetalBox,
-MetalBox_B * metalBox_Bs, int numMetalBox_B, MetalBox_C * metalBox_Cs, int numMetalBox_C,
- int numBroadLeaf,  int numWhiteBirch, int numTreeApple) {
-    moveDirection move_Direction = moveDirection::MOVE_STATIC; 
+                  BroadLeaf* broadLeaf, WhiteBirch* whiteBirch, TreeApple* treeApple,
+                  WoodBox* woodBoxs, int numWoodbox, MetalBox_breakable* metalBox_breakables, int numMetalBox,
+                  MetalBox_B* metalBox_Bs, int numMetalBox_B, MetalBox_C* metalBox_Cs, int numMetalBox_C,
+                  int numBroadLeaf,  int numWhiteBirch, int numTreeApple) {
+    moveDirection move_Direction = moveDirection::MOVE_STATIC;
     bool shift = false;
     bool jump = false;
     bool fly = false;
@@ -123,22 +123,22 @@ MetalBox_B * metalBox_Bs, int numMetalBox_B, MetalBox_C * metalBox_Cs, int numMe
     // 移动：WASD + 上下
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         move_Direction = moveDirection::MOVE_FORWARD;
-        // camera.ProcessKeyboard(FORWARD, deltaTime);
+    // camera.ProcessKeyboard(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
         move_Direction = moveDirection::MOVE_BACKWARD;
-        // camera.ProcessKeyboard(BACKWARD, deltaTime);
+    // camera.ProcessKeyboard(BACKWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
         move_Direction = moveDirection::MOVE_LEFT;
-        // camera.ProcessKeyboard(LEFT, deltaTime);
+    // camera.ProcessKeyboard(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         move_Direction = moveDirection::MOVE_RIGHT;
-        // camera.ProcessKeyboard(RIGHT, deltaTime);
+    // camera.ProcessKeyboard(RIGHT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)   // shift
         shift = true;
-        // camera.ProcessKeyboard(DOWN, deltaTime / 2);
+    // camera.ProcessKeyboard(DOWN, deltaTime / 2);
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) // only space
         jump = true;
-        // camera.ProcessKeyboard(UP, deltaTime / 2);
+    // camera.ProcessKeyboard(UP, deltaTime / 2);
     if (glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS) // fly
         fly = true;
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS && !Q_pressed) { // throw bomb
@@ -151,13 +151,10 @@ MetalBox_B * metalBox_Bs, int numMetalBox_B, MetalBox_C * metalBox_Cs, int numMe
 
 
     // 检测左键
-    if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS){
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
         mouseLeft = true;
-    } 
-    if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS){
+    if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS)
         mouseRight = true;
-    }
-
     // 检测 ESC 键的按下事件，用于打开/关闭主菜单
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS && !ESC_pressed) {
         mainMenu = !mainMenu;
@@ -174,59 +171,45 @@ MetalBox_B * metalBox_Bs, int numMetalBox_B, MetalBox_C * metalBox_Cs, int numMe
     } else if (glfwGetKey(window, GLFW_KEY_LEFT_ALT) == GLFW_RELEASE)
         ALT_pressed = false;
 
-    player->ProcessMoveInput(move_Direction, shift, jump, fly, bomb_state, reset, 
+    player->ProcessMoveInput(move_Direction, shift, jump, fly, bomb_state, reset,
     mouseLeft, mouseRight, terrain, playerBomb, deltaTime, broadLeaf, whiteBirch, treeApple,
     woodBoxs, numWoodbox, metalBox_breakables, numMetalBox, metalBox_Bs, numMetalBox_B, metalBox_Cs, numMetalBox_C);
-}
+                         }
 
 void processBreak(GLFWwindow* window, Player* player, Bomb* bomb, Terrain* terrain,  WoodBox* woodBoxs,
-    int numWoodbox, MetalBox_breakable* metalBox_breakables , int numMetalBox,
-    BroadLeaf* boradLeaf, int numBroadLeaf, WhiteBirch* whiteBirch, int numWhiteBirch,
-    TreeApple* treeApple,int numTreeApple){
+                  int numWoodbox, MetalBox_breakable* metalBox_breakables , int numMetalBox,
+                  BroadLeaf* boradLeaf, int numBroadLeaf, WhiteBirch* whiteBirch, int numWhiteBirch,
+                  TreeApple* treeApple,int numTreeApple) {
     for (int i = 0; i < numWoodbox; i++) {
-        if (woodBoxs[i].breakable && !woodBoxs[i].breaked && bomb->explode
-            && glm::distance(bomb->position, woodBoxs[i].position) < 5.0f) {
+        if (woodBoxs[i].breakable && !woodBoxs[i].breaked && bomb->explode && glm::distance(bomb->position, woodBoxs[i].position) < 5.0f)
             woodBoxs[i].breakBox();
-        }
-        if (player->isAttack() && glm::distance(player->getPosition()+player->getDirection() * glm::vec3(4.0f),
-         woodBoxs[i].position) < 1.0f){
+        if (player->isAttack() && glm::distance(player->getPosition()+player->getDirection() * glm::vec3(4.0f), woodBoxs[i].position) < 1.0f)
             woodBoxs[i].breakBox();
-        }
     }
     for (int i = 0; i < numMetalBox; i++) {
         if (metalBox_breakables[i].breakable && !metalBox_breakables[i].breaked && bomb->explode
-            && glm::distance(bomb->position, metalBox_breakables[i].position) < 5.0f) {
+            && glm::distance(bomb->position, metalBox_breakables[i].position) < 5.0f)
             metalBox_breakables[i].breakBox();
-        }
-        if (player->isAttack() && glm::distance(player->getPosition()+player->getDirection()* glm::vec3(4.0f),
-         metalBox_breakables[i].position) < 1.0f){
+        if (player->isAttack() && glm::distance(player->getPosition()+player->getDirection()* glm::vec3(4.0f), metalBox_breakables[i].position) < 1.0f)
             metalBox_breakables[i].breakBox();
-        }
     }
-
 
     for (int i = 0; i < numWhiteBirch; i++) {
         // if (whiteBirch[i].breakable && !whiteBirch[i].breaked && bomb->explode
         //     && glm::distance(bomb->position, whiteBirch[i].position) < 5.0f) {
         //     whiteBirch[i].breakTree();
         // }
-        if(player->isAttack() && glm::distance(player->getPosition()+player->getDirection()* glm::vec3(4.0f),
-         whiteBirch[i].position) < 1.0f){
+        if (player->isAttack() && glm::distance(player->getPosition()+player->getDirection()* glm::vec3(4.0f),whiteBirch[i].position) < 1.0f)
             whiteBirch[i].breakTree();
-        }
     }
-
     for (int i = 0; i < numTreeApple; i++) {
         // if (treeApple[i].breakable && !treeApple[i].breaked && bomb->explode
         //     && glm::distance(bomb->position, treeApple[i].position) < 5.0f) {
         //     treeApple[i].breakTree();
         // }
-        if(player->isAttack() && glm::distance(player->getPosition()+player->getDirection()* glm::vec3(4.0f),
-         treeApple[i].position) < 1.0f){
-            treeApple[i].breakTree();
-        }
+        if (player->isAttack() && glm::distance(player->getPosition()+player->getDirection()* glm::vec3(4.0f), treeApple[i].position) < 1.0f)
+             treeApple[i].breakTree();
     }
-
 }
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
@@ -290,6 +273,7 @@ void InitImGui(GLFWwindow* window) {
     ImGuiIO& io = ImGui::GetIO(); (void)io;
     // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // 允许键盘控制
     // Setup Dear ImGui style
+
     ImGui::StyleColorsDark();
     // Setup Platform/Renderer backends 设置渲染器后端
     ImGui_ImplGlfw_InitForOpenGL(window, true);

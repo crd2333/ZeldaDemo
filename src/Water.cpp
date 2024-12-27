@@ -63,7 +63,7 @@ Water::~Water() {
     }
 }
 
-void Water::draw(Shader& shader, GLenum mode) const {
+void Water::draw(Shader &shader, GLenum mode) const {
     shader.use();
     shader.setVec2("mapScale", mapScale);
     shader.setFloat("height", height * heightScale);

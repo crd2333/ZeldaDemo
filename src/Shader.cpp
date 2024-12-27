@@ -137,7 +137,7 @@ void Shader::checkCompileErrors(GLuint shader, std::string type) {
 
 
 /* ---------- UBO class ---------- */
-UBO::UBO(GLsizeiptr size, GLuint bindingPoint, const std::string& blockName) : bindingPoint(bindingPoint), blockName(blockName) {
+UBO::UBO(GLsizeiptr size, GLuint bindingPoint, const std::string &blockName) : bindingPoint(bindingPoint), blockName(blockName) {
     glGenBuffers(1, &UBO_ID);
     glBindBuffer(GL_UNIFORM_BUFFER, UBO_ID);
     glBufferData(GL_UNIFORM_BUFFER, size, NULL, GL_STATIC_DRAW);
@@ -153,7 +153,7 @@ void UBO::setData(GLintptr offset, GLsizeiptr size, const void* data) {
 }
 
 // decide which shader the UBO is bound to
-void UBO::Bind(const Shader& shader) const {
+void UBO::Bind(const Shader &shader) const {
     GLuint uniformBlockIndex = glGetUniformBlockIndex(shader.ID, blockName.c_str());
     glUniformBlockBinding(shader.ID, uniformBlockIndex, bindingPoint);
 }

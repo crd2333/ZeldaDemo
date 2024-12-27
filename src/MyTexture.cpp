@@ -1,7 +1,7 @@
 #include "MyTexture.h"
 
 // util function, check the image format and components
-void CheckImageFormat(const std::string& path, GLuint& image_format, int components) {
+void CheckImageFormat(const std::string &path, GLuint &image_format, int components) {
     std::string format_str = image_format == GL_RED ? "gray" : image_format == GL_RGB ? "RGB" : "RGBA";
     if (components == 1) {
         if (image_format != GL_RED) {
@@ -18,15 +18,14 @@ void CheckImageFormat(const std::string& path, GLuint& image_format, int compone
             Warn("The image format for " + path + " is " + format_str + ", but is loaded as RGBA.");
             image_format = GL_RGBA;
         }
-    } else {
+    } else
         Err("The image format for " + path + " is " + format_str + ", but the components is " + std::to_string(components) + " and cannot be loaded.");
-    }
 }
 
 
 /* ---------- Texture2D class ---------- */
 Texture2D::Texture2D() : flip_y(false), image_format(GL_RGB), internal_format(GL_RGB), data_type(GL_UNSIGNED_BYTE),
-                wrap_s(GL_REPEAT), wrap_t(GL_REPEAT), filter_min(GL_LINEAR), filter_max(GL_LINEAR), mipmap(true) {
+    wrap_s(GL_REPEAT), wrap_t(GL_REPEAT), filter_min(GL_LINEAR), filter_max(GL_LINEAR), mipmap(true) {
     glGenTextures(1, &ID);
 }
 Texture2D::~Texture2D() {
@@ -44,9 +43,8 @@ void Texture2D::Generate(std::string path) {
         CheckImageFormat(path, image_format, components);
         glTexImage2D(GL_TEXTURE_2D, 0, internal_format, width, height, 0, image_format, data_type, data);
         if (mipmap) glGenerateMipmap(GL_TEXTURE_2D); // 生成 mipmap
-    } else {
+    } else
         Err("Failed to load texture for " + path);
-    }
     stbi_image_free(data);
 
     // set the texture filtering and wrapping parameters
@@ -68,8 +66,8 @@ void Texture2D::UnBind() const {
 
 /* ---------- CubeMap class ---------- */
 CubeMap::CubeMap() : flip_y(false), image_format(GL_RGB), internal_format(GL_RGB), data_type(GL_UNSIGNED_BYTE),
-                wrap_s(GL_CLAMP_TO_EDGE), wrap_t(GL_CLAMP_TO_EDGE), wrap_r(GL_CLAMP_TO_EDGE),
-                filter_min(GL_LINEAR), filter_max(GL_LINEAR) {
+    wrap_s(GL_CLAMP_TO_EDGE), wrap_t(GL_CLAMP_TO_EDGE), wrap_r(GL_CLAMP_TO_EDGE),
+    filter_min(GL_LINEAR), filter_max(GL_LINEAR) {
     glGenTextures(1, &ID);
 }
 CubeMap::~CubeMap() {
@@ -88,9 +86,8 @@ void CubeMap::Generate(std::vector<std::string> paths) {
         if (__builtin_expect(!!data, 1)) {
             CheckImageFormat(paths[i], image_format, components);
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, internal_format, width, height, 0, image_format, data_type, data);
-        } else {
+        } else
             Err("Failed to load cubemap texture for " + paths[i]);
-        }
         stbi_image_free(data);
     }
 
@@ -114,8 +111,8 @@ void CubeMap::UnBind() const {
 
 /* ---------- Texture2D_attach class ---------- */
 Texture2D_attach::Texture2D_attach() : internal_format(GL_RGB), format(GL_RGB), data_type(GL_UNSIGNED_BYTE),
-                        wrap_s(GL_CLAMP_TO_EDGE), wrap_t(GL_CLAMP_TO_EDGE),
-                        filter_min(GL_LINEAR), filter_max(GL_LINEAR), Multisample(false) {
+    wrap_s(GL_CLAMP_TO_EDGE), wrap_t(GL_CLAMP_TO_EDGE),
+    filter_min(GL_LINEAR), filter_max(GL_LINEAR), Multisample(false) {
     glGenTextures(1, &ID);
 }
 Texture2D_attach::~Texture2D_attach() {
@@ -148,8 +145,8 @@ void Texture2D_attach::UnBind() const {
 
 /* ---------- CubeMap_attach class ---------- */
 CubeMap_attach::CubeMap_attach() : internal_format(GL_RGB), format(GL_RGB), data_type(GL_UNSIGNED_BYTE),
-                    wrap_s(GL_CLAMP_TO_EDGE), wrap_t(GL_CLAMP_TO_EDGE), wrap_r(GL_CLAMP_TO_EDGE),
-                    filter_min(GL_LINEAR), filter_max(GL_LINEAR) {
+    wrap_s(GL_CLAMP_TO_EDGE), wrap_t(GL_CLAMP_TO_EDGE), wrap_r(GL_CLAMP_TO_EDGE),
+    filter_min(GL_LINEAR), filter_max(GL_LINEAR) {
     glGenTextures(1, &ID);
 }
 CubeMap_attach::~CubeMap_attach() {

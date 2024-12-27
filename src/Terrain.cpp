@@ -4,7 +4,7 @@ Terrain::Terrain(const glm::vec2 mapScale, const float heightScale, const int re
     // height map and generate mesh
     int components;
     // unsigned char* heightMap = stbi_load("resources/textures/heightmap.png", &cols, &rows, &components, 0);
-    unsigned char* heightMap = stbi_load("resources/textures/heightmap_1024.png", &map_cols, &map_rows, &components, 0);
+    unsigned char* heightMap = stbi_load("resources/textures/heightmap_512.png", &map_cols, &map_rows, &components, 0);
     if (!heightMap || components != 1)
         Err("Something wrong with the height map! Check the path and format.");
 
@@ -81,7 +81,7 @@ Terrain::~Terrain() {
 }
 
 // 给定世界坐标 x, z，返回该点的高度
-float Terrain::getHeight(const float& worldX, const float& worldZ) const {
+float Terrain::getHeight(const float &worldX, const float &worldZ) const {
     // 世界坐标到网格坐标
     float terrainX = CLAMP(worldX, -0.5 * mapScale.x, 0.5 * mapScale.x) + 0.5 * mapScale.x; // terrain x: [-mapScale.x / 2, mapScale.x / 2] -> [0, mapScale.x]
     float terrainZ = CLAMP(worldZ, -0.5 * mapScale.y, 0.5 * mapScale.y) + 0.5 * mapScale.y;
@@ -94,28 +94,28 @@ float Terrain::getHeight(const float& worldX, const float& worldZ) const {
     glm::vec3 valueToInterpolate;
     if (coordX + coordZ <= 1.0f) { // upper triangle
         barycentric = barycentricCoord(
-                glm::vec2(0, 0),
-                glm::vec2(1, 0),
-                glm::vec2(0, 1),
-                glm::vec2(coordX, coordZ)
-            );
+                          glm::vec2(0, 0),
+                          glm::vec2(1, 0),
+                          glm::vec2(0, 1),
+                          glm::vec2(coordX, coordZ)
+                      );
         valueToInterpolate = {
-                vertices[gridZ * cols + gridX].y,
-                vertices[(gridZ + 1) * cols + gridX].y,
-                vertices[gridZ * cols + gridX + 1].y
-            };
+            vertices[gridZ * cols + gridX].y,
+            vertices[(gridZ + 1) * cols + gridX].y,
+            vertices[gridZ * cols + gridX + 1].y
+        };
     } else {                       // lower triangle
         barycentric = barycentricCoord(
-                glm::vec2(0, 1),
-                glm::vec2(1, 0),
-                glm::vec2(1, 1),
-                glm::vec2(coordX, coordZ)
-            );
+                          glm::vec2(0, 1),
+                          glm::vec2(1, 0),
+                          glm::vec2(1, 1),
+                          glm::vec2(coordX, coordZ)
+                      );
         valueToInterpolate = {
-                vertices[gridZ * cols + gridX + 1].y,
-                vertices[(gridZ + 1) * cols + gridX].y,
-                vertices[(gridZ + 1) * cols + gridX + 1].y
-            };
+            vertices[gridZ * cols + gridX + 1].y,
+            vertices[(gridZ + 1) * cols + gridX].y,
+            vertices[(gridZ + 1) * cols + gridX + 1].y
+        };
     }
     return glm::dot(barycentric, valueToInterpolate);
 }
@@ -124,15 +124,14 @@ void Terrain::debugHeight(const float resolution) const {
     std::cout << "debug terrain height: " << std::endl;
     std::cout << std::fixed << std::setprecision(2);
     for (float x = -MAP_SZIE.x / 2; x < MAP_SZIE.x / 2; x += resolution) {
-        for (float z = -MAP_SZIE.y / 2; z < MAP_SZIE.y / 2; z += resolution) {
+        for (float z = -MAP_SZIE.y / 2; z < MAP_SZIE.y / 2; z += resolution)
             std::cout << getHeight(x, z) << " ";
-        }
         std::cout << std::endl;
     }
 }
 
 // 给定世界坐标 x, z，返回该点的法向量
-glm::vec3 Terrain::getNormal(const float& worldX, const float& worldZ) const {
+glm::vec3 Terrain::getNormal(const float &worldX, const float &worldZ) const {
     float terrainX = CLAMP(worldX, -0.5 * mapScale.x, 0.5 * mapScale.x) + 0.5 * mapScale.x;
     float terrainZ = CLAMP(worldZ, -0.5 * mapScale.y, 0.5 * mapScale.y) + 0.5 * mapScale.y;
     int gridX = terrainX / gridSizeX;
@@ -144,33 +143,33 @@ glm::vec3 Terrain::getNormal(const float& worldX, const float& worldZ) const {
     std::vector<glm::vec3> valueToInterpolate;
     if (coordX + coordZ <= 1.0f) { // upper triangle
         barycentric = barycentricCoord(
-                glm::vec2(0, 0),
-                glm::vec2(1, 0),
-                glm::vec2(0, 1),
-                glm::vec2(coordX, coordZ)
-            );
+                          glm::vec2(0, 0),
+                          glm::vec2(1, 0),
+                          glm::vec2(0, 1),
+                          glm::vec2(coordX, coordZ)
+                      );
         valueToInterpolate = {
-                normals[gridZ * cols + gridX],
-                normals[(gridZ + 1) * cols + gridX],
-                normals[gridZ * cols + gridX + 1]
-            };
+            normals[gridZ * cols + gridX],
+            normals[(gridZ + 1) * cols + gridX],
+            normals[gridZ * cols + gridX + 1]
+        };
     } else {                       // lower triangle
         barycentric = barycentricCoord(
-                glm::vec2(0, 1),
-                glm::vec2(1, 0),
-                glm::vec2(1, 1),
-                glm::vec2(coordX, coordZ)
-            );
+                          glm::vec2(0, 1),
+                          glm::vec2(1, 0),
+                          glm::vec2(1, 1),
+                          glm::vec2(coordX, coordZ)
+                      );
         valueToInterpolate = {
-                normals[gridZ * cols + gridX + 1],
-                normals[(gridZ + 1) * cols + gridX],
-                normals[(gridZ + 1) * cols + gridX + 1]
-            };
+            normals[gridZ * cols + gridX + 1],
+            normals[(gridZ + 1) * cols + gridX],
+            normals[(gridZ + 1) * cols + gridX + 1]
+        };
     }
     return glm::normalize(barycentric.x * valueToInterpolate[0] + barycentric.y * valueToInterpolate[1] + barycentric.z * valueToInterpolate[2]);
 }
 
-void Terrain::draw(Shader& shader, GLenum mode) const {
+void Terrain::draw(Shader &shader, GLenum mode) const {
     grass_texture->Bind(1);
     rock_texture->Bind(2);
     snow_texture->Bind(3);
@@ -190,10 +189,10 @@ glm::vec3 Terrain::barycentricCoord(const glm::vec2 p1, const glm::vec2 p2, cons
     // u.y = (x1 - x)(y3 - y1) - (y1 - y)(x3 - x1) = (y1 - y3)x + (x3 - x1)y + x1y3 - x3y1
     // u.z = (x3 - x1)(y2 - y1) - (y3 - y1)(x2 - x1) = (y2 - y1)x3 + (x1 - x2)y3 +  x2y1 - x1y2
     glm::vec3 u = glm::cross(
-            //             i,           j,           k
-            glm::vec3(p3.x - p1.x, p2.x - p1.x, p1.x - pos.x),
-            glm::vec3(p3.y - p1.y, p2.y - p1.y, p1.y - pos.y)
-        );
+                      //             i,           j,           k
+                      glm::vec3(p3.x - p1.x, p2.x - p1.x, p1.x - pos.x),
+                      glm::vec3(p3.y - p1.y, p2.y - p1.y, p1.y - pos.y)
+                  );
     if (std::abs(u.z) < 1)
         Warn("Barycentric coordinate is degenerate, u.z = " + std::to_string(u.z));
     return glm::vec3(1.f - (u.x + u.y) / u.z, u.y / u.z, u.x / u.z);
@@ -257,7 +256,7 @@ void Terrain::generateMesh(unsigned char* heightMap, const int sampleNum, const 
         for (int j = 0; j < cols; j++) {
             float scaleCol = j / (cols - 1.f);
             float scaleRow = i / (rows - 1.f);
-            vertices[i * cols + j] = {scaleCol * mapScale.x - 0.5f * mapScale.x, heights[i * cols + j], scaleRow * mapScale.y - 0.5f * mapScale.y};
+            vertices[i * cols + j] = {scaleCol* mapScale.x - 0.5f * mapScale.x, heights[i * cols + j], scaleRow* mapScale.y - 0.5f * mapScale.y};
             texCoords[i * cols + j] = {scaleCol * textureScale, scaleRow * textureScale};
         }
     }
@@ -358,9 +357,9 @@ void Terrain::generateMesh(unsigned char* heightMap, const int sampleNum, const 
              *    1─────────────2
             */
             indices[i * (cols - 1) + j] = {
-                (GLuint)(i * cols + j), (GLuint)((i + 1) * cols + j), (GLuint)(i * cols + j + 1),
-                (GLuint)(i * cols + j + 1), (GLuint)((i + 1) * cols + j), (GLuint)((i + 1) * cols + j + 1)
-            };
+            (GLuint)(i * cols + j), (GLuint)((i + 1) * cols + j), (GLuint)(i * cols + j + 1),
+            (GLuint)(i * cols + j + 1), (GLuint)((i + 1) * cols + j), (GLuint)((i + 1) * cols + j + 1)
+        };
     }
     /************************** Generate Tangents and Bitangents ************************/
     for (int i = 0; i < rows - 1; i++) {

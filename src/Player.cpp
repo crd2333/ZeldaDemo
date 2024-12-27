@@ -15,9 +15,9 @@ Player::Player(glm::vec3 initialPosition, glm::vec3 fixedLength, Terrain* terrai
     jumpHorizenSpeed(14.0f), jumpUpSpeed(15.0f), jumpHeight(5.0f),
     jumpDirection(0.0f, 0.0f, 1.0f), targetJumpHeight(0.0f), jumpUp(true),
     // 攀爬参数
-    climbtheta(-20.0f), climbRotateAxis(0.0f, 0.0f, 1.0f),climbcolor(1.0f,0.0f,0.0f),
+    climbtheta(-20.0f), climbRotateAxis(0.0f, 0.0f, 1.0f), climbcolor(1.0f, 0.0f, 0.0f),
     // 滑翔参数
-    flyColor(0.05f,0.45f,0.25f),
+    flyColor(0.05f, 0.45f, 0.25f),
     // 人物相关模型参数
     playerShield(3.0f, 4.0f),
     playerWeapon(0.3f, 4.0f),
@@ -152,7 +152,7 @@ void Player::Update(Terrain* terrain) {
 
     // 将本地角点旋转并转换到世界坐标系
     std::vector<glm::vec3> worldCorners;
-    for(auto& corner : localCorners){
+    for (auto &corner : localCorners) {
         glm::vec4 rotated = rotationMatrix * glm::vec4(corner, 1.0f);
         glm::vec3 worldCorner = glm::vec3(rotated) + position;
         worldCorners.push_back(worldCorner);
@@ -161,7 +161,7 @@ void Player::Update(Terrain* terrain) {
     // 每个角点的地形高度和法向量
     float maxTerrainHeight = -std::numeric_limits<float>::infinity();
     std::vector<glm::vec3> sampledNormals;
-    for(auto& corner : worldCorners){
+    for (auto &corner : worldCorners) {
         float terrainHeight = terrain->getHeight(corner.x, corner.z);
         maxTerrainHeight = glm::max(maxTerrainHeight, terrainHeight);
         glm::vec3 terrainNormal = terrain->getNormal(corner.x, corner.z);
@@ -170,29 +170,26 @@ void Player::Update(Terrain* terrain) {
 
     // 计算采样点的平均法向量，更新 upVector
     glm::vec3 averageNormal(0.0f);
-    for(auto& n : sampledNormals){
+    for (auto &n : sampledNormals) {
         averageNormal += n;
     }
     averageNormal /= sampledNormals.size();
     averageNormal = glm::normalize(averageNormal);
-    if(glm::dot(averageNormal, defaultUp) < 0.8f && state != CLIMBING){
+    if (glm::dot(averageNormal, defaultUp) < 0.8f && state != CLIMBING) {
         state = CLIMBING;
-        climbtheta = abs( glm::acos(glm::dot(averageNormal, upVector))/ PI * 180.0f);
+        climbtheta = abs(glm::acos(glm::dot(averageNormal, upVector)) / PI * 180.0f);
         climbtheta = max(5.0f, climbtheta);
         upVector = defaultUp;
         climbRotateAxis = - glm::normalize(glm::cross(averageNormal, upVector));
     }
-    if(glm::dot(averageNormal, defaultUp) > 0.8f){
-        if(state == CLIMBING ){
+    if (glm::dot(averageNormal, defaultUp) > 0.8f) {
+        if (state == CLIMBING )
             state = IDLE_LAND;
-        }
         climbtheta_delta = 0.0f;
         climbtheta = 0.0f;
     }
-    if(state != CLIMBING && state != JUMPING){
+    if (state != CLIMBING && state != JUMPING)
         upVector = averageNormal;
-    }
-
     // 计算新的旋转矩阵，使得新的 upVector 对齐
     dot = glm::dot(defaultUp, upVector);
     rotationMatrix = glm::mat4(1.0f);
@@ -272,7 +269,7 @@ void Player::draw(Shader& shader) {
         model = glm::rotate(model, glm::pi<float>(), glm::vec3(0.0f, 1.0f, 0.0f));
     } else {
         // 计算旋转轴和角度
-        glm::vec3 rotationAxis =  glm::normalize(glm::cross(defaultFront, front));
+        glm::vec3 rotationAxis = glm::normalize(glm::cross(defaultFront, front));
         float angle = glm::acos(dot);
         model = state == CLIMBING ? model:glm::rotate(model, angle, rotationAxis);
     }
@@ -331,7 +328,8 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
     // shift 为 true 时表示按下了 shift 键，即跑步
     // jump 为 true 时表示按下了空格键，即跳跃
     int countBroadLeaf = 12, countWhiteBirch = 53, countTreeApple = 11;
-    if (reset) position = glm::vec3(-70.0f, 0.0f, -5.0f);
+    if (reset)
+        position = glm::vec3(-65.0f, 0.0f, -5.0f);
     actionCount_unused += deltaTime;
     if(actionCount_unused > 1){
         actionCount_unused = 0;
@@ -495,7 +493,7 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
         else if (state == SWIMMING_WATER) state = IDLE_LAND;
         else if (state == FAST_SWIMMING_WATER) state = IDLE_LAND;
         if (swimFlag) {
-            swimFlag = false; //初次出水
+            swimFlag = false; // 初次出水
             swimtheta_delta = 0.0f;
             std::cout << "First time out of water" << std::endl;
             color = landColor;
@@ -526,21 +524,21 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
     float z1 = position.z;
     float x2, z2, distance;
     glm::vec3 temPosition;
-    for (int i=0;i<countBroadLeaf;i++) {
+    for (int i = 0; i < countBroadLeaf; i++) {
         x2 = broadLeaf[i].position.x;
         z2 = broadLeaf[i].position.z;
-        distance = sqrt((x1-x2)*(x1-x2) + (z1-z2)*(z1-z2));
+        distance = sqrt((x1 - x2) * (x1 - x2) + (z1 - z2) * (z1 - z2));
         if (distance < 5.0f) {
             temPosition = broadLeaf[i].position - towardDirection * 5.5f;
             position.x = temPosition.x;
             position.z = temPosition.z;
         }
     }
-    for (int i=0;i<countWhiteBirch;i++) {
+    for (int i = 0;i < countWhiteBirch; i++) {
         if (!whiteBirch[i].breaked) {
             x2 = whiteBirch[i].position.x;
             z2 = whiteBirch[i].position.z;
-            distance = sqrt((x1-x2)*(x1-x2) + (z1-z2)*(z1-z2));
+            distance = sqrt((x1 - x2) * (x1 - x2) + (z1 - z2) * (z1 - z2));
             if (distance < 1.0f) {
                 temPosition = whiteBirch[i].position - towardDirection * 1.5f;
                 position.x = temPosition.x;
@@ -548,11 +546,11 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
             }
         }
     }
-    for (int i=0;i<countTreeApple;i++) {
+    for (int i = 0;i < countTreeApple; i++) {
         if (!treeApple[i].breaked) {
             x2 = treeApple[i].position.x;
             z2 = treeApple[i].position.z;
-            distance = sqrt((x1-x2)*(x1-x2) + (z1-z2)*(z1-z2));
+            distance = sqrt((x1 - x2) * (x1 - x2) + (z1 - z2) * (z1 - z2));
             if (distance < 1.0f) {
                 temPosition = treeApple[i].position - towardDirection * 1.5f;
                 position.x = temPosition.x;
@@ -569,125 +567,104 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
     bool Collision_right = false;
     bool Collision_back = false;
     for (int i = 0; i < numWoodbox; i++) {
-        if(glm::distance(position+forward * glm::vec3(2.0f), woodBoxs[i].position) < 1.0f){
-                Collision_front |= true;
-        }else{
+        if (glm::distance(position + forward * glm::vec3(2.0f), woodBoxs[i].position) < 1.0f)
+            Collision_front |= true;
+        else
             Collision_front |= false;
-        }
-        if(glm::distance(position-forward * glm::vec3(2.0f), woodBoxs[i].position) < 1.0f){
-                Collision_back |= true;
-        }else{
+        if (glm::distance(position - forward * glm::vec3(2.0f), woodBoxs[i].position) < 1.0f)
+            Collision_back |= true;
+        else
             Collision_back |= false;
-        }
-        if(glm::distance(position+right * glm::vec3(2.0f), woodBoxs[i].position) < 1.0f){
-                Collision_right |= true;
-        }else{
+        if (glm::distance(position + right * glm::vec3(2.0f), woodBoxs[i].position) < 1.0f)
+            Collision_right |= true;
+        else
             Collision_right |= false;
-        }
-        if(glm::distance(position-right * glm::vec3(2.0f), woodBoxs[i].position) < 1.0f){
-                Collision_left |= true;
-        }else{
+        if (glm::distance(position - right * glm::vec3(2.0f), woodBoxs[i].position) < 1.0f)
+            Collision_left |= true;
+        else
             Collision_left |= false;
-        }
     }
 
     for(int i = 0; i < numMetalBox; i++){
-        if(glm::distance(position+forward * glm::vec3(2.0f), metalBox_breakables[i].position) < 1.0f){
-                Collision_front |= true;
-        }else{
+        if (glm::distance(position + forward * glm::vec3(2.0f), metalBox_breakables[i].position) < 1.0f)
+            Collision_front |= true;
+        else
             Collision_front |= false;
-        }
-        if(glm::distance(position-forward * glm::vec3(2.0f), metalBox_breakables[i].position) < 1.0f){
-                Collision_back |= true;
-        }else{
+        if (glm::distance(position - forward * glm::vec3(2.0f), metalBox_breakables[i].position) < 1.0f)
+            Collision_back |= true;
+        else
             Collision_back |= false;
-        }
-        if(glm::distance(position+right * glm::vec3(2.0f), metalBox_breakables[i].position) < 1.0f){
-                Collision_right |= true;
-        }else{
+        if (glm::distance(position + right * glm::vec3(2.0f), metalBox_breakables[i].position) < 1.0f)
+            Collision_right |= true;
+        else
             Collision_right |= false;
-        }
-        if(glm::distance(position-right * glm::vec3(2.0f), metalBox_breakables[i].position) < 1.0f){
-                Collision_left |= true;
-        }else{
+        if (glm::distance(position - right * glm::vec3(2.0f), metalBox_breakables[i].position) < 1.0f)
+            Collision_left |= true;
+        else
             Collision_left |= false;
-        }
     }
 
     for(int i = 0; i < numMetalBox_B; i++){
-        if(glm::distance(position+forward * glm::vec3(2.0f), metalBox_Bs[i].position) < 1.0f){
-                Collision_front |= true;
-        }else{
+        if (glm::distance(position + forward * glm::vec3(2.0f), metalBox_Bs[i].position) < 1.0f)
+            Collision_front |= true;
+        else
             Collision_front |= false;
-        }
-        if(glm::distance(position-forward * glm::vec3(2.0f), metalBox_Bs[i].position) < 1.0f){
-                Collision_back |= true;
-        }else{
+        if (glm::distance(position - forward * glm::vec3(2.0f), metalBox_Bs[i].position) < 1.0f)
+            Collision_back |= true;
+        else
             Collision_back |= false;
-        }
-        if(glm::distance(position+right * glm::vec3(2.0f), metalBox_Bs[i].position) < 1.0f){
-                Collision_right |= true;
-        }else{
+        if (glm::distance(position + right * glm::vec3(2.0f), metalBox_Bs[i].position) < 1.0f)
+            Collision_right |= true;
+        else
             Collision_right |= false;
-        }
-        if(glm::distance(position-right * glm::vec3(2.0f), metalBox_Bs[i].position) < 1.0f){
-                Collision_left |= true;
-        }else{
+        if (glm::distance(position - right * glm::vec3(2.0f), metalBox_Bs[i].position) < 1.0f)
+            Collision_left |= true;
+        else
             Collision_left |= false;
-        }
     }
 
     for(int i = 0; i < numMetalBox_C; i++){
-        if(glm::distance(position+forward * glm::vec3(2.0f), metalBox_Cs[i].position) < 1.0f){
-                Collision_front |= true;
-        }else{
+        if (glm::distance(position + forward * glm::vec3(2.0f), metalBox_Cs[i].position) < 1.0f)
+            Collision_front |= true;
+        else
             Collision_front |= false;
-        }
-        if(glm::distance(position-forward * glm::vec3(2.0f), metalBox_Cs[i].position) < 1.0f){
-                Collision_back |= true;
-        }else{
+        if (glm::distance(position - forward * glm::vec3(2.0f), metalBox_Cs[i].position) < 1.0f)
+            Collision_back |= true;
+        else
             Collision_back |= false;
-        }
-        if(glm::distance(position+right * glm::vec3(2.0f), metalBox_Cs[i].position) < 1.0f){
-                Collision_right |= true;
-        }else{
+        if (glm::distance(position + right * glm::vec3(2.0f), metalBox_Cs[i].position) < 1.0f)
+            Collision_right |= true;
+        else
             Collision_right |= false;
-        }
-        if(glm::distance(position-right * glm::vec3(2.0f), metalBox_Cs[i].position) < 1.0f){
-                Collision_left |= true;
-        }else{
+        if (glm::distance(position - right * glm::vec3(2.0f), metalBox_Cs[i].position) < 1.0f)
+            Collision_left |= true;
+        else
             Collision_left |= false;
-        }
     }
 
-    if(Collision_front){
+    if (Collision_front)
         position -= forward * speed * deltaTime;
-    }
-    if(Collision_back){
+    if (Collision_back)
         position += forward * speed * deltaTime;
-    }
-    if(Collision_right){
+    if (Collision_right)
         position -= right * speed * deltaTime;
-    }
-    if(Collision_left){
+    if (Collision_left)
         position += right * speed * deltaTime;
-    }
-
 
     // 处理击剑动画
-    if(actionCount % 1 == 0 && weaponFactor <= 1.0f && mouseLeft){
+    if (actionCount % 1 == 0 && weaponFactor <= 1.0f && mouseLeft) {
         weaponFactor = weaponFactor >= 1.0f ? 1.0f : weaponFactor + 0.05;
         actionCount ++;
         isAttacking = true;
-    }else if(!mouseLeft){
+    } else if (!mouseLeft) {
         weaponFactor = 0.0f;
         isAttacking = false;
     }
     // 处理举盾动画
-    if(actionCount % 1 == 0 && shieldFactor <= 1.0f && mouseRight){
-            shieldFactor = shieldFactor >= 1.0f ? 1.0f : shieldFactor + 0.1;
-            actionCount ++;
-    }else if(!mouseRight){
+    if (actionCount % 1 == 0 && shieldFactor <= 1.0f && mouseRight) {
+        shieldFactor = shieldFactor >= 1.0f ? 1.0f : shieldFactor + 0.1;
+        actionCount ++;
+    } else if (!mouseRight) {
         shieldFactor = 0.0f;
     }
 
@@ -722,18 +699,22 @@ void Player::ProcessMoveInput(moveDirection move_Direction, bool shift, bool jum
         }
     }
 
-    if (playerBomb->active == 1) {
+    if (playerBomb->active == 1)
         playerBomb->position = position + upVector * length.y;
-    } else if (playerBomb->active == 2)
+    else if (playerBomb->active == 2)
         playerBomb->moveParabola(terrain, deltaTime);
 
 
     // 判断边界
     glm::vec3 length = getLength();
-    if (position.x > MAP_SZIE.x / 2.0f - length.x / 2.0f) position.x = MAP_SZIE.x / 2.0f - length.x / 2.0f;
-    else if (position.x < - MAP_SZIE.x / 2.0f + length.x / 2.0f) position.x = - MAP_SZIE.x / 2.0f + length.x / 2.0f;
-    if (position.z > MAP_SZIE.y / 2.0f - length.z / 2.0f) position.z = MAP_SZIE.y / 2.0f - length.z / 2.0f;
-    else if (position.z < - MAP_SZIE.y / 2.0f + length.z / 2.0f) position.z = - MAP_SZIE.y / 2.0f + length.z / 2.0f;
+    if (position.x > MAP_SZIE.x / 2.0f - length.x / 2.0f)
+        position.x = MAP_SZIE.x / 2.0f - length.x / 2.0f;
+    else if (position.x < - MAP_SZIE.x / 2.0f + length.x / 2.0f)
+        position.x = - MAP_SZIE.x / 2.0f + length.x / 2.0f;
+    if (position.z > MAP_SZIE.y / 2.0f - length.z / 2.0f)
+        position.z = MAP_SZIE.y / 2.0f - length.z / 2.0f;
+    else if (position.z < - MAP_SZIE.y / 2.0f + length.z / 2.0f)
+        position.z = - MAP_SZIE.y / 2.0f + length.z / 2.0f;
     return;
 }
 
@@ -743,8 +724,8 @@ void Player::DrawLine(Shader& line_shader) {
     end.y += 10.0f;
     std::cout << "Draw line from " << glm::to_string(start) << " to " << glm::to_string(end) << std::endl;
     float vertices[] = {
-            start.x, start.y, start.z,
-            end.x, end.y, end.z
+        start.x, start.y, start.z,
+        end.x, end.y, end.z
     };
     unsigned int indices[] = {0, 1};
 
@@ -775,12 +756,12 @@ void Player::DrawLine(Shader& line_shader) {
 void Player::DoJump(Terrain* terrain, float deltaTime,bool fly) {
     float currentJumpHeight = position.y;
     bool isTrulyFly = (currentJumpHeight > terrain->getHeight(position.x, position.z) + length.y + 4.05f || isflying) ? fly : false;
-    if(isTrulyFly){
+    if (isTrulyFly) {
         isflying = true;
     }
-    position += isTrulyFly? direction * jumpHorizenSpeed * deltaTime : jumpDirection * jumpHorizenSpeed * deltaTime;
-    float speedInair = isTrulyFly? jumpUpSpeed * 0.3 : jumpUpSpeed;
-    color = isTrulyFly? flyColor : landColor;
+    position += isTrulyFly ? direction * jumpHorizenSpeed * deltaTime : jumpDirection * jumpHorizenSpeed * deltaTime;
+    float speedInair = isTrulyFly ? jumpUpSpeed * 0.3 : jumpUpSpeed;
+    color = isTrulyFly ? flyColor : landColor;
     if (jumpUp) {
         currentJumpHeight += speedInair * deltaTime;
         if (currentJumpHeight >= targetJumpHeight || isTrulyFly) {

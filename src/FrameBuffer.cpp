@@ -97,7 +97,7 @@ void FrameBuffer::Disable(GLbitfield mask) const {
 }
 
 // 做类似于 glBlitNamedFramebuffer 的操作
-void FrameBuffer::FromBlitTo(const FrameBuffer& draw_target, GLbitfield mask, GLuint filter) const {
+void FrameBuffer::FromBlitTo(const FrameBuffer &draw_target, GLbitfield mask, GLuint filter) const {
     glBindFramebuffer(GL_READ_FRAMEBUFFER, FBO);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, draw_target.FBO);
     glBlitFramebuffer(0, 0, Width, Height, 0, 0, draw_target.Width, draw_target.Height, mask, filter);

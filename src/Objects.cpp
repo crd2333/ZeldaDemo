@@ -11,7 +11,7 @@ void Bomb::moveParabola(Terrain* terrain, float t) {
     }
 }
 
-void Bomb::Explode(Shader& shader, float deltaTime) {
+void Bomb::Explode(Shader &shader, float deltaTime) {
     shader.use();
     glm::mat4 model = glm::translate(glm::mat4(1.0f), position);
     shader.setMat4("model", model);
@@ -23,7 +23,7 @@ void Bomb::Explode(Shader& shader, float deltaTime) {
     glBindVertexArray(0);
     life -= deltaTime;
     if (life <= 0.0f) {
-        life=0.0f;
+        life = 0.0f;
         explode = false;
     }
 }

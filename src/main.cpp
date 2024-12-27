@@ -29,7 +29,7 @@ int main() {
     Water water(MAP_SZIE, HEIGHT_SCALE, river_of_dead_height, river_of_dead, river_of_dead_num);
 
     // player
-    Player player(glm::vec3(-70.0f, 0.0f, -5.0f), glm::vec3(1.0f, 2.0f, 1.0f), &terrain);
+    Player player(glm::vec3(-65.0f, 0.0f, -5.0f), glm::vec3(1.0f, 2.0f, 1.0f), &terrain);
     Bomb playerBomb;
 
     // tree
@@ -97,9 +97,9 @@ int main() {
             float u = i / static_cast<float>(gridSize);
             float v = j / static_cast<float>(gridSize);
             glm::vec2 point = (1 - u) * (1 - v) * p1 +
-                            u * (1 - v) * p2 +
-                            u * v * p3 +
-                            (1 - u) * v * p4;
+                              u * (1 - v) * p2 +
+                              u * v * p3 +
+                              (1 - u) * v * p4;
             float randomOffsetX = (std::rand() / static_cast<float>(RAND_MAX)) * 4.0f - 2.0f;
             float randomOffsetY = (std::rand() / static_cast<float>(RAND_MAX)) * 8.0f - 4.0f;
             point.x += randomOffsetX;
@@ -209,10 +209,6 @@ int main() {
     player_shader.setInt("shadowMap", 0);
     Shader model_shader("resources/model.vs", "resources/model.fs");
     model_shader.use();
-    // model_shader.setInt("texture_diffuse1", 0);
-    // model_shader.setInt("texture_normal1", 1);
-    // model_shader.setInt("texture_trans1", 2);
-    // model_shader.setInt("shadowMap", 3);
     model_shader.setInt("shadowMap", 0);
     model_shader.setInt("texture_diffuse1", 1);
     model_shader.setInt("texture_normal1", 2);

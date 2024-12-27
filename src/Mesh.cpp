@@ -106,7 +106,7 @@ void Mesh::setupMesh() {
 
 
 // ---------- class MeshVC ----------
-MeshVC::MeshVC(const std::string& filePath) {
+MeshVC::MeshVC(const std::string &filePath) {
     loadFromFile(filePath);
     setupMesh();
 }
@@ -117,14 +117,14 @@ MeshVC::~MeshVC() {
     glDeleteBuffers(1, &EBO);
 }
 
-void MeshVC::draw(Shader& shader) {
+void MeshVC::draw(Shader &shader) {
     shader.use();
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
 
-void MeshVC::loadFromFile(const std::string& filePath) {
+void MeshVC::loadFromFile(const std::string &filePath) {
     std::ifstream file(filePath);
     if (!file.is_open()) {
         std::cout << "Failed to open file: " << filePath << std::endl;

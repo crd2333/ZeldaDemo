@@ -1,8 +1,7 @@
 #include "Light.h"
 
 Light::Light(glm::vec3 lightColor, glm::vec3 lightPos, glm::vec3 lightAmbient, glm::vec3 lightDiffuse, glm::vec3 lightSpecular) :
-  LightColor(lightColor), LightPos(lightPos),
-  LightAmbient(lightAmbient), LightDiffuse(glm::vec3(lightDiffuse)), LightSpecular(lightSpecular) {}
+    LightColor(lightColor), LightPos(lightPos), LightAmbient(lightAmbient), LightDiffuse(glm::vec3(lightDiffuse)), LightSpecular(lightSpecular) {}
 
 void Light::load() {
     glGenVertexArrays(1, &VAO);
